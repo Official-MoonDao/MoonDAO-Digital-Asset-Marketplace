@@ -11,14 +11,39 @@ import { NFT_COLLECTION_ADDRESS } from "../const/contractAddresses";
 import tokenPageStyles from "../styles/Token.module.css";
 import { NFT as NFTType } from "@thirdweb-dev/sdk";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
+import { collections } from "../collection.config.json";
 
 export default function Sell() {
   // Load all of the NFTs from the NFT Collection
-  const { contract } = useContract(NFT_COLLECTION_ADDRESS);
   const address = useAddress();
-  const { data, isLoading } = useOwnedNFTs(contract, address);
-
   const [selectedNft, setSelectedNft] = useState<NFTType>();
+  const [selectedContract, setSelectedContract] = useState(
+    collections[0].address
+  );
+
+  function getOwnedNFTS(contractAddress: string) {
+    const { contract } = useContract(contractAddress);
+    const { data, isLoading } = useOwnedNFTs(contract, address);
+    return { data, isLoading };
+  }
+
+  function OwnedNFTs({ collection }: any) {
+    const { data, isLoading } = getOwnedNFTS(collection.address);
+    return (
+      <NFTGrid
+        data={data}
+        isLoading={isLoading}
+        contractAddress={""}
+        overrideOnclickBehavior={(nft) => {
+          setSelectedNft(nft);
+          setSelectedContract(collection.address);
+        }}
+        emptyText={
+          "Looks like you don't own any NFTs in this collection. Head to the buy page to buy some!"
+        }
+      />
+    );
+  }
 
   return (
     <Container maxWidth="lg">
@@ -26,16 +51,11 @@ export default function Sell() {
       {!selectedNft ? (
         <>
           <p>Select which NFT you&rsquo;d like to sell below.</p>
-          <NFTGrid
-            data={data}
-            isLoading={isLoading}
-            overrideOnclickBehavior={(nft) => {
-              setSelectedNft(nft);
-            }}
-            emptyText={
-              "Looks like you don't own any NFTs in this collection. Head to the buy page to buy some!"
-            }
-          />
+          {collections.map((c, i) => (
+            <div key={`collection-${i}`}>
+              <OwnedNFTs collection={c} />
+            </div>
+          ))}
         </>
       ) : (
         <div className={tokenPageStyles.container} style={{ marginTop: 0 }}>
@@ -66,7 +86,7 @@ export default function Sell() {
             </p>
 
             <div className={tokenPageStyles.pricingContainer}>
-              <SaleInfo nft={selectedNft} />
+              <SaleInfo nft={selectedNft} contractAddress={selectedContract} />
             </div>
           </div>
         </div>

@@ -2,7 +2,11 @@ import collectionStyles from "../../../styles/Collection.module.css";
 import buyStyles from "../../../styles/Buy.module.css";
 import styles from "../../../components/NFT/NFT.module.css";
 import { GetServerSideProps, GetStaticPaths, GetStaticProps } from "next";
-import { CHAIN_ID_TO_NAME, ThirdwebSDK } from "@thirdweb-dev/sdk";
+import {
+  CHAIN_ID_TO_NAME,
+  isFeatureEnabled,
+  ThirdwebSDK,
+} from "@thirdweb-dev/sdk";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../../../const/contractAddresses";
 import NFTGrid from "../../../components/NFT/NFTGrid";
 import Container from "../../../components/Container/Container";
@@ -12,7 +16,11 @@ export default function Collection({ nft, contractMetadata }: any) {
     <Container maxWidth="lg">
       <p className={styles.nftName}></p>
       <div className={buyStyles.nftGridContainer}>
-        <NFTGrid isLoading={nft === null} data={nft} />
+        <NFTGrid
+          isLoading={nft === null}
+          data={nft}
+          contractAddress={contractMetadata?.contractAddress}
+        />
       </div>
     </Container>
   );
@@ -28,11 +36,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   let contractMetadata;
 
   try {
-    contractMetadata = await contract.metadata.get();
+    contractMetadata = { ...(await contract.metadata.get()), contractAddress };
   } catch (e) {}
 
   let nft;
-  if (contract?.erc1155) {
+  const isERC1155 = isFeatureEnabled(contract.abi, "ERC1155");
+  if (isERC1155) {
     nft = await contract.erc1155.getAll(contract);
   } else nft = await contract.erc721.getAll(contract);
   console.log(nft);

@@ -1,0 +1,15 @@
+{
+  "collections": [
+    {
+      "name": "MoonDAO NFT Drop Test",
+      "address": "0xdbb3aaA438e49a93c3E3E213AEbF2F5370993D2d",
+      "type": "erc1155",
+      "maxSupply": "100"
+    },
+    {
+      "name": "MoonDAO NFT Collection Test",
+      "address": "0xCF7241560C960783E1Bb90f233f8cfF782f7ABa1",
+      "type": "erc721"
+    }
+  ]
+}

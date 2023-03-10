@@ -9,6 +9,7 @@ import styles from "../../styles/Buy.module.css";
 type Props = {
   isLoading: boolean;
   data: any;
+  contractAddress: string;
   overrideOnclickBehavior?: (nft: NFTType) => void;
   emptyText?: string;
 };
@@ -16,6 +17,7 @@ type Props = {
 export default function NFTGrid({
   isLoading,
   data,
+  contractAddress,
   overrideOnclickBehavior,
   emptyText = "No NFTs found for this collection.",
 }: Props) {
@@ -31,7 +33,7 @@ export default function NFTGrid({
         data.map((nft: any) =>
           !overrideOnclickBehavior ? (
             <Link
-              href={`/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`}
+              href={`/token/${contractAddress}/${nft.metadata.id}`}
               key={nft.metadata.id}
               className={styles.nftContainer}
             >

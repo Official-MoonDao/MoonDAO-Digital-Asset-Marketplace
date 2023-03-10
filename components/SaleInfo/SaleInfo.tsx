@@ -20,6 +20,7 @@ import toastStyle from "../../util/toastConfig";
 
 type Props = {
   nft: NFTType;
+  contractAddress: string;
 };
 
 type AuctionFormData = {
@@ -39,7 +40,7 @@ type DirectFormData = {
   endDate: Date;
 };
 
-export default function SaleInfo({ nft }: Props) {
+export default function SaleInfo({ nft, contractAddress }: Props) {
   const router = useRouter();
   // Connect to marketplace contract
   const { contract: marketplace } = useContract(
@@ -50,7 +51,7 @@ export default function SaleInfo({ nft }: Props) {
   // useContract is a React hook that returns an object with the contract key.
   // The value of the contract key is an instance of an NFT_COLLECTION on the blockchain.
   // This instance is created from the contract address (NFT_COLLECTION_ADDRESS)
-  const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
+  const { contract: nftCollection } = useContract(contractAddress);
 
   // Hook provides an async function to create a new auction listing
   const { mutateAsync: createAuctionListing } =
@@ -67,7 +68,7 @@ export default function SaleInfo({ nft }: Props) {
   const { register: registerAuction, handleSubmit: handleSubmitAuction } =
     useForm<AuctionFormData>({
       defaultValues: {
-        nftContractAddress: NFT_COLLECTION_ADDRESS,
+        nftContractAddress: contractAddress,
         tokenId: nft.metadata.id,
         startDate: new Date(),
         endDate: new Date(),
@@ -109,7 +110,7 @@ export default function SaleInfo({ nft }: Props) {
   const { register: registerDirect, handleSubmit: handleSubmitDirect } =
     useForm<DirectFormData>({
       defaultValues: {
-        nftContractAddress: NFT_COLLECTION_ADDRESS,
+        nftContractAddress: contractAddress,
         tokenId: nft.metadata.id,
         startDate: new Date(),
         endDate: new Date(),
@@ -224,9 +225,7 @@ export default function SaleInfo({ nft }: Props) {
                 style: toastStyle,
                 position: "bottom-center",
               });
-              router.push(
-                `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`
-              );
+              router.push(`/token/${contractAddress}/${nft.metadata.id}`);
             }}
           >
             Create Direct Listing
@@ -299,9 +298,7 @@ export default function SaleInfo({ nft }: Props) {
                 style: toastStyle,
                 position: "bottom-center",
               });
-              router.push(
-                `/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`
-              );
+              router.push(`/token/${contractAddress}/${nft.metadata.id}`);
             }}
           >
             Create Auction Listing
