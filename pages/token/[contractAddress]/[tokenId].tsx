@@ -40,7 +40,7 @@ type Props = {
 
 export default function TokenPage({ nft, contractMetadata }: Props) {
   const router = useRouter();
-  if (!nft) return;
+
   const { contractAddress } = contractMetadata;
 
   //check wallet for mooney

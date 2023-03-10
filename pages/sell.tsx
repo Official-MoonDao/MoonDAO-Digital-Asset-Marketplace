@@ -21,14 +21,9 @@ export default function Sell() {
     collections[0].address
   );
 
-  function getOwnedNFTS(contractAddress: string) {
-    const { contract } = useContract(contractAddress);
-    const { data, isLoading } = useOwnedNFTs(contract, address);
-    return { data, isLoading };
-  }
-
   function OwnedNFTs({ collection }: any) {
-    const { data, isLoading } = getOwnedNFTS(collection.address);
+    const { contract } = useContract(collection.address);
+    const { data, isLoading } = useOwnedNFTs(contract, address);
     return (
       <NFTGrid
         data={data}

@@ -26,9 +26,9 @@ export default function ERC1155({ nft, contractMetadata, route }: any) {
     if (contract)
       (async () => {
         const data = await contract.call("totalSupply", `${nft.metadata.id}`);
-        setDropSupply(data);
+        setDropSupply(data.toNumber());
       })();
-  }, [contract]);
+  }, [contract, nft]);
 
   return (
     <>
@@ -154,7 +154,7 @@ export default function ERC1155({ nft, contractMetadata, route }: any) {
                   {!dropSupply ? (
                     <Skeleton width="120" height="24" />
                   ) : (
-                    <>{dropSupply.toNumber()}</>
+                    <>{dropSupply}</>
                   )}
                 </div>
               </div>
