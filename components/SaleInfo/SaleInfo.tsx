@@ -122,6 +122,7 @@ export default function SaleInfo({ nft }: Props) {
     const txResult = await createAuctionListing({
       assetContractAddress: data.nftContractAddress,
       tokenId: data.tokenId,
+      currencyContractAddress: "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599",
       buyoutBidAmount: data.buyoutPrice,
       minimumBidAmount: data.floorPrice,
       startTimestamp: new Date(data.startDate),
@@ -136,6 +137,7 @@ export default function SaleInfo({ nft }: Props) {
     const txResult = await createDirectListing({
       assetContractAddress: data.nftContractAddress,
       tokenId: data.tokenId,
+      currencyContractAddress: "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599",
       pricePerToken: data.price,
       startTimestamp: new Date(data.startDate),
       endTimestamp: new Date(data.endDate),

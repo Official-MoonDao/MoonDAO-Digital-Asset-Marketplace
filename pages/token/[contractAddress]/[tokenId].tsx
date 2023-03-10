@@ -7,9 +7,9 @@ import {
   useValidEnglishAuctions,
   Web3Button,
 } from "@thirdweb-dev/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../../../components/Container/Container";
-import { GetStaticProps, GetStaticPaths } from "next";
+import { GetStaticProps, GetStaticPaths, GetServerSideProps } from "next";
 import { CHAIN_ID_TO_NAME, NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
 import {
   ETHERSCAN_URL,
@@ -32,7 +32,9 @@ type Props = {
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
 export default function TokenPage({ nft, contractMetadata }: Props) {
+  const { contractAddress } = contractMetadata;
   const [bidValue, setBidValue] = useState<string>();
+  const [currentListing, setCurrentListing] = useState({ type: "", id: "" });
 
   // Connect to marketplace smart contract
   const { contract: marketplace, isLoading: loadingContract } = useContract(
@@ -41,24 +43,24 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
   );
 
   // Connect to NFT Collection smart contract
-  const { contract: nftCollection } = useContract(NFT_COLLECTION_ADDRESS);
+  const { contract: nftCollection } = useContract(contractAddress);
 
   const { data: directListing, isLoading: loadingDirect } =
     useValidDirectListings(marketplace, {
-      tokenContract: NFT_COLLECTION_ADDRESS,
+      tokenContract: contractAddress,
       tokenId: nft.metadata.id,
     });
 
   // 2. Load if the NFT is for auction
   const { data: auctionListing, isLoading: loadingAuction } =
     useValidEnglishAuctions(marketplace, {
-      tokenContract: NFT_COLLECTION_ADDRESS,
+      tokenContract: contractAddress,
       tokenId: nft.metadata.id,
     });
 
   // Load historical transfer events: TODO - more event types like sale
   const { data: transferEvents, isLoading: loadingTransferEvents } =
-    useContractEvents(nftCollection, "Transfer", {
+    useContractEvents(nftCollection, "TransferSingle", {
       queryFilter: {
         filters: {
           tokenId: nft.metadata.id,
@@ -114,6 +116,10 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
     return txResult;
   }
 
+  useEffect(() => {
+    console.log(directListing);
+  }, [directListing]);
+
   return (
     <>
       <Toaster position="bottom-center" reverseOrder={false} />
@@ -133,11 +139,11 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
 
               <div className={styles.traitsContainer}>
                 {Object.entries(nft?.metadata?.attributes || {}).map(
-                  ([key, value]) => (
+                  ([key, value]: any) => (
                     <div className={styles.traitContainer} key={key}>
-                      <p className={styles.traitName}>{key}</p>
+                      <p className={styles.traitName}>{value.trait_type} :</p>
                       <p className={styles.traitValue}>
-                        {value?.toString() || ""}
+                        {value.value?.toString() || ""}
                       </p>
                     </div>
                   )
@@ -147,7 +153,7 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
               <h3 className={styles.descriptionTitle}>History</h3>
 
               <div className={styles.traitsContainer}>
-                {transferEvents?.map((event, index) => (
+                {transferEvents?.map((event: any, index: any) => (
                   <div
                     key={event.transaction.transactionHash}
                     className={styles.eventsContainer}
@@ -352,48 +358,26 @@ export default function TokenPage({ nft, contractMetadata }: Props) {
   );
 }
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const tokenId = context.params?.tokenId as string;
+  const contractAddress = context.params?.contractAddress as string;
 
   const sdk = new ThirdwebSDK(CHAIN_ID_TO_NAME[NETWORK.chainId]);
 
-  const contract = await sdk.getContract(NFT_COLLECTION_ADDRESS);
-
-  const nft = await contract.erc721.get(tokenId);
+  const contract = await sdk.getContract(contractAddress);
 
   let contractMetadata;
 
   try {
-    contractMetadata = await contract.metadata.get();
+    contractMetadata = { ...(await contract.metadata.get()), contractAddress };
   } catch (e) {}
-
+  let nft;
+  if (contract?.erc1155) nft = await contract.erc1155.get(tokenId);
+  else nft = await contract.erc721.get(tokenId);
   return {
     props: {
       nft,
       contractMetadata: contractMetadata || null,
     },
-    revalidate: 1, // https://nextjs.org/docs/basic-features/data-fetching/incremental-static-regeneration
-  };
-};
-
-export const getStaticPaths: GetStaticPaths = async () => {
-  const sdk = new ThirdwebSDK(CHAIN_ID_TO_NAME[NETWORK.chainId]);
-
-  const contract = await sdk.getContract(NFT_COLLECTION_ADDRESS);
-
-  const nfts = await contract.erc721.getAll();
-
-  const paths = nfts.map((nft) => {
-    return {
-      params: {
-        contractAddress: NFT_COLLECTION_ADDRESS,
-        tokenId: nft.metadata.id,
-      },
-    };
-  });
-
-  return {
-    paths,
-    fallback: "blocking", // can also be true or 'blocking'
   };
 };

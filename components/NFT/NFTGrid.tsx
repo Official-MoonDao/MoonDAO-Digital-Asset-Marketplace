@@ -8,7 +8,7 @@ import styles from "../../styles/Buy.module.css";
 
 type Props = {
   isLoading: boolean;
-  data: NFTType[] | undefined;
+  data: any;
   overrideOnclickBehavior?: (nft: NFTType) => void;
   emptyText?: string;
 };
@@ -28,7 +28,7 @@ export default function NFTGrid({
           </div>
         ))
       ) : data && data.length > 0 ? (
-        data.map((nft) =>
+        data.map((nft: any) =>
           !overrideOnclickBehavior ? (
             <Link
               href={`/token/${NFT_COLLECTION_ADDRESS}/${nft.metadata.id}`}

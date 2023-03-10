@@ -17,7 +17,7 @@ type Props = {
   nft: NFT;
 };
 
-export default function NFTComponent({ nft }: Props) {
+export default function NFTComponent({ nft }: any) {
   const { contract: marketplace, isLoading: loadingContract } = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace-v3"
@@ -25,10 +25,7 @@ export default function NFTComponent({ nft }: Props) {
 
   // 1. Load if the NFT is for direct listing
   const { data: directListing, isLoading: loadingDirect } =
-    useValidDirectListings(marketplace, {
-      tokenContract: NFT_COLLECTION_ADDRESS,
-      tokenId: nft.metadata.id,
-    });
+    useValidDirectListings(marketplace);
 
   // 2. Load if the NFT is for auction
   const { data: auctionListing, isLoading: loadingAuction } =
@@ -44,7 +41,7 @@ export default function NFTComponent({ nft }: Props) {
       <p className={styles.nftTokenId}>Token ID #{nft.metadata.id}</p>
       <p className={styles.nftName}>{nft.metadata.name}</p>
 
-      <div className={styles.priceContainer}>
+      {/* <div className={styles.priceContainer}>
         {loadingContract || loadingDirect || loadingAuction ? (
           <Skeleton width="100%" height="100%" />
         ) : directListing && directListing[0] ? (
@@ -75,7 +72,7 @@ export default function NFTComponent({ nft }: Props) {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
     </>
   );
 }
