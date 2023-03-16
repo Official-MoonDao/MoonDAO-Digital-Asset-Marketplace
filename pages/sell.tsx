@@ -4,53 +4,49 @@ import {
   useContract,
   useOwnedNFTs,
 } from "@thirdweb-dev/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../components/Container/Container";
 import NFTGrid from "../components/NFT/NFTGrid";
-import { NFT_COLLECTION_ADDRESS } from "../const/contractAddresses";
 import tokenPageStyles from "../styles/Token.module.css";
 import { NFT as NFTType } from "@thirdweb-dev/sdk";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { collections } from "../collection.config.json";
+import { getAllUserNFTs } from "../lib/opensea";
 
 export default function Sell() {
   // Load all of the NFTs from the NFT Collection
   const address = useAddress();
-  const [selectedNft, setSelectedNft] = useState<NFTType>();
-  const [selectedContract, setSelectedContract] = useState(
-    collections[0].address
-  );
+  const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
+  const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
 
-  function OwnedNFTs({ collection }: any) {
-    const { contract } = useContract(collection.address);
-    const { data, isLoading } = useOwnedNFTs(contract, address);
-    return (
-      <NFTGrid
-        data={data}
-        isLoading={isLoading}
-        contractAddress={""}
-        overrideOnclickBehavior={(nft) => {
-          setSelectedNft(nft);
-          setSelectedContract(collection.address);
-        }}
-        emptyText={
-          "Looks like you don't own any NFTs in this collection. Head to the buy page to buy some!"
-        }
-      />
-    );
-  }
+  useEffect(() => {
+    if (address)
+      (async () => {
+        getAllUserNFTs(address, (nfts: [any]) => setUserNFTs(nfts));
+      })();
+  }, [address]);
 
   return (
     <Container maxWidth="lg">
       <h1>Sell NFTs</h1>
-      {!selectedNft ? (
+      {!selectedNft?.metadata?.id ? (
         <>
           <p>Select which NFT you&rsquo;d like to sell below.</p>
-          {collections.map((c, i) => (
-            <div key={`collection-${i}`}>
-              <OwnedNFTs collection={c} />
-            </div>
-          ))}
+          <div className="flex flex-wrap gap-[5%] mt-[5%]">
+            {userNFTs[0]?.metadata?.id &&
+              userNFTs.map((nft: any, i: number) => (
+                <div
+                  className="hover:translate-y-[-4%] duration-300 ease-in my-[2.5%] "
+                  key={`userNFT-${i}`}
+                  onClick={() => setSelectedNft(nft)}
+                >
+                  <ThirdwebNftMedia
+                    className="rounded-md hover:drop-shadow-[0_10px_20px_#d1d1d1] ease-in duration-300"
+                    metadata={nft?.metadata}
+                  />
+                </div>
+              ))}
+          </div>
         </>
       ) : (
         <div className={tokenPageStyles.container} style={{ marginTop: 0 }}>
@@ -77,11 +73,14 @@ export default function Sell() {
               {selectedNft.metadata.name}
             </h1>
             <p className={tokenPageStyles.collectionName}>
-              Token ID #{selectedNft.metadata.id}
+              Token ID #{selectedNft.metadata.token_id}
             </p>
 
             <div className={tokenPageStyles.pricingContainer}>
-              <SaleInfo nft={selectedNft} contractAddress={selectedContract} />
+              <SaleInfo
+                nft={selectedNft}
+                contractAddress={selectedNft.metadata.asset_contract.address}
+              />
             </div>
           </div>
         </div>

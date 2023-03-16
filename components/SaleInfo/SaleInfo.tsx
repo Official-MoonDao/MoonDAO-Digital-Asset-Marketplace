@@ -25,8 +25,9 @@ type Props = {
 
 type AuctionFormData = {
   nftContractAddress: string;
-  tokenId: string;
+  tokenId: any;
   startDate: Date;
+  quantity: string;
   endDate: Date;
   floorPrice: string;
   buyoutPrice: string;
@@ -34,7 +35,8 @@ type AuctionFormData = {
 
 type DirectFormData = {
   nftContractAddress: string;
-  tokenId: string;
+  tokenId: any;
+  quantity: string;
   price: string;
   startDate: Date;
   endDate: Date;
@@ -45,21 +47,13 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
   // Connect to marketplace contract
   const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,
-    "marketplace-v3"
+    "marketplace"
   );
-
+  console.log(nft);
   // useContract is a React hook that returns an object with the contract key.
   // The value of the contract key is an instance of an NFT_COLLECTION on the blockchain.
   // This instance is created from the contract address (NFT_COLLECTION_ADDRESS)
   const { contract: nftCollection } = useContract(contractAddress);
-
-  // Hook provides an async function to create a new auction listing
-  const { mutateAsync: createAuctionListing } =
-    useCreateAuctionListing(marketplace);
-
-  // Hook provides an async function to create a new direct listing
-  const { mutateAsync: createDirectListing } =
-    useCreateDirectListing(marketplace);
 
   // Manage form submission state using tabs and conditional rendering
   const [tab, setTab] = useState<"direct" | "auction">("direct");
@@ -69,8 +63,9 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
     useForm<AuctionFormData>({
       defaultValues: {
         nftContractAddress: contractAddress,
-        tokenId: nft.metadata.id,
+        tokenId: nft.metadata.token_id,
         startDate: new Date(),
+        quantity: "0",
         endDate: new Date(),
         floorPrice: "0",
         buyoutPrice: "0",
@@ -80,30 +75,34 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
     // Check if approval is required
-    const hasApproval = await nftCollection?.call(
-      "isApprovedForAll",
-      nft.owner,
-      MARKETPLACE_ADDRESS
-    );
-
-    // If it is, provide approval
-    if (!hasApproval) {
-      const txResult = await nftCollection?.call(
-        "setApprovalForAll",
-        MARKETPLACE_ADDRESS,
-        true
+    try {
+      const hasApproval = await nftCollection?.call(
+        "isApprovedForAll",
+        nft.metadata.owner,
+        MARKETPLACE_ADDRESS
       );
 
-      if (txResult) {
-        toast.success("Marketplace approval granted", {
-          icon: "👍",
-          style: toastStyle,
-          position: "bottom-center",
-        });
-      }
-    }
+      // If it is, provide approval
+      if (!hasApproval) {
+        const txResult = await nftCollection?.call(
+          "setApprovalForAll",
+          MARKETPLACE_ADDRESS,
+          true
+        );
 
-    return true;
+        if (txResult) {
+          toast.success("Marketplace approval granted", {
+            icon: "👍",
+            style: toastStyle,
+            position: "bottom-center",
+          });
+        }
+      }
+
+      return true;
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   // Manage form values using react-hook-form library: Direct form
@@ -111,7 +110,8 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
     useForm<DirectFormData>({
       defaultValues: {
         nftContractAddress: contractAddress,
-        tokenId: nft.metadata.id,
+        tokenId: nft.metadata.token_id,
+        quantity: "0",
         startDate: new Date(),
         endDate: new Date(),
         price: "0",
@@ -120,14 +120,19 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
 
   async function handleSubmissionAuction(data: AuctionFormData) {
     await checkAndProvideApproval();
-    const txResult = await createAuctionListing({
+    const startDate = new Date(data.startDate);
+    const contractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
+    const quantity: any =
+      nft.metadata.asset_contract.schema_type === "ERC721" ? 1 : data.quantity;
+    const txResult = await marketplace?.auction.createListing({
       assetContractAddress: data.nftContractAddress,
-      tokenId: data.tokenId,
-      currencyContractAddress: "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599",
-      buyoutBidAmount: data.buyoutPrice,
-      minimumBidAmount: data.floorPrice,
-      startTimestamp: new Date(data.startDate),
-      endTimestamp: new Date(data.endDate),
+      tokenId: nft.metadata.token_id,
+      currencyContractAddress: contractAddress,
+      quantity: quantity,
+      buyoutPricePerToken: data.buyoutPrice,
+      reservePricePerToken: data.floorPrice,
+      startTimestamp: startDate,
+      listingDurationInSeconds: Math.abs(+new Date(data.endDate) - +startDate),
     });
 
     return txResult;
@@ -135,13 +140,19 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
 
   async function handleSubmissionDirect(data: DirectFormData) {
     await checkAndProvideApproval();
-    const txResult = await createDirectListing({
+    const startDate = new Date(data.startDate);
+    const quantity: any =
+      nft.metadata.asset_contract.schema_type === "ERC721" ? 1 : data.quantity;
+
+    const contractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
+    const txResult = await marketplace?.direct.createListing({
       assetContractAddress: data.nftContractAddress,
-      tokenId: data.tokenId,
-      currencyContractAddress: "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599",
-      pricePerToken: data.price,
-      startTimestamp: new Date(data.startDate),
-      endTimestamp: new Date(data.endDate),
+      tokenId: nft.metadata.token_id,
+      currencyContractAddress: contractAddress,
+      quantity,
+      buyoutPricePerToken: data.price,
+      startTimestamp: startDate,
+      listingDurationInSeconds: Math.abs(+new Date(data.endDate) - +startDate),
     });
 
     return txResult;
@@ -206,6 +217,13 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
             step={0.000001}
             {...registerDirect("price")}
           />
+          <legend className={styles.legend}> Quantity</legend>
+          <input
+            className={styles.input}
+            type="number"
+            step={0.000001}
+            {...registerDirect("quantity")}
+          />
 
           <Web3Button
             contractAddress={MARKETPLACE_ADDRESS}
@@ -225,7 +243,9 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
                 style: toastStyle,
                 position: "bottom-center",
               });
-              router.push(`/token/${contractAddress}/${nft.metadata.id}`);
+              router.push(
+                `/collection/${contractAddress}/${nft.metadata.token_id}`
+              );
             }}
           >
             Create Direct Listing
@@ -298,7 +318,9 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
                 style: toastStyle,
                 position: "bottom-center",
               });
-              router.push(`/token/${contractAddress}/${nft.metadata.id}`);
+              router.push(
+                `/collection/${contractAddress}/${nft.metadata.token_id}`
+              );
             }}
           >
             Create Auction Listing

@@ -7,7 +7,7 @@ export const NETWORK = Goerli;
 
 // 2. The address of the marketplace V3 smart contract.
 // Deploy your own: https://thirdweb.com/thirdweb.eth/MarketplaceV3
-export const MARKETPLACE_ADDRESS = "0xed46B9294F1709e7210Fb93414caC2202b94B224";
+export const MARKETPLACE_ADDRESS = "0x33Cf4c4c0329fa3e8CAa84113dA9FB6EbD8c2594";
 
 // 3. The address of your NFT collection smart contract.
 export const NFT_COLLECTION_ADDRESS =

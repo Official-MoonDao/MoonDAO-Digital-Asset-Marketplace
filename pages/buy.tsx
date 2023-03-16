@@ -1,14 +1,7 @@
-import {
-  useContract,
-  useNFTs,
-  useDirectListings,
-  useValidDirectListings,
-} from "@thirdweb-dev/react";
+import { useContract, useNFTs } from "@thirdweb-dev/react";
 import React from "react";
 import CollectionGrid from "../components/Collection/CollectionGrid";
 import Container from "../components/Container/Container";
-import ListingGrid from "../components/Listing/ListingGrid";
-import NFTGrid from "../components/NFT/NFTGrid";
 import {
   MARKETPLACE_ADDRESS,
   NFT_COLLECTION_ADDRESS,
@@ -20,10 +13,6 @@ const NFT_COLLECTIONS = [
 ];
 
 export default function Buy() {
-  // Load all of the NFTs from the NFT Collection
-  const { contract } = useContract(NFT_COLLECTION_ADDRESS);
-  const { data, isLoading } = useNFTs(contract);
-
   // const { contract: marketplace } = useContract(
   //   MARKETPLACE_ADDRESS,
   //   "marketplace-v3"
