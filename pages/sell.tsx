@@ -1,5 +1,6 @@
 import {
   ThirdwebNftMedia,
+  useActiveListings,
   useAddress,
   useContract,
   useOwnedNFTs,
@@ -12,6 +13,7 @@ import { NFT as NFTType } from "@thirdweb-dev/sdk";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { collections } from "../collection.config.json";
 import { getAllUserNFTs } from "../lib/opensea";
+import { GetStaticProps } from "next";
 
 export default function Sell() {
   // Load all of the NFTs from the NFT Collection

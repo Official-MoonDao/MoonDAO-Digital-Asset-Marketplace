@@ -27,11 +27,23 @@ export async function getAsset(contractAddress: string, tokenId: string) {
       metadata: { ...data, image: data.image_url },
     };
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 }
 
 export async function getCollection(contractAddress: string) {
+  try {
+    const res = await fetch(
+      `${openSeaTestnet}/asset_contract/${contractAddress}`
+    );
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function getCollectionAssets(contractAddress: string) {
   try {
     const res = await fetch(
       `${openSeaTestnet}/assets?asset_contract_address=${contractAddress}`

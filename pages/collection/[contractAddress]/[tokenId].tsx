@@ -30,15 +30,7 @@ export default function TokenPage({ nft }: Props) {
   }, [mooneyContract, address]);
 
   return (
-    <>
-      <NFTDetail
-        nft={nft}
-        route={() =>
-          router.push(`/collection/${nft.metadata?.asset_contract?.address}`)
-        }
-        user={{ address, mooneyBalance }}
-      />
-    </>
+    <NFTDetail nft={nft} router={router} user={{ address, mooneyBalance }} />
   );
 }
 

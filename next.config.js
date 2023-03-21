@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   basePath: "",
   images: {
-    domains: ["gateway.ipfscdn.io"],
+    domains: ["gateway.ipfscdn.io", "i.seadn.io", "ipfs.io"],
   },
 };
 

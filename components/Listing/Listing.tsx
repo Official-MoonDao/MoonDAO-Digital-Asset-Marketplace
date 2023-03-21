@@ -4,59 +4,87 @@ import {
   useValidDirectListings,
   useValidEnglishAuctions,
 } from "@thirdweb-dev/react";
+import Link from "next/link";
 import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 
 import Skeleton from "../Skeleton/Skeleton";
-import styles from "./NFT.module.css";
+import styles from "../NFT/NFT.module.css";
 
-export default function Listing({ listing }: any) {
-  const { contract: marketplace, isLoading: loadingContract } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace"
-  );
-
+export default function Listing({ listing, type = "direct" }: any) {
   return (
     <>
-      <ThirdwebNftMedia
-        metadata={listing.image_url}
-        className={styles.nftImage}
-      />
-
-      <p className={styles.nftTokenId}>Token ID #{listing.token_id}</p>
-      <p className={styles.nftName}>{listing.name}</p>
-
-      {/* <div className={styles.priceContainer}>
-        {loadingContract || loadingDirect || loadingAuction ? (
-          <Skeleton width="100%" height="100%" />
-        ) : directListing && directListing[0] ? (
-          <div className={styles.nftPriceContainer}>
-            <div>
-              <p className={styles.nftPriceLabel}>Price</p>
-              <p className={styles.nftPriceValue}>
-                {`${directListing[0]?.currencyValuePerToken.displayValue}
-          ${directListing[0]?.currencyValuePerToken.symbol}`}
-              </p>
+      {type === "direct" && listing.type === 0 && (
+        <Link
+          href={`/collection/${
+            listing.assetContractAddress
+          }/${listing.tokenId.toString()}`}
+        >
+          <div className="flex flex-col justify-center gap-4 items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
+            <div className="flex flex-col gap-2">
+              <h4 className="font-bold">{listing.asset.name}</h4>
+              <ThirdwebNftMedia metadata={listing.asset} />
+            </div>
+            <div className={styles.nftPriceContainer}>
+              <div>
+                <p className={styles.nftPriceLabel}>Price</p>
+                <p className={styles.nftPriceValue}>
+                  {`${listing.buyoutCurrencyValuePerToken.displayValue} ${listing.buyoutCurrencyValuePerToken.symbol}`}
+                </p>
+              </div>
+            </div>
+            <div className={styles.nftPriceContainer}>
+              <div>
+                <p className={styles.nftPriceLabel}>Listing Expiration</p>
+                <p className={styles.nftPriceValue}>{`${new Date(
+                  listing.endTimeInEpochSeconds * 1000
+                ).toLocaleDateString()} @ ${new Date(
+                  listing.endTimeInEpochSeconds * 1000
+                ).toLocaleTimeString()}`}</p>
+              </div>
             </div>
           </div>
-        ) : auctionListing && auctionListing[0] ? (
-          <div className={styles.nftPriceContainer}>
-            <div>
-              <p className={styles.nftPriceLabel}>Minimum Bid</p>
-              <p className={styles.nftPriceValue}>
-                {`${auctionListing[0]?.minimumBidCurrencyValue.displayValue}
-          ${auctionListing[0]?.minimumBidCurrencyValue.symbol}`}
-              </p>
+        </Link>
+      )}
+      {type === "auction" && listing.type === 1 && (
+        <Link
+          href={`/collection/${
+            listing.assetContractAddress
+          }/${listing.tokenId.toString()}`}
+        >
+          <div className="flex justify-center items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
+            <div className="flex flex-col gap-2">
+              <h4 className="font-bold">{listing.asset.name}</h4>
+              <ThirdwebNftMedia metadata={listing.asset} />
+              <div className={styles.nftPriceContainer}>
+                <div>
+                  <p className={styles.nftPriceLabel}>Buyout price</p>
+                  <p className={styles.nftPriceValue}>
+                    {`${listing.buyoutCurrencyValuePerToken.displayValue} ${listing.buyoutCurrencyValuePerToken.symbol}`}
+                  </p>
+                </div>
+              </div>
+              <div className={styles.nftPriceContainer}>
+                <div>
+                  <p className={styles.nftPriceLabel}>Minimum bid</p>
+                  <p className={styles.nftPriceValue}>
+                    {`${listing.reservePriceCurrencyValuePerToken.displayValue} ${listing.reservePriceCurrencyValuePerToken.symbol}`}
+                  </p>
+                </div>
+              </div>
+              <div className={styles.nftPriceContainer}>
+                <div>
+                  <p className={styles.nftPriceLabel}>Listing Expiration</p>
+                  <p className={styles.nftPriceValue}>{`${new Date(
+                    listing.endTimeInEpochSeconds * 1000
+                  ).toLocaleDateString()} @ ${new Date(
+                    listing.endTimeInEpochSeconds * 1000
+                  ).toLocaleTimeString()}`}</p>
+                </div>
+              </div>
             </div>
           </div>
-        ) : (
-          <div className={styles.nftPriceContainer}>
-            <div>
-              <p className={styles.nftPriceLabel}>Price</p>
-              <p className={styles.nftPriceValue}>Not for sale</p>
-            </div>
-          </div>
-        )}
-      </div> */}
+        </Link>
+      )}
     </>
   );
 }

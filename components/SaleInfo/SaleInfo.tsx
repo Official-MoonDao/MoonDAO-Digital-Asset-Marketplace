@@ -1,10 +1,13 @@
 import { NFT as NFTType } from "@thirdweb-dev/sdk";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import styles from "../../styles/Sale.module.css";
 import profileStyles from "../../styles/Profile.module.css";
 import {
+  useAccount,
+  useActiveListings,
+  useAddress,
   useContract,
   useCreateAuctionListing,
   useCreateDirectListing,
@@ -17,9 +20,10 @@ import {
 import { useRouter } from "next/router";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../util/toastConfig";
+import { BigNumber } from "ethers";
 
 type Props = {
-  nft: NFTType;
+  nft: any;
   contractAddress: string;
 };
 
@@ -45,11 +49,21 @@ type DirectFormData = {
 export default function SaleInfo({ nft, contractAddress }: Props) {
   const router = useRouter();
   // Connect to marketplace contract
-  const { contract: marketplace } = useContract(
+  const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace"
   );
-  console.log(nft);
+
+  const walletAddress = useAddress();
+
+  const { data: listings, isLoading: listingsLoading } = useActiveListings(
+    marketplace,
+    {
+      seller: walletAddress,
+      tokenContract: contractAddress,
+      tokenId: nft.metadata.token_id,
+    }
+  );
   // useContract is a React hook that returns an object with the contract key.
   // The value of the contract key is an instance of an NFT_COLLECTION on the blockchain.
   // This instance is created from the contract address (NFT_COLLECTION_ADDRESS)
@@ -105,6 +119,25 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
     }
   }
 
+  const [isListed, setIsListed] = useState<any>({});
+
+  useEffect(() => {
+    if (nft && contractAddress) {
+      (async () => {
+        if (listings) {
+          setIsListed(listings[listings.length - 1]);
+        }
+      })();
+      console.log(listings);
+    }
+  }, [contractAddress, nft, listings]);
+
+  async function handleRemoveListing() {
+    isListed.type === 0
+      ? await marketplace?.direct.cancelListing(isListed.id)
+      : await marketplace.auction.cancelListing(isListed.id);
+  }
+
   // Manage form values using react-hook-form library: Direct form
   const { register: registerDirect, handleSubmit: handleSubmitDirect } =
     useForm<DirectFormData>({
@@ -118,41 +151,55 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
       },
     });
 
+  //handle direct listing
   async function handleSubmissionAuction(data: AuctionFormData) {
     await checkAndProvideApproval();
-    const startDate = new Date(data.startDate);
+    if (isListed)
+      return toast(`This NFT has already been listed!`, {
+        icon: "❌",
+        style: toastStyle,
+        position: "bottom-center",
+      });
+    const startDate: any = new Date(data.startDate);
+    const endDate: any = new Date(data.endDate);
+    console.log(startDate, endDate);
     const contractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
-    const quantity: any =
-      nft.metadata.asset_contract.schema_type === "ERC721" ? 1 : data.quantity;
+    console.log(nft.metadata.asset_contract.schema_type);
     const txResult = await marketplace?.auction.createListing({
       assetContractAddress: data.nftContractAddress,
       tokenId: nft.metadata.token_id,
       currencyContractAddress: contractAddress,
-      quantity: quantity,
+      quantity: 1,
       buyoutPricePerToken: data.buyoutPrice,
       reservePricePerToken: data.floorPrice,
       startTimestamp: startDate,
-      listingDurationInSeconds: Math.abs(+new Date(data.endDate) - +startDate),
+      listingDurationInSeconds: (endDate - startDate) / 1000,
     });
 
     return txResult;
   }
 
+  //handle auction listing
   async function handleSubmissionDirect(data: DirectFormData) {
     await checkAndProvideApproval();
-    const startDate = new Date(data.startDate);
-    const quantity: any =
-      nft.metadata.asset_contract.schema_type === "ERC721" ? 1 : data.quantity;
-
+    if (isListed)
+      return toast(`This NFT has already been listed!`, {
+        icon: "❌",
+        style: toastStyle,
+        position: "bottom-center",
+      });
+    const startDate: any = new Date(data.startDate);
+    const endDate: any = new Date(data.endDate);
+    console.log(startDate, endDate);
     const contractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
     const txResult = await marketplace?.direct.createListing({
       assetContractAddress: data.nftContractAddress,
       tokenId: nft.metadata.token_id,
       currencyContractAddress: contractAddress,
-      quantity,
+      quantity: 1,
       buyoutPricePerToken: data.price,
       startTimestamp: startDate,
-      listingDurationInSeconds: Math.abs(+new Date(data.endDate) - +startDate),
+      listingDurationInSeconds: (endDate - startDate) / 1000,
     });
 
     return txResult;
@@ -161,7 +208,7 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
   return (
     <>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <div className={styles.saleInfoContainer} style={{ marginTop: -42 }}>
+      <div className={styles.saleInfoContainer} style={{ marginTop: -32 }}>
         <div className={profileStyles.tabs}>
           <h3
             className={`${profileStyles.tab} 
@@ -178,154 +225,201 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
             Auction
           </h3>
         </div>
+        {listingsLoading ? (
+          <div>loading</div>
+        ) : (
+          <>
+            {isListed?.asset ? (
+              <div>
+                <h4
+                  className={styles.formSectionTitle}
+                >{`This NFT has already been listed (batch listing for ERC-1155 coming soon)`}</h4>
+                <Web3Button
+                  contractAddress={MARKETPLACE_ADDRESS}
+                  action={async () => {
+                    await handleRemoveListing();
+                  }}
+                >
+                  Remove Listing
+                </Web3Button>
+              </div>
+            ) : (
+              <>
+                {/* Direct listing fields */}
 
-        {/* Direct listing fields */}
-        <div
-          className={`${
-            tab === "direct"
-              ? styles.activeTabContent
-              : profileStyles.tabContent
-          }`}
-          style={{ flexDirection: "column" }}
-        >
-          <h4 className={styles.formSectionTitle}>When </h4>
+                <div
+                  className={`${
+                    tab === "direct"
+                      ? styles.activeTabContent
+                      : profileStyles.tabContent
+                  }`}
+                  style={{ flexDirection: "column" }}
+                >
+                  <h4 className={styles.formSectionTitle}>When </h4>
 
-          {/* Input field for auction start date */}
-          <legend className={styles.legend}> Listing Starts on </legend>
-          <input
-            className={styles.input}
-            type="datetime-local"
-            {...registerDirect("startDate")}
-            aria-label="Auction Start Date"
-          />
+                  {/* Input field for auction start date */}
+                  <legend className={styles.legend}> Listing Starts on </legend>
+                  <input
+                    className={styles.input}
+                    type="datetime-local"
+                    min={new Date(
+                      Date.now() - new Date().getTimezoneOffset() * 60000
+                    )
+                      .toISOString()
+                      .slice(0, -8)}
+                    {...registerDirect("startDate")}
+                    aria-label="Auction Start Date"
+                  />
 
-          {/* Input field for auction end date */}
-          <legend className={styles.legend}> Listing Ends on </legend>
-          <input
-            className={styles.input}
-            type="datetime-local"
-            {...registerDirect("endDate")}
-            aria-label="Auction End Date"
-          />
-          <h4 className={styles.formSectionTitle}>Price </h4>
+                  {/* Input field for auction end date */}
+                  <legend className={styles.legend}> Listing Ends on </legend>
+                  <input
+                    className={styles.input}
+                    type="datetime-local"
+                    min={new Date(
+                      Date.now() - new Date().getTimezoneOffset() * 60000
+                    )
+                      .toISOString()
+                      .slice(0, -8)}
+                    {...registerDirect("endDate")}
+                    aria-label="Auction End Date"
+                  />
+                  {
+                    <>
+                      <h4 className={styles.formSectionTitle}>Price </h4>
+                      <legend className={styles.legend}>
+                        {" "}
+                        Price per token
+                      </legend>
+                      <input
+                        className={styles.input}
+                        type="number"
+                        step={0.000001}
+                        {...registerDirect("price")}
+                      />
 
-          {/* Input field for buyout price */}
-          <legend className={styles.legend}> Price per token</legend>
-          <input
-            className={styles.input}
-            type="number"
-            step={0.000001}
-            {...registerDirect("price")}
-          />
-          <legend className={styles.legend}> Quantity</legend>
-          <input
-            className={styles.input}
-            type="number"
-            step={0.000001}
-            {...registerDirect("quantity")}
-          />
+                      <Web3Button
+                        contractAddress={MARKETPLACE_ADDRESS}
+                        action={async () => {
+                          await handleSubmitDirect(handleSubmissionDirect)();
+                        }}
+                        onError={(error) => {
+                          toast(`Listed Failed! Reason: ${error.cause}`, {
+                            icon: "❌",
+                            style: toastStyle,
+                            position: "bottom-center",
+                          });
+                        }}
+                        onSuccess={(txResult) => {
+                          toast("Listed Successfully!", {
+                            icon: "🥳",
+                            style: toastStyle,
+                            position: "bottom-center",
+                          });
+                          router.push(
+                            `/collection/${contractAddress}/${nft.metadata.token_id}`
+                          );
+                        }}
+                      >
+                        Create Direct Listing
+                      </Web3Button>
+                    </>
+                  }
+                </div>
 
-          <Web3Button
-            contractAddress={MARKETPLACE_ADDRESS}
-            action={async () => {
-              await handleSubmitDirect(handleSubmissionDirect)();
-            }}
-            onError={(error) => {
-              toast(`Listed Failed! Reason: ${error.cause}`, {
-                icon: "❌",
-                style: toastStyle,
-                position: "bottom-center",
-              });
-            }}
-            onSuccess={(txResult) => {
-              toast("Listed Successfully!", {
-                icon: "🥳",
-                style: toastStyle,
-                position: "bottom-center",
-              });
-              router.push(
-                `/collection/${contractAddress}/${nft.metadata.token_id}`
-              );
-            }}
-          >
-            Create Direct Listing
-          </Web3Button>
-        </div>
+                {/* Auction listing fields */}
+                <div
+                  className={`${
+                    tab === "auction"
+                      ? styles.activeTabContent
+                      : profileStyles.tabContent
+                  }`}
+                  style={{ flexDirection: "column" }}
+                >
+                  <h4 className={styles.formSectionTitle}>When </h4>
 
-        {/* Auction listing fields */}
-        <div
-          className={`${
-            tab === "auction"
-              ? styles.activeTabContent
-              : profileStyles.tabContent
-          }`}
-          style={{ flexDirection: "column" }}
-        >
-          <h4 className={styles.formSectionTitle}>When </h4>
+                  {/* Input field for auction start date */}
+                  <legend className={styles.legend}> Auction Starts on </legend>
+                  <input
+                    className={styles.input}
+                    type="datetime-local"
+                    min={new Date(
+                      Date.now() - new Date().getTimezoneOffset() * 60000
+                    )
+                      .toISOString()
+                      .slice(0, -8)}
+                    {...registerAuction("startDate")}
+                    aria-label="Auction Start Date"
+                  />
 
-          {/* Input field for auction start date */}
-          <legend className={styles.legend}> Auction Starts on </legend>
-          <input
-            className={styles.input}
-            type="datetime-local"
-            {...registerAuction("startDate")}
-            aria-label="Auction Start Date"
-          />
+                  {/* Input field for auction end date */}
+                  <legend className={styles.legend}> Auction Ends on </legend>
+                  <input
+                    className={styles.input}
+                    type="datetime-local"
+                    min={new Date(
+                      Date.now() - new Date().getTimezoneOffset() * 60000
+                    )
+                      .toISOString()
+                      .slice(0, -8)}
+                    {...registerAuction("endDate")}
+                    aria-label="Auction End Date"
+                  />
+                  <h4 className={styles.formSectionTitle}>Price </h4>
 
-          {/* Input field for auction end date */}
-          <legend className={styles.legend}> Auction Ends on </legend>
-          <input
-            className={styles.input}
-            type="datetime-local"
-            {...registerAuction("endDate")}
-            aria-label="Auction End Date"
-          />
-          <h4 className={styles.formSectionTitle}>Price </h4>
+                  {/* Input field for minimum bid price */}
+                  <legend className={styles.legend}>
+                    {" "}
+                    Allow bids starting from{" "}
+                  </legend>
+                  <input
+                    className={styles.input}
+                    step={0.000001}
+                    type="number"
+                    {...registerAuction("floorPrice")}
+                  />
 
-          {/* Input field for minimum bid price */}
-          <legend className={styles.legend}> Allow bids starting from </legend>
-          <input
-            className={styles.input}
-            step={0.000001}
-            type="number"
-            {...registerAuction("floorPrice")}
-          />
+                  {/* Input field for buyout price */}
+                  <legend className={styles.legend}> Buyout price </legend>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    step={0.000001}
+                    {...registerAuction("buyoutPrice")}
+                  />
 
-          {/* Input field for buyout price */}
-          <legend className={styles.legend}> Buyout price </legend>
-          <input
-            className={styles.input}
-            type="number"
-            step={0.000001}
-            {...registerAuction("buyoutPrice")}
-          />
-
-          <Web3Button
-            contractAddress={MARKETPLACE_ADDRESS}
-            action={async () => {
-              return await handleSubmitAuction(handleSubmissionAuction)();
-            }}
-            onError={(error) => {
-              toast(`Listed Failed! Reason: ${error.cause}`, {
-                icon: "❌",
-                style: toastStyle,
-                position: "bottom-center",
-              });
-            }}
-            onSuccess={(txResult) => {
-              toast("Listed Successfully!", {
-                icon: "🥳",
-                style: toastStyle,
-                position: "bottom-center",
-              });
-              router.push(
-                `/collection/${contractAddress}/${nft.metadata.token_id}`
-              );
-            }}
-          >
-            Create Auction Listing
-          </Web3Button>
-        </div>
+                  <Web3Button
+                    contractAddress={MARKETPLACE_ADDRESS}
+                    action={async () => {
+                      return await handleSubmitAuction(
+                        handleSubmissionAuction
+                      )();
+                    }}
+                    onError={(error) => {
+                      toast(`Listed Failed! Reason: ${error.cause}`, {
+                        icon: "❌",
+                        style: toastStyle,
+                        position: "bottom-center",
+                      });
+                    }}
+                    onSuccess={(txResult) => {
+                      toast("Listed Successfully!", {
+                        icon: "🥳",
+                        style: toastStyle,
+                        position: "bottom-center",
+                      });
+                      router.push(
+                        `/collection/${contractAddress}/${nft.metadata.token_id}`
+                      );
+                    }}
+                  >
+                    Create Auction Listing
+                  </Web3Button>
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     </>
   );
