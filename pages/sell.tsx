@@ -14,12 +14,14 @@ import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { collections } from "../collection.config.json";
 import { getAllUserNFTs } from "../lib/opensea";
 import { GetStaticProps } from "next";
+import { useRouter } from "next/router";
 
 export default function Sell() {
   // Load all of the NFTs from the NFT Collection
   const address = useAddress();
   const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
   const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
+  const router = useRouter();
 
   useEffect(() => {
     if (address)
@@ -82,6 +84,7 @@ export default function Sell() {
               <SaleInfo
                 nft={selectedNft}
                 contractAddress={selectedNft.metadata.asset_contract.address}
+                router={router}
               />
             </div>
           </div>

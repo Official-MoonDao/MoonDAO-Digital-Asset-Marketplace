@@ -11,6 +11,7 @@ import Skeleton from "../Skeleton/Skeleton";
 import styles from "../NFT/NFT.module.css";
 
 export default function Listing({ listing, type = "direct" }: any) {
+  console.log(listing);
   return (
     <>
       {type === "direct" && listing.type === 0 && (
@@ -36,9 +37,9 @@ export default function Listing({ listing, type = "direct" }: any) {
               <div>
                 <p className={styles.nftPriceLabel}>Listing Expiration</p>
                 <p className={styles.nftPriceValue}>{`${new Date(
-                  listing.endTimeInEpochSeconds * 1000
+                  listing.secondsUntilEnd.toString() * 1000
                 ).toLocaleDateString()} @ ${new Date(
-                  listing.endTimeInEpochSeconds * 1000
+                  listing.secondsUntilEnd.toString() * 1000
                 ).toLocaleTimeString()}`}</p>
               </div>
             </div>

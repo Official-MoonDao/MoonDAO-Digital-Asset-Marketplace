@@ -1,16 +1,21 @@
-import { useAddress, useContract } from "@thirdweb-dev/react";
+import {
+  useActiveListings,
+  useAddress,
+  useContract,
+} from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { getAsset } from "../../../lib/opensea";
 import NFTDetail from "../../../components/NFT/NFTDetail";
+import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
 
 type Props = {
-  nft: any;
-  contractMetadata: any;
+  contractAddress: string;
+  tokenId: string;
 };
 
-export default function TokenPage({ nft }: Props) {
+export default function TokenPage({ contractAddress, tokenId }: Props) {
   const router = useRouter();
 
   //check wallet for mooney
@@ -18,6 +23,11 @@ export default function TokenPage({ nft }: Props) {
   const { contract: mooneyContract } = useContract(
     "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599"
   );
+  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
+  const { data: listings, isLoading } = useActiveListings(marketplace, {
+    tokenContract: contractAddress,
+    tokenId,
+  });
   const [mooneyBalance, setMooneyBalance] = useState(0);
 
   useEffect(() => {
@@ -30,17 +40,26 @@ export default function TokenPage({ nft }: Props) {
   }, [mooneyContract, address]);
 
   return (
-    <NFTDetail nft={nft} router={router} user={{ address, mooneyBalance }} />
+    <>
+      {listings && listings[0] && (
+        <NFTDetail
+          nft={listings[0].asset}
+          router={router}
+          user={{ address, mooneyBalance }}
+        />
+      )}
+    </>
   );
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const contractAddress = context.params?.contractAddress as string;
-  const tokenId = context.params?.tokenId as string;
-  const nft: any = await getAsset(contractAddress, tokenId);
+  const contractAddress = context.params?.contractAddress;
+  const tokenId = context.params?.tokenId;
+
   return {
     props: {
-      nft: nft || {},
+      contractAddress,
+      tokenId,
     },
   };
 };

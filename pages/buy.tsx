@@ -25,11 +25,13 @@ export default function Buy() {
     <Container maxWidth="lg">
       <h1>Buy NFTs</h1>
       <p>Pick from a collection</p>
-      <CollectionGrid
-        collections={listings?.map((l) => ({
-          address: l.assetContractAddress,
-        }))}
-      />
+      {listings && listings[0] && (
+        <CollectionGrid
+          collections={listings?.map((l) => ({
+            address: l.assetContractAddress,
+          }))}
+        />
+      )}
     </Container>
   );
 }

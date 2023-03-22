@@ -14,10 +14,12 @@ import styles from "../NFT/NFT.module.css";
 import Skeleton from "../Skeleton/Skeleton";
 export default function CollectionPreview({ collection }: any) {
   const [cData, setCData] = useState<any>({}); //collection data comes from opensea
+
   useEffect(() => {
-    (async () => {
-      setCData(await getCollection(collection.address));
-    })();
+    if (collection)
+      (async () => {
+        setCData(await getCollection(collection.address));
+      })();
   }, [collection]);
   return (
     <div className={buyStyles.nftContainer}>

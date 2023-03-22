@@ -17,7 +17,8 @@ import toastStyle from "../../util/toastConfig";
 import { Router } from "next/router";
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 export default function NFTDetail({ nft, router, user }: any) {
-  const contractAddress = nft.metadata.asset_contract.address;
+  console.log(nft);
+  const contractAddress = nft?.asset_contract?.address || nft.lockAddress;
   const [bidValue, setBidValue] = useState<string>();
   // Connect to marketplace smart contract
   const { contract: marketplace, isLoading: loadingContract } = useContract(
@@ -27,13 +28,13 @@ export default function NFTDetail({ nft, router, user }: any) {
 
   const [currListing, setCurrListing] = useState<any>({});
 
-  const [offers, setOffers] = useState<any>([]);
+  const [maxBid, setMaxBid] = useState<number>(0);
 
   const { data: listings, isLoading: loadingListings } = useActiveListings(
     marketplace,
     {
       tokenContract: contractAddress,
-      tokenId: nft.metadata.token_id,
+      tokenId: nft.token_id,
     }
   );
 
@@ -83,11 +84,21 @@ export default function NFTDetail({ nft, router, user }: any) {
   useEffect(() => {
     if ((listings && listings[0].type === 1) || currListing.type === 1) {
       const listing = currListing.id ? currListing : listings[0];
-      (async () => {
-        setOffers(await marketplace?.getOffers(listing.id));
-      })();
-    } else setOffers([]);
-    console.log(offers, listings[0].type);
+      if (listing) {
+        (async () => {
+          const offers: any = await marketplace?.getOffers(listing.id);
+          const highestOffer: any = offers?.reduce(
+            (acc: any, offer: any, i: any) => {
+              console.log(acc, offer);
+              return Math.max(acc, offer.currencyValue.displayValue);
+            },
+            [offers[0]?.currencyValue?.displayValue]
+          );
+          setMaxBid(highestOffer > 0 ? highestOffer : "No bids yet");
+        })();
+      } else setMaxBid(0);
+      console.log(listings[0]);
+    }
   }, [listings, currListing]);
   return (
     <>
@@ -95,14 +106,11 @@ export default function NFTDetail({ nft, router, user }: any) {
       <Container maxWidth="lg">
         <div className={styles.container}>
           <div className={styles.metadataContainer}>
-            <ThirdwebNftMedia
-              metadata={nft.metadata}
-              className={styles.image}
-            />
+            <ThirdwebNftMedia metadata={nft} className={styles.image} />
 
             <div className={styles.descriptionContainer}>
               <h3 className={styles.descriptionTitle}>Description</h3>
-              <p className={styles.description}>{nft.metadata.description}</p>
+              <p className={styles.description}>{nft.description}</p>
 
               <h3 className={styles.descriptionTitle}>Traits</h3>
 
@@ -136,42 +144,41 @@ export default function NFTDetail({ nft, router, user }: any) {
                 </button>
               </div>
             )}
-            <h1 className={styles.title}>{nft.metadata.name}</h1>
-            <p className={styles.collectionName}>
-              Token ID #{nft.metadata.token_id}
-            </p>
-            {nft.metadata.asset_contract.schema_name === "ERC721" && (
-              <Link
-                href={`/profile/${nft.owner}`}
-                className={styles.nftOwnerContainer}
-              >
-                {/* Random linear gradient circle shape */}
-                <div
-                  className={styles.nftOwnerImage}
-                  style={{
-                    background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
-                  }}
-                />
-                <div className={styles.nftOwnerInfo}>
-                  <p className={styles.label}>Current Owner</p>
-                  {listings && listings[0] ? (
-                    <p className={styles.nftOwnerAddress}>
-                      {listings[0].sellerAddress.slice(0, 8)}...
-                      {listings[0].sellerAddress.slice(-4)}
-                    </p>
-                  ) : (
-                    <p className={styles.nftOwnerAddress}>
-                      {nft.metadata.owner
-                        ? `${nft.metadata.owner.slice(
-                            0,
-                            8
-                          )}...${nft.metadata.owner.slice(-4)}`
-                        : `0x000000...0000`}
-                    </p>
-                  )}
-                </div>
-              </Link>
-            )}
+            <h1 className={styles.title}>{nft.name}</h1>
+            <p className={styles.collectionName}>Token ID #{nft.token_id}</p>
+            {!nft.lockAddress &&
+              nft.asset_contract.schema_name === "ERC721" && (
+                <Link
+                  href={`/profile/${nft.owner}`}
+                  className={styles.nftOwnerContainer}
+                >
+                  {/* Random linear gradient circle shape */}
+                  <div
+                    className={styles.nftOwnerImage}
+                    style={{
+                      background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
+                    }}
+                  />
+                  <div className={styles.nftOwnerInfo}>
+                    <p className={styles.label}>Current Owner</p>
+                    {listings && listings[0] ? (
+                      <p className={styles.nftOwnerAddress}>
+                        {listings[0].sellerAddress.slice(0, 8)}...
+                        {listings[0].sellerAddress.slice(-4)}
+                      </p>
+                    ) : (
+                      <p className={styles.nftOwnerAddress}>
+                        {nft.metadata.owner
+                          ? `${nft.metadata.owner.slice(
+                              0,
+                              8
+                            )}...${nft.metadata.owner.slice(-4)}`
+                          : `0x000000...0000`}
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              )}
 
             <div className={styles.pricingContainer}>
               {/* Pricing information */}
@@ -205,14 +212,24 @@ export default function NFTDetail({ nft, router, user }: any) {
               )}
               <div className={styles.pricingInfo}>
                 <p className={styles.label}>Highest bid</p>
-                <div className={styles.pricingValue}>{user.mooneyBalance}</div>
+                <div className={styles.pricingValue}>{maxBid}</div>
               </div>
               <div className={styles.pricingInfo}>
                 <p className={styles.label}>Listing expiration</p>
-                <div className={styles.pricingValue}>{}</div>
+                <div className={styles.pricingValue}>
+                  {listings &&
+                    `${new Date(
+                      listings[0]?.endTimeInEpochSeconds.toString() * 1000 -
+                        new Date().getTimezoneOffset() * 60000
+                    ).toLocaleDateString()} @ ${new Date(
+                      listings[0].endTimeInEpochSeconds.toString() * 1000 -
+                        new Date().getTimezoneOffset() * 60000
+                    ).toLocaleTimeString()}`}
+                </div>
               </div>
             </div>
-            {nft.metadata.asset_contract.schema_name === "ERC721" ? (
+            {!nft.lockAddress &&
+            nft.metadata.asset_contract.schema_name === "ERC721" ? (
               <>
                 {loadingContract || loadingListings || !listings ? (
                   <Skeleton width="100%" height="164" />
@@ -225,8 +242,20 @@ export default function NFTDetail({ nft, router, user }: any) {
                           action={async () =>
                             await handleRemoveListing(listings[0].id)
                           }
-                          onSuccess={() =>
-                            router.push(`/profile/${user.address}`)
+                          onSuccess={() => {
+                            router.push(`/profile/${user.address}`);
+                            toast(`Your listing has been removed!`, {
+                              icon: "✅",
+                              style: toastStyle,
+                              position: "bottom-center",
+                            });
+                          }}
+                          onError={(err) =>
+                            toast(`Error : ${err.message}`, {
+                              icon: "❌",
+                              style: toastStyle,
+                              position: "bottom-center",
+                            })
                           }
                         >
                           Remove Listing

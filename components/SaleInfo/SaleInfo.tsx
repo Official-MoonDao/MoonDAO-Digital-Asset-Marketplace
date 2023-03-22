@@ -13,18 +13,15 @@ import {
   useCreateDirectListing,
   Web3Button,
 } from "@thirdweb-dev/react";
-import {
-  MARKETPLACE_ADDRESS,
-  NFT_COLLECTION_ADDRESS,
-} from "../../const/contractAddresses";
-import { useRouter } from "next/router";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../util/toastConfig";
 import { BigNumber } from "ethers";
+import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 
 type Props = {
   nft: any;
   contractAddress: string;
+  router: any;
 };
 
 type AuctionFormData = {
@@ -46,8 +43,7 @@ type DirectFormData = {
   endDate: Date;
 };
 
-export default function SaleInfo({ nft, contractAddress }: Props) {
-  const router = useRouter();
+export default function SaleInfo({ nft, contractAddress, router }: Props) {
   // Connect to marketplace contract
   const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
@@ -163,12 +159,12 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
     const startDate: any = new Date(data.startDate);
     const endDate: any = new Date(data.endDate);
     console.log(startDate, endDate);
-    const contractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
-    console.log(nft.metadata.asset_contract.schema_type);
+    const mooneyContractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
+    console.log(nft);
     const txResult = await marketplace?.auction.createListing({
-      assetContractAddress: data.nftContractAddress,
+      assetContractAddress: contractAddress,
       tokenId: nft.metadata.token_id,
-      currencyContractAddress: contractAddress,
+      currencyContractAddress: mooneyContractAddress,
       quantity: 1,
       buyoutPricePerToken: data.buyoutPrice,
       reservePricePerToken: data.floorPrice,
@@ -238,6 +234,21 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
                   contractAddress={MARKETPLACE_ADDRESS}
                   action={async () => {
                     await handleRemoveListing();
+                  }}
+                  onSuccess={() => {
+                    toast("You have successfully removed the listing", {
+                      icon: "✅",
+                      style: toastStyle,
+                      position: "bottom-center",
+                    });
+                    router.push(`/buy`);
+                  }}
+                  onError={(err) => {
+                    toast(`Something went wrong : ${err.message}`, {
+                      icon: "❌",
+                      style: toastStyle,
+                      position: "bottom-center",
+                    });
                   }}
                 >
                   Remove Listing
@@ -390,11 +401,9 @@ export default function SaleInfo({ nft, contractAddress }: Props) {
 
                   <Web3Button
                     contractAddress={MARKETPLACE_ADDRESS}
-                    action={async () => {
-                      return await handleSubmitAuction(
-                        handleSubmissionAuction
-                      )();
-                    }}
+                    action={async () =>
+                      await handleSubmitAuction(handleSubmissionAuction)()
+                    }
                     onError={(error) => {
                       toast(`Listed Failed! Reason: ${error.cause}`, {
                         icon: "❌",

@@ -23,8 +23,9 @@ export async function getAsset(contractAddress: string, tokenId: string) {
       `${openSeaTestnet}/asset/${contractAddress}/${tokenId}`
     );
     const data = await res.json();
+    console.log(data);
     return {
-      metadata: { ...data, image: data.image_url },
+      metadata: { ...data, image: data?.image_url },
     };
   } catch (err) {
     console.error(err);
