@@ -7,11 +7,6 @@ import {
   MARKETPLACE_ADDRESS,
   NFT_COLLECTION_ADDRESS,
 } from "../const/contractAddresses";
-import { getCollection } from "../lib/opensea";
-const NFT_COLLECTIONS = [
-  { type: "nft", address: "0xCF7241560C960783E1Bb90f233f8cfF782f7ABa1" },
-  { type: "nft-drop", address: "0xdbb3aaA438e49a93c3E3E213AEbF2F5370993D2d" },
-];
 
 export default function Buy() {
   const { contract: marketplace } = useContract(
@@ -35,9 +30,3 @@ export default function Buy() {
     </Container>
   );
 }
-
-export const getStaticProps: GetStaticProps = (context) => {
-  return {
-    props: {},
-  };
-};

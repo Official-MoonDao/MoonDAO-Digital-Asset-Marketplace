@@ -1,10 +1,9 @@
 import styles from "../../styles/Token.module.css";
 import Link from "next/link";
 import {
-  MediaRenderer,
   ThirdwebNftMedia,
-  useActiveListings,
   useContract,
+  useContractMetadata,
   Web3Button,
 } from "@thirdweb-dev/react";
 import Container from "../Container/Container";
@@ -16,11 +15,16 @@ import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 import toastStyle from "../../util/toastConfig";
 import { Router } from "next/router";
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
-export default function NFTDetail({ nft, router, user }: any) {
-  console.log(nft);
-  const contractAddress = nft?.asset_contract?.address || nft.lockAddress;
+export default function NFTDetail({
+  listings,
+  router,
+  user,
+  contractAddress,
+}: any) {
   const [bidValue, setBidValue] = useState<string>();
   // Connect to marketplace smart contract
+  const { contract: nftContract } = useContract(contractAddress);
+  const { data: nftContractMetadata } = useContractMetadata(nftContract);
   const { contract: marketplace, isLoading: loadingContract } = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace"
@@ -29,14 +33,6 @@ export default function NFTDetail({ nft, router, user }: any) {
   const [currListing, setCurrListing] = useState<any>({});
 
   const [maxBid, setMaxBid] = useState<number>(0);
-
-  const { data: listings, isLoading: loadingListings } = useActiveListings(
-    marketplace,
-    {
-      tokenContract: contractAddress,
-      tokenId: nft.token_id,
-    }
-  );
 
   async function createBidOrOffer() {
     let txResult;
@@ -61,12 +57,12 @@ export default function NFTDetail({ nft, router, user }: any) {
 
   async function buyListing() {
     let txResult;
-    const listing = currListing.id ? currListing : listings[0];
+    const selectedListing = currListing.id ? currListing : listings[0];
 
-    if (listing.type === 1) {
-      txResult = await marketplace?.auction.buyoutListing(listing.id);
+    if (selectedListing.type === 1) {
+      txResult = await marketplace?.auction.buyoutListing(selectedListing.id);
     } else {
-      txResult = await marketplace?.direct.buyoutListing(listing.id, 1);
+      txResult = await marketplace?.direct.buyoutListing(selectedListing.id, 1);
     }
     return txResult;
   }
@@ -80,13 +76,12 @@ export default function NFTDetail({ nft, router, user }: any) {
       router.push(`/profile/${user.address}`);
     }
   }
-
   useEffect(() => {
-    if ((listings && listings[0].type === 1) || currListing.type === 1) {
-      const listing = currListing.id ? currListing : listings[0];
-      if (listing) {
+    if (listings[0].type === 1 || currListing.type === 1) {
+      const selectedListing = currListing.id ? currListing : listings[0];
+      if (selectedListing) {
         (async () => {
-          const offers: any = await marketplace?.getOffers(listing.id);
+          const offers: any = await marketplace?.getOffers(selectedListing.id);
           const highestOffer: any = offers?.reduce(
             (acc: any, offer: any, i: any) => {
               console.log(acc, offer);
@@ -97,30 +92,56 @@ export default function NFTDetail({ nft, router, user }: any) {
           setMaxBid(highestOffer > 0 ? highestOffer : "No bids yet");
         })();
       } else setMaxBid(0);
-      console.log(listings[0]);
+      console.log(listings);
     }
   }, [listings, currListing]);
+  //check if contract supports erc1155
+  const [contractType, setContractType] = useState<string>("erc721");
+  useEffect(() => {
+    if (nftContract)
+      (async () => {
+        const type = (await nftContract.call("supportsInterface", "0xd9b67a26"))
+          ? "erc1155"
+          : "erc721";
+        setContractType(type);
+      })();
+    console.log(listings[0]);
+  }, [nftContract]);
+
   return (
     <>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" className={"mb-4"}>
         <div className={styles.container}>
           <div className={styles.metadataContainer}>
-            <ThirdwebNftMedia metadata={nft} className={styles.image} />
+            <ThirdwebNftMedia
+              metadata={listings[0].asset}
+              className={styles.image}
+            />
 
             <div className={styles.descriptionContainer}>
               <h3 className={styles.descriptionTitle}>Description</h3>
-              <p className={styles.description}>{nft.description}</p>
+              <p className={styles.description}>
+                {listings[0].asset.description}
+              </p>
 
               <h3 className={styles.descriptionTitle}>Traits</h3>
 
               <div className={styles.traitsContainer}>
-                {Object.entries(nft?.metadata?.attributes || {}).map(
+                {Object.entries(listings[0].asset.attributes || {}).map(
                   ([key, value]: any) => (
                     <div className={styles.traitContainer} key={key}>
                       <p className={styles.traitName}>{value.trait_type} :</p>
                       <p className={styles.traitValue}>
-                        {value.value?.toString() || ""}
+                        {value.display_type === "date"
+                          ? `${new Date(
+                              value.value?.toString() * 1000 -
+                                new Date().getTimezoneOffset() * 60000
+                            ).toLocaleDateString()} @ ${new Date(
+                              value.value?.toString() * 1000 -
+                                new Date().getTimezoneOffset() * 60000
+                            ).toLocaleTimeString()}`
+                          : value.value?.toString() || ""}
                       </p>
                     </div>
                   )
@@ -130,55 +151,52 @@ export default function NFTDetail({ nft, router, user }: any) {
           </div>
 
           <div className={styles.listingContainer}>
-            {nft.metadata?.id && (
+            {listings[0].id && (
               <div className={styles.contractMetadataContainer}>
-                <MediaRenderer
-                  src={nft.metadata.collection.image_url}
-                  className={styles.collectionImage}
-                />
                 <button
                   className={styles.collectionName}
                   onClick={() => router.push(`/collection/${contractAddress}`)}
                 >
-                  {nft.metadata.collection.name}
+                  {nftContractMetadata?.name}
                 </button>
               </div>
             )}
-            <h1 className={styles.title}>{nft.name}</h1>
-            <p className={styles.collectionName}>Token ID #{nft.token_id}</p>
-            {!nft.lockAddress &&
-              nft.asset_contract.schema_name === "ERC721" && (
-                <Link
-                  href={`/profile/${nft.owner}`}
-                  className={styles.nftOwnerContainer}
-                >
-                  {/* Random linear gradient circle shape */}
-                  <div
-                    className={styles.nftOwnerImage}
-                    style={{
-                      background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
-                    }}
-                  />
-                  <div className={styles.nftOwnerInfo}>
-                    <p className={styles.label}>Current Owner</p>
-                    {listings && listings[0] ? (
-                      <p className={styles.nftOwnerAddress}>
-                        {listings[0].sellerAddress.slice(0, 8)}...
-                        {listings[0].sellerAddress.slice(-4)}
-                      </p>
-                    ) : (
-                      <p className={styles.nftOwnerAddress}>
-                        {nft.metadata.owner
-                          ? `${nft.metadata.owner.slice(
-                              0,
-                              8
-                            )}...${nft.metadata.owner.slice(-4)}`
-                          : `0x000000...0000`}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              )}
+            <h1 className={styles.title}>{listings[0].asset.name}</h1>
+            <p className={styles.collectionName}>
+              Token ID #{listings[0].token_id}
+            </p>
+            {nftContract && nftContract.erc721 && (
+              <Link
+                href={`/profile/${listings[0].sellerAddress}`}
+                className={styles.nftOwnerContainer}
+              >
+                {/* Random linear gradient circle shape */}
+                <div
+                  className={styles.nftOwnerImage}
+                  style={{
+                    background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
+                  }}
+                />
+                <div className={styles.nftOwnerInfo}>
+                  <p className={styles.label}>Current Owner</p>
+                  {listings && listings[0] ? (
+                    <p className={styles.nftOwnerAddress}>
+                      {listings[0].sellerAddress.slice(0, 8)}...
+                      {listings[0].sellerAddress.slice(-4)}
+                    </p>
+                  ) : (
+                    <p className={styles.nftOwnerAddress}>
+                      {listings[0].asset.owner
+                        ? `${listings[0].asset.owner.slice(
+                            0,
+                            8
+                          )}...${listings[0].asset.owner.slice(-4)}`
+                        : `0x000000...0000`}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            )}
 
             <div className={styles.pricingContainer}>
               {/* Pricing information */}
@@ -186,11 +204,11 @@ export default function NFTDetail({ nft, router, user }: any) {
                 <p className={styles.label}>Mooney Balance</p>
                 <div className={styles.pricingValue}>{user.mooneyBalance}</div>
               </div>
-              {nft?.metadata?.asset_contract?.schema_name === "ERC721" && (
+              {nftContract && nftContract.erc721 && (
                 <div className={styles.pricingInfo}>
                   <p className={styles.label}>Price</p>
                   <div className={styles.pricingValue}>
-                    {loadingContract || loadingListings || !listings ? (
+                    {!listings ? (
                       <Skeleton width="120" height="24" />
                     ) : (
                       <>
@@ -217,21 +235,25 @@ export default function NFTDetail({ nft, router, user }: any) {
               <div className={styles.pricingInfo}>
                 <p className={styles.label}>Listing expiration</p>
                 <div className={styles.pricingValue}>
-                  {listings &&
-                    `${new Date(
-                      listings[0]?.endTimeInEpochSeconds.toString() * 1000 -
-                        new Date().getTimezoneOffset() * 60000
-                    ).toLocaleDateString()} @ ${new Date(
-                      listings[0].endTimeInEpochSeconds.toString() * 1000 -
-                        new Date().getTimezoneOffset() * 60000
-                    ).toLocaleTimeString()}`}
+                  {listings[0].type === 1
+                    ? `${new Date(
+                        listings[0]?.endTimeInEpochSeconds.toString() * 1000 -
+                          new Date().getTimezoneOffset() * 60000
+                      ).toLocaleDateString()} @ ${new Date(
+                        listings[0].endTimeInEpochSeconds.toString() * 1000
+                      ).toLocaleTimeString()}`
+                    : `${new Date(
+                        listings[0]?.secondsUntilEnd.toString() * 1000 -
+                          new Date().getTimezoneOffset() * 60000
+                      ).toLocaleDateString()} @ ${new Date(
+                        listings[0].secondsUntilEnd.toString() * 1000
+                      ).toLocaleTimeString()}`}
                 </div>
               </div>
             </div>
-            {!nft.lockAddress &&
-            nft.metadata.asset_contract.schema_name === "ERC721" ? (
+            {nftContract && contractType === "erc721" ? (
               <>
-                {loadingContract || loadingListings || !listings ? (
+                {!listings ? (
                   <Skeleton width="100%" height="164" />
                 ) : (
                   <>
@@ -291,6 +313,7 @@ export default function NFTDetail({ nft, router, user }: any) {
                               contractAddress={MARKETPLACE_ADDRESS}
                               action={async () => await buyListing()}
                               onSuccess={() => {
+                                router.push(`/profile/${user.address}`);
                                 toast(`Purchase success!`, {
                                   icon: "✅",
                                   style: toastStyle,
@@ -315,11 +338,15 @@ export default function NFTDetail({ nft, router, user }: any) {
                             <input
                               className={styles.input}
                               defaultValue={
-                                listings[0]?.minimumBidCurrencyValue
+                                listings[0]?.reservePriceCurrencyValuePerToken
+                                  ?.displayValue || 0
+                              }
+                              min={
+                                listings[0]?.reservePriceCurrencyValuePerToken
                                   ?.displayValue || 0
                               }
                               type="number"
-                              step={0.000001}
+                              step={1}
                               onChange={(e) => {
                                 setBidValue(e.target.value);
                               }}
@@ -364,7 +391,7 @@ export default function NFTDetail({ nft, router, user }: any) {
             ) : (
               <div className={styles.pricingContainer}>
                 <div className={styles.pricingInfo}>
-                  {loadingContract || loadingListings || !listings ? (
+                  {!listings ? (
                     <Skeleton width="100%" height="164" />
                   ) : (
                     <>
@@ -499,11 +526,15 @@ export default function NFTDetail({ nft, router, user }: any) {
                           <input
                             className={styles.input}
                             defaultValue={
-                              listings[0]?.minimumBidCurrencyValue
+                              listings[0]?.reservePriceCurrencyValuePerToken
+                                ?.displayValue || 0
+                            }
+                            min={
+                              listings[0]?.reservePriceCurrencyValuePerToken
                                 ?.displayValue || 0
                             }
                             type="number"
-                            step={0.000001}
+                            step={1}
                             onChange={(e) => {
                               setBidValue(e.target.value);
                             }}

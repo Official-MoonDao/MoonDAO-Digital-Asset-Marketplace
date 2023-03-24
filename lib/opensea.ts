@@ -1,17 +1,16 @@
+import { StringDecoder } from "string_decoder";
+
 const openSeaMainnet = "https://api.opensea.io/api/v1";
 const openSeaTestnet = "https://testnets-api.opensea.io/api/v1";
 
-export async function getAllUserNFTs(address: string, setUserNFTs: Function) {
+export async function getAllUserNFTs(address: any) {
   try {
-    await fetch(`${openSeaTestnet}/assets?owner=${address}`)
-      .then((res) => res.json())
-      .then((data) =>
-        setUserNFTs(
-          data.assets.map((a: any) => ({
-            metadata: { ...a, image: a.image_url },
-          }))
-        )
-      );
+    const res = await fetch(`${openSeaTestnet}/assets?owner=${address}`);
+    const data: any = await res.json();
+    console.log(data);
+    return data?.assets.map((a: any) => ({
+      metadata: { ...a, image: a?.image_url },
+    }));
   } catch (err) {
     console.error(err);
   }

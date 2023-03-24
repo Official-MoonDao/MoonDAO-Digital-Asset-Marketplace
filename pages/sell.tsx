@@ -26,7 +26,8 @@ export default function Sell() {
   useEffect(() => {
     if (address)
       (async () => {
-        getAllUserNFTs(address, (nfts: [any]) => setUserNFTs(nfts));
+        const allUserNFTs = await getAllUserNFTs(address);
+        setUserNFTs(allUserNFTs);
       })();
   }, [address]);
 

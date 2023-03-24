@@ -2,6 +2,8 @@ import {
   useActiveListings,
   useAddress,
   useContract,
+  useContractType,
+  useMetadata,
 } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
@@ -9,6 +11,7 @@ import { useRouter } from "next/router";
 import { getAsset } from "../../../lib/opensea";
 import NFTDetail from "../../../components/NFT/NFTDetail";
 import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
+import Container from "../../../components/Container/Container";
 
 type Props = {
   contractAddress: string;
@@ -23,12 +26,14 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
   const { contract: mooneyContract } = useContract(
     "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599"
   );
-  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
+  const [mooneyBalance, setMooneyBalance] = useState(0);
+
+  //get nft from listing
+  const { contract: marketplace }: any = useContract(MARKETPLACE_ADDRESS);
   const { data: listings, isLoading } = useActiveListings(marketplace, {
     tokenContract: contractAddress,
-    tokenId,
+    tokenId: tokenId,
   });
-  const [mooneyBalance, setMooneyBalance] = useState(0);
 
   useEffect(() => {
     if (mooneyContract && address) {
@@ -41,12 +46,15 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
 
   return (
     <>
-      {listings && listings[0] && (
+      {listings && listings[0] ? (
         <NFTDetail
-          nft={listings[0].asset}
+          contractAddress={contractAddress}
+          listings={listings}
           router={router}
           user={{ address, mooneyBalance }}
         />
+      ) : (
+        <Container>...this token has no listings</Container>
       )}
     </>
   );

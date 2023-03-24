@@ -16,7 +16,10 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../util/toastConfig";
 import { BigNumber } from "ethers";
-import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
+import {
+  MARKETPLACE_ADDRESS,
+  VMOONEY_ADDRESS_GOERLI,
+} from "../../const/contractAddresses";
 
 type Props = {
   nft: any;
@@ -49,6 +52,8 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
     MARKETPLACE_ADDRESS,
     "marketplace"
   );
+
+  const { contract: vMooneyContract } = useContract(VMOONEY_ADDRESS_GOERLI);
 
   const walletAddress = useAddress();
 
@@ -84,6 +89,11 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
 
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
+    //Check if user has vMooney
+    const locktime = await vMooneyContract?.call("locked", walletAddress);
+    if (new Date(locktime.end.toString()) < new Date(Date.now())) {
+      return false;
+    }
     // Check if approval is required
     try {
       const hasApproval = await nftCollection?.call(
@@ -149,7 +159,13 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
 
   //handle direct listing
   async function handleSubmissionAuction(data: AuctionFormData) {
-    await checkAndProvideApproval();
+    const hasVMooney = await checkAndProvideApproval();
+    if (!hasVMooney)
+      return toast("You need to have vMooney to list NFTs", {
+        icon: "👎",
+        style: toastStyle,
+        position: "bottom-center",
+      });
     if (isListed)
       return toast(`This NFT has already been listed!`, {
         icon: "❌",
@@ -171,13 +187,26 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
       startTimestamp: startDate,
       listingDurationInSeconds: (endDate - startDate) / 1000,
     });
-
+    router.push(`/collection/${contractAddress}/${nft.metadata.token_id}`);
+    toast("Listed Successfully!", {
+      icon: "🥳",
+      style: toastStyle,
+      position: "bottom-center",
+    });
     return txResult;
   }
 
   //handle auction listing
   async function handleSubmissionDirect(data: DirectFormData) {
-    await checkAndProvideApproval();
+    const hasVMooney = await checkAndProvideApproval();
+    if (!hasVMooney) {
+      toast("You need to have vMooney to list NFTs", {
+        icon: "👎",
+        style: toastStyle,
+        position: "bottom-center",
+      });
+      return new Error("No vMooney");
+    }
     if (isListed)
       return toast(`This NFT has already been listed!`, {
         icon: "❌",
@@ -197,7 +226,12 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
       startTimestamp: startDate,
       listingDurationInSeconds: (endDate - startDate) / 1000,
     });
-
+    router.push(`/collection/${contractAddress}/${nft.metadata.token_id}`);
+    toast("Listed Successfully!", {
+      icon: "🥳",
+      style: toastStyle,
+      position: "bottom-center",
+    });
     return txResult;
   }
 
@@ -321,16 +355,6 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
                             position: "bottom-center",
                           });
                         }}
-                        onSuccess={(txResult) => {
-                          toast("Listed Successfully!", {
-                            icon: "🥳",
-                            style: toastStyle,
-                            position: "bottom-center",
-                          });
-                          router.push(
-                            `/collection/${contractAddress}/${nft.metadata.token_id}`
-                          );
-                        }}
                       >
                         Create Direct Listing
                       </Web3Button>
@@ -410,16 +434,6 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
                         style: toastStyle,
                         position: "bottom-center",
                       });
-                    }}
-                    onSuccess={(txResult) => {
-                      toast("Listed Successfully!", {
-                        icon: "🥳",
-                        style: toastStyle,
-                        position: "bottom-center",
-                      });
-                      router.push(
-                        `/collection/${contractAddress}/${nft.metadata.token_id}`
-                      );
                     }}
                   >
                     Create Auction Listing

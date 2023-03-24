@@ -16,3 +16,13 @@ export const NFT_COLLECTION_ADDRESS =
 // (Optional) Set up the URL of where users can view transactions on
 // For example, below, we use Mumbai.polygonscan to view transactions on the Mumbai testnet.
 export const ETHERSCAN_URL = "https://goerli.etherscan.io/";
+
+export const VMOONEY_ADDRESS_GOERLI =
+  "0x6899EcEeAF3Fb4D5854Dc090F62EA5D97E301664";
+export const MOONEY_ADDRESS_GOERLI =
+  "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599";
+
+export const VMOONEY_ADDRESS_MAINNET =
+  "0xCc71C80d803381FD6Ee984FAff408f8501DB1740";
+export const MOONEY_ADDRESS_MAINNET =
+  "0x20d4DB1946859E2Adb0e5ACC2eac58047aD41395";
