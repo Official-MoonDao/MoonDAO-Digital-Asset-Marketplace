@@ -33,6 +33,8 @@ export default function Buy() {
           <p>Pick from a collection</p>
           <CollectionGrid collections={collections} />
         </>
+      ) : isLoading ? (
+        <p>...loading</p>
       ) : (
         <p>no collections are available at this time</p>
       )}
