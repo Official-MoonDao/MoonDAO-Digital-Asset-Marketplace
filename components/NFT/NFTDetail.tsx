@@ -162,7 +162,7 @@ export default function NFTDetail({
             <p className={styles.collectionName}>
               Token ID #{listings[0].token_id}
             </p>
-            {nftContract && nftContract.erc721 && (
+            {contractType === "erc721" && (
               <Link
                 href={`/profile/${listings[0].sellerAddress}`}
                 className={styles.nftOwnerContainer}
@@ -229,24 +229,26 @@ export default function NFTDetail({
                 <p className={styles.label}>Highest bid</p>
                 <div className={styles.pricingValue}>{maxBid}</div>
               </div>
-              <div className={styles.pricingInfo}>
-                <p className={styles.label}>Listing expiration</p>
-                <div className={styles.pricingValue}>
-                  {listings[0].type === 1
-                    ? `${new Date(
-                        listings[0]?.endTimeInEpochSeconds.toString() * 1000 -
-                          new Date().getTimezoneOffset() * 60000
-                      ).toLocaleDateString()} @ ${new Date(
-                        listings[0].endTimeInEpochSeconds.toString() * 1000
-                      ).toLocaleTimeString()}`
-                    : `${new Date(
-                        listings[0]?.secondsUntilEnd.toString() * 1000 -
-                          new Date().getTimezoneOffset() * 60000
-                      ).toLocaleDateString()} @ ${new Date(
-                        listings[0].secondsUntilEnd.toString() * 1000
-                      ).toLocaleTimeString()}`}
+              {contractType === "erc721" && (
+                <div className={styles.pricingInfo}>
+                  <p className={styles.label}>Listing expiration</p>
+                  <div className={styles.pricingValue}>
+                    {listings[0].type === 1
+                      ? `${new Date(
+                          listings[0]?.endTimeInEpochSeconds.toString() * 1000 -
+                            new Date().getTimezoneOffset() * 60000
+                        ).toLocaleDateString()} @ ${new Date(
+                          listings[0].endTimeInEpochSeconds.toString() * 1000
+                        ).toLocaleTimeString()}`
+                      : `${new Date(
+                          listings[0]?.secondsUntilEnd.toString() * 1000 -
+                            new Date().getTimezoneOffset() * 60000
+                        ).toLocaleDateString()} @ ${new Date(
+                          listings[0].secondsUntilEnd.toString() * 1000
+                        ).toLocaleTimeString()}`}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
             {nftContract && contractType === "erc721" ? (
               <>
@@ -407,12 +409,12 @@ export default function NFTDetail({
                           </Web3Button>
                         </div>
                       )}
-                      <div className="w-full overflow-y-scroll max-h-[40vh] my-8 px-2 pb-2">
+                      <div className="w-full flex flex-col gap-2 overflow-y-scroll max-h-[40vh] my-8 px-2 pb-2">
                         <h1>Listings</h1>
                         {listings.map((l: any, i: number) => (
                           <div
                             key={`listing-${i}`}
-                            className={`w-full rounded-sm p-4 bg-[#d1d1d150] ${
+                            className={`w-full rounded-sm p-2 bg-[#d1d1d150] ${
                               currListing.key === i && "bg-[#d1d1d180]"
                             }`}
                             onClick={() => setCurrListing({ ...l, key: i })}
