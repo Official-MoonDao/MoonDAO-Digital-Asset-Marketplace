@@ -22,6 +22,13 @@ export default function Listing({ listing, type = "direct" }: any) {
         >
           <div className="flex flex-col justify-center gap-4 items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
             <div className="flex flex-col gap-2">
+              <div>
+                {"listing is active : "}
+                {new Date(listing.secondsUntilEnd.toString() * 1000) >
+                new Date(Date.now())
+                  ? "✅"
+                  : "❌"}
+              </div>
               <h4 className="font-bold">{listing.asset.name}</h4>
               <ThirdwebNftMedia metadata={listing.asset} />
             </div>
@@ -54,6 +61,13 @@ export default function Listing({ listing, type = "direct" }: any) {
         >
           <div className="flex justify-center items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
             <div className="flex flex-col gap-2">
+              <div>
+                {"listing is active : "}
+                {new Date(listing.endTimeInEpochSeconds.toString() * 1000) >
+                new Date(Date.now())
+                  ? "✅"
+                  : "❌"}
+              </div>
               <h4 className="font-bold">{listing.asset.name}</h4>
               <ThirdwebNftMedia metadata={listing.asset} />
               <div className={styles.nftPriceContainer}>

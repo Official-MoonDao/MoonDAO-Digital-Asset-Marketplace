@@ -2,13 +2,10 @@ import {
   useActiveListings,
   useAddress,
   useContract,
-  useContractType,
-  useMetadata,
 } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { getAsset } from "../../../lib/opensea";
 import NFTDetail from "../../../components/NFT/NFTDetail";
 import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
 import Container from "../../../components/Container/Container";
@@ -54,7 +51,9 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
           user={{ address, mooneyBalance }}
         />
       ) : (
-        <Container>...this token has no listings</Container>
+        <Container maxWidth="lg" className="">
+          ...this token has no listings
+        </Container>
       )}
     </>
   );

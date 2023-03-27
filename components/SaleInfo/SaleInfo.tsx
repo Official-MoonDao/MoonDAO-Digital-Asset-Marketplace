@@ -25,6 +25,7 @@ type Props = {
   nft: any;
   contractAddress: string;
   router: any;
+  walletAddress: any;
 };
 
 type AuctionFormData = {
@@ -46,7 +47,12 @@ type DirectFormData = {
   endDate: Date;
 };
 
-export default function SaleInfo({ nft, contractAddress, router }: Props) {
+export default function SaleInfo({
+  nft,
+  contractAddress,
+  router,
+  walletAddress,
+}: Props) {
   // Connect to marketplace contract
   const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
@@ -54,8 +60,6 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
   );
 
   const { contract: vMooneyContract } = useContract(VMOONEY_ADDRESS_GOERLI);
-
-  const walletAddress = useAddress();
 
   const { data: listings, isLoading: listingsLoading } = useActiveListings(
     marketplace,
@@ -90,15 +94,16 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
     //Check if user has vMooney
-    const locktime = await vMooneyContract?.call("locked", walletAddress);
-    if (new Date(locktime.end.toString()) < new Date(Date.now())) {
-      return false;
-    }
+
     // Check if approval is required
     try {
+      const locktime = await vMooneyContract?.call("locked", walletAddress);
+      if (locktime.end.toString() * 1000 < Date.now()) {
+        return false;
+      }
       const hasApproval = await nftCollection?.call(
         "isApprovedForAll",
-        nft.metadata.owner,
+        walletAddress || nft.metadata.owner,
         MARKETPLACE_ADDRESS
       );
 
@@ -199,6 +204,7 @@ export default function SaleInfo({ nft, contractAddress, router }: Props) {
   //handle auction listing
   async function handleSubmissionDirect(data: DirectFormData) {
     const hasVMooney = await checkAndProvideApproval();
+    console.log(hasVMooney);
     if (!hasVMooney) {
       toast("You need to have vMooney to list NFTs", {
         icon: "👎",

@@ -1,18 +1,15 @@
 import {
-  ThirdwebNftMedia,
   useActiveListings,
   useAddress,
   useContract,
+  useListings,
 } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Container from "../../components/Container/Container";
 import ListingGrid from "../../components/Listing/ListingGrid";
 import Skeleton from "../../components/Skeleton/Skeleton";
-import {
-  MARKETPLACE_ADDRESS,
-  NFT_COLLECTION_ADDRESS,
-} from "../../const/contractAddresses";
+import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 import { getAllUserNFTs } from "../../lib/opensea";
 import styles from "../../styles/Profile.module.css";
 import randomColor from "../../util/randomColor";
@@ -35,7 +32,7 @@ export default function ProfilePage() {
   );
 
   //get all user listings
-  const { data: listings, isLoading: loadingListings } = useActiveListings(
+  const { data: listings, isLoading: loadingListings } = useListings(
     marketplace,
     {
       seller: router.query.address as string,
@@ -47,8 +44,8 @@ export default function ProfilePage() {
   useEffect(() => {
     if (address) {
       (async () => {
-        await getAllUserNFTs(address, (nfts: [any]) => setUserNFTs(nfts));
-        console.log(userNFTs);
+        const userNFTs = await getAllUserNFTs(address);
+        setUserNFTs(userNFTs);
       })();
       if (router.query && router.query.address?.toString() !== address)
         router.push(`/profile/${address}`);
@@ -57,7 +54,7 @@ export default function ProfilePage() {
   }, [address, listings, router]);
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" className="">
       <div className={styles.profileHeader}>
         <div
           className={styles.coverImage}

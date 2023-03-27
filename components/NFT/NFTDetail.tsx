@@ -13,7 +13,6 @@ import Skeleton from "../Skeleton/Skeleton";
 import { useEffect, useState } from "react";
 import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 import toastStyle from "../../util/toastConfig";
-import { Router } from "next/router";
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 export default function NFTDetail({
   listings,
@@ -25,7 +24,7 @@ export default function NFTDetail({
   // Connect to marketplace smart contract
   const { contract: nftContract } = useContract(contractAddress);
   const { data: nftContractMetadata } = useContractMetadata(nftContract);
-  const { contract: marketplace, isLoading: loadingContract } = useContract(
+  const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace"
   );
@@ -92,9 +91,8 @@ export default function NFTDetail({
           setMaxBid(highestOffer > 0 ? highestOffer : "No bids yet");
         })();
       } else setMaxBid(0);
-      console.log(listings);
     }
-  }, [listings, currListing]);
+  }, [listings, currListing, marketplace]);
   //check if contract supports erc1155
   const [contractType, setContractType] = useState<string>("erc721");
   useEffect(() => {
@@ -105,7 +103,6 @@ export default function NFTDetail({
           : "erc721";
         setContractType(type);
       })();
-    console.log(listings[0]);
   }, [nftContract]);
 
   return (
@@ -411,7 +408,7 @@ export default function NFTDetail({
                         </div>
                       )}
                       <div className="w-full overflow-y-scroll max-h-[40vh] my-8 p-2">
-                        {listings.map((l, i) => (
+                        {listings.map((l: any, i: number) => (
                           <div
                             key={`listing-${i}`}
                             className={`w-full rounded-sm p-4 bg-[#d1d1d150] ${

@@ -9,7 +9,6 @@ import {
   useContract,
 } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
-import { useEffect } from "react";
 
 export default function Collection({ assets, contractAddress }: any) {
   const router = useRouter();
@@ -18,9 +17,6 @@ export default function Collection({ assets, contractAddress }: any) {
     marketplace,
     { tokenContract: contractAddress }
   );
-  useEffect(() => {
-    console.log(listings);
-  }, [listings]);
   return (
     <Container maxWidth="lg" className="">
       <p className={styles.nftName}></p>

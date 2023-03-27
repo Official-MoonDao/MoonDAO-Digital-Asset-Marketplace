@@ -1,19 +1,9 @@
-import {
-  ThirdwebNftMedia,
-  useActiveListings,
-  useAddress,
-  useContract,
-  useOwnedNFTs,
-} from "@thirdweb-dev/react";
+import { ThirdwebNftMedia, useAddress } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import Container from "../components/Container/Container";
-import NFTGrid from "../components/NFT/NFTGrid";
 import tokenPageStyles from "../styles/Token.module.css";
-import { NFT as NFTType } from "@thirdweb-dev/sdk";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
-import { collections } from "../collection.config.json";
 import { getAllUserNFTs } from "../lib/opensea";
-import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
 
 export default function Sell() {
@@ -32,7 +22,7 @@ export default function Sell() {
   }, [address]);
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" className="">
       <h1>Sell NFTs</h1>
       {!selectedNft?.metadata?.id ? (
         <>
@@ -86,6 +76,7 @@ export default function Sell() {
                 nft={selectedNft}
                 contractAddress={selectedNft.metadata.asset_contract.address}
                 router={router}
+                walletAddress={address}
               />
             </div>
           </div>

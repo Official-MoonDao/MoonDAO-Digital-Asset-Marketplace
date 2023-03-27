@@ -89,7 +89,7 @@ export default function Create() {
   }
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="lg" className="">
       <h1>Create NFTs</h1>
       <p>Mint your own NFT</p>
       <div className="flex flex-col justify-center items-center w-full mt-[5%] bg-[#d1d1d180] rounded-2xl py-[2%] text-center">
