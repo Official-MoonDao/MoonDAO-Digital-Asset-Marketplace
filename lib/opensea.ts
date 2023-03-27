@@ -37,6 +37,7 @@ export async function getCollection(contractAddress: string) {
       `${openSeaTestnet}/asset_contract/${contractAddress}`
     );
     const data = await res.json();
+    console.log(data);
     return data;
   } catch (err) {
     console.error(err);

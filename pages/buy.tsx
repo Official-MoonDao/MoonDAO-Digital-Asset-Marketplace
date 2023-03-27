@@ -1,4 +1,5 @@
 import { useActiveListings, useContract } from "@thirdweb-dev/react";
+import { useEffect, useState } from "react";
 import CollectionGrid from "../components/Collection/CollectionGrid";
 import Container from "../components/Container/Container";
 import { MARKETPLACE_ADDRESS } from "../const/contractAddresses";
@@ -10,8 +11,19 @@ export default function Buy() {
   );
 
   const { data: listings, isLoading } = useActiveListings(marketplace);
+  const [collections, setCollections] = useState<any>([]);
 
-  console.log(listings);
+  useEffect(() => {
+    if (listings && listings[0]) {
+      const uniqueCollectionAddresses: any = [];
+      const filteredCollections = listings.filter(
+        (l: any) =>
+          !uniqueCollectionAddresses.includes(l.assetContractAddress) &&
+          uniqueCollectionAddresses.push(l.assetContractAddress)
+      );
+      setCollections(filteredCollections);
+    }
+  }, [listings]);
 
   return (
     <Container maxWidth="lg" className="">
@@ -19,11 +31,7 @@ export default function Buy() {
       {marketplace && listings && listings[0] ? (
         <>
           <p>Pick from a collection</p>
-          <CollectionGrid
-            collections={listings?.map((l) => ({
-              address: l.assetContractAddress,
-            }))}
-          />
+          <CollectionGrid collections={collections} />
         </>
       ) : (
         <p>no collections are available at this time</p>

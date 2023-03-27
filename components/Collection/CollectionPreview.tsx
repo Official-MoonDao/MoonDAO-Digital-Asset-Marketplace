@@ -14,11 +14,11 @@ import styles from "../NFT/NFT.module.css";
 import Skeleton from "../Skeleton/Skeleton";
 export default function CollectionPreview({ collection }: any) {
   const [cData, setCData] = useState<any>({}); //collection data comes from opensea
-
   useEffect(() => {
     if (collection)
       (async () => {
-        setCData(await getCollection(collection.address));
+        setCData(await getCollection(collection.assetContractAddress));
+        console.log(cData);
       })();
   }, [collection]);
   return (
@@ -29,14 +29,15 @@ export default function CollectionPreview({ collection }: any) {
             className="w-full h-full rounded-md mb-4"
             src={cData.image_url}
             width={400}
-            height={400}
+            height={300}
             alt=""
           />
         ) : (
           <div
             style={{
               background: `linear-gradient(90deg, ${randomColor()}, ${randomColor()})`,
-              height: "30vw",
+              height: "20vw",
+              width: "20vw",
             }}
           />
         )}

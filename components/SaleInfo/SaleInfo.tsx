@@ -97,10 +97,10 @@ export default function SaleInfo({
 
     // Check if approval is required
     try {
-      const locktime = await vMooneyContract?.call("locked", walletAddress);
-      if (locktime.end.toString() * 1000 < Date.now()) {
-        return false;
-      }
+      // const locktime = await vMooneyContract?.call("locked", walletAddress);
+      // if (locktime.end.toString() * 1000 < Date.now()) {
+      //   return false;
+      // }
       const hasApproval = await nftCollection?.call(
         "isApprovedForAll",
         walletAddress || nft.metadata.owner,

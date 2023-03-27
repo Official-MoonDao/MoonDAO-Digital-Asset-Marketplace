@@ -7,7 +7,7 @@ export default function CollectionGrid({ collections }: any) {
       {collections &&
         collections[0] &&
         collections.map((c: any) => (
-          <CollectionPreview key={c.address} collection={c} />
+          <CollectionPreview key={c.assetContractAddress} collection={c} />
         ))}
     </div>
   );

@@ -407,7 +407,8 @@ export default function NFTDetail({
                           </Web3Button>
                         </div>
                       )}
-                      <div className="w-full overflow-y-scroll max-h-[40vh] my-8 p-2">
+                      <div className="w-full overflow-y-scroll max-h-[40vh] my-8 px-2 pb-2">
+                        <h1>Listings</h1>
                         {listings.map((l: any, i: number) => (
                           <div
                             key={`listing-${i}`}

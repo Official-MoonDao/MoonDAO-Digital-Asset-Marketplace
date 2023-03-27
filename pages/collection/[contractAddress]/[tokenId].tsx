@@ -50,6 +50,10 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
           router={router}
           user={{ address, mooneyBalance }}
         />
+      ) : isLoading ? (
+        <Container maxWidth="lg" className="">
+          ...loading
+        </Container>
       ) : (
         <Container maxWidth="lg" className="">
           ...this token has no listings
