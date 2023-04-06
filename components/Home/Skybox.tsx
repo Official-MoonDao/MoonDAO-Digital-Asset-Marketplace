@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
 export default function Skybox({ texturePath }: any) {
-  const texture = useTexture(texturePath);
+  const texture:any = useTexture(texturePath);
   return (
     <mesh>
       <pointLight intensity={1} />
