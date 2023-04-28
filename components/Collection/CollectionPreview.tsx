@@ -13,36 +13,34 @@ import randomColor from "../../util/randomColor";
 import styles from "../NFT/NFT.module.css";
 import Skeleton from "../Skeleton/Skeleton";
 export default function CollectionPreview({ collection }: any) {
-  const [cData, setCData] = useState<any>({}); //collection data comes from opensea
+  const [collectionDetails, setCollectionDetails] = useState<any>({
+    name: "",
+    symbol: "",
+  });
+
+  const { contract: collectionContract } = useContract(collection[2]);
+
   useEffect(() => {
-    if (collection)
+    if (collectionContract)
       (async () => {
-        setCData(await getCollection(collection.assetContractAddress));
-        console.log(cData);
+        const name = await collectionContract?.call("name");
+        const symbol = await collectionContract?.call("symbol");
+        console.log(name);
+        setCollectionDetails({ name, symbol });
       })();
-  }, [collection]);
+  }, [collection, collectionContract]);
   return (
     <div className={buyStyles.nftContainer}>
-      <Link href={`/collection/${cData.address}`}>
-        {cData.image_url ? (
-          <Image
-            className="w-full h-full rounded-md mb-4"
-            src={cData.image_url}
-            width={400}
-            height={300}
-            alt=""
-          />
-        ) : (
-          <div
-            style={{
-              background: `linear-gradient(90deg, ${randomColor()}, ${randomColor()})`,
-              height: "20vw",
-              width: "20vw",
-            }}
-          />
-        )}
+      <Link href={`/collection/${collection[2]}`}>
+        <div
+          style={{
+            backgroundImage: `linear-gradient(90deg, ${randomColor()}, ${randomColor()})`,
+            height: "20vw",
+            width: "20vw",
+          }}
+        />
       </Link>
-      <h4>{cData.name}</h4>
+      <h4>{collectionDetails.name}</h4>
     </div>
   );
 }

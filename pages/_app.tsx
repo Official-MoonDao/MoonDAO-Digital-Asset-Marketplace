@@ -9,6 +9,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThirdwebProvider activeChain={NETWORK}>
       {/* Progress bar when navigating between pages */}
+
       <NextNProgress
         color="var(--color-tertiary)"
         startPosition={0.3}
@@ -20,6 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       {/* Render the navigation menu above each component */}
       <Navbar />
       {/* Render the actual component (page) */}
+
       <Component {...pageProps} />
     </ThirdwebProvider>
   );

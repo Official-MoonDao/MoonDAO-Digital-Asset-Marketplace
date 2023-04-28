@@ -13,6 +13,13 @@ import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 import { getAllUserNFTs } from "../../lib/opensea";
 import styles from "../../styles/Profile.module.css";
 import randomColor from "../../util/randomColor";
+import { GetServerSideProps } from "next";
+import { initSDK } from "../../lib/thirdweb";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  useProfileListingsAndAuctions,
+} from "../../lib/marketplace-v3";
 
 const [randomColor1, randomColor2, randomColor3, randomColor4] = [
   randomColor(),
@@ -21,23 +28,12 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
   randomColor(),
 ];
 
-export default function ProfilePage() {
+export default function ProfilePage({ validListings, validAuctions }: any) {
   const router = useRouter();
-  const address = useAddress();
+  const address: string = useAddress() || "";
+  const { listings: userListings, auctions: userAuctions } =
+    useProfileListingsAndAuctions(validListings, validAuctions, address);
   const [tab, setTab] = useState<"listings" | "auctions">("listings");
-
-  const { contract: marketplace } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace"
-  );
-
-  //get all user listings
-  const { data: listings, isLoading: loadingListings } = useListings(
-    marketplace,
-    {
-      seller: router.query.address as string,
-    }
-  );
 
   //get all user nfts from opensea
   const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
@@ -50,8 +46,7 @@ export default function ProfilePage() {
       if (router.query && router.query.address?.toString() !== address)
         router.push(`/profile/${address}`);
     }
-    console.log(listings);
-  }, [address, listings, router]);
+  }, [address, router]);
 
   return (
     <Container maxWidth="lg" className="">
@@ -101,9 +96,7 @@ export default function ProfilePage() {
           tab === "listings" ? styles.activeTabContent : styles.tabContent
         }`}
       >
-        {loadingListings ? (
-          <p>Loading...</p>
-        ) : listings && listings.length === 0 ? (
+        {listings && listings.length === 0 ? (
           <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
           <ListingGrid listings={listings} />
@@ -115,14 +108,26 @@ export default function ProfilePage() {
           tab === "auctions" ? styles.activeTabContent : styles.tabContent
         }`}
       >
-        {loadingListings ? (
-          <p>Loading...</p>
-        ) : listings && listings.length === 0 ? (
+        {auctions && auctions.length === 0 ? (
           <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
-          <ListingGrid listings={listings} type="auction" />
+          <ListingGrid listings={auctions} type="auction" />
         )}
       </div>
     </Container>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const sdk = initSDK();
+  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const validListings = await getAllValidListings(marketplace);
+  const validAuctions = await getAllValidAuctions(marketplace);
+
+  return {
+    props: {
+      validListings,
+      validAuctions,
+    },
+  };
+};

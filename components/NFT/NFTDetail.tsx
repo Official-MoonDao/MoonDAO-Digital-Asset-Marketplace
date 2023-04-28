@@ -4,6 +4,7 @@ import {
   ThirdwebNftMedia,
   useContract,
   useContractMetadata,
+  useNFT,
   Web3Button,
 } from "@thirdweb-dev/react";
 import Container from "../Container/Container";
@@ -14,8 +15,11 @@ import { useEffect, useState } from "react";
 import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
 import toastStyle from "../../util/toastConfig";
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
+
 export default function NFTDetail({
-  listings,
+  tokenId,
+  assetListings,
+  assetAuctions,
   router,
   user,
   contractAddress,
@@ -24,12 +28,17 @@ export default function NFTDetail({
   // Connect to marketplace smart contract
   const { contract: nftContract } = useContract(contractAddress);
   const { data: nftContractMetadata } = useContractMetadata(nftContract);
+  const { data: nft }: any = useNFT(nftContract, tokenId);
   const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,
-    "marketplace"
+    "marketplace-v3"
   );
 
-  const [currListing, setCurrListing] = useState<any>({});
+  const [listings, setListings] = useState<any>([
+    ...assetListings,
+    ...assetAuctions,
+  ]);
+  const [currListing, setCurrListing] = useState<any>([]);
 
   const [maxBid, setMaxBid] = useState<number>(0);
 
@@ -48,7 +57,10 @@ export default function NFTDetail({
 
     if (listing.type === 1) {
       // make offer on auction
-      txResult = await marketplace?.auction.makeBid(listing.id, bidValue);
+      txResult = await marketplace?.englishAuctions.makeBid(
+        listing.id,
+        bidValue
+      );
     }
 
     return txResult;
@@ -59,9 +71,15 @@ export default function NFTDetail({
     const selectedListing = currListing.id ? currListing : listings[0];
 
     if (selectedListing.type === 1) {
-      txResult = await marketplace?.auction.buyoutListing(selectedListing.id);
+      txResult = await marketplace?.englishAuctions.buyoutAuction(
+        selectedListing.id
+      );
     } else {
-      txResult = await marketplace?.direct.buyoutListing(selectedListing.id, 1);
+      txResult = await marketplace?.directListings.buyFromListing(
+        selectedListing.id,
+        1,
+        user.address
+      );
     }
     return txResult;
   }
@@ -69,12 +87,13 @@ export default function NFTDetail({
   async function handleRemoveListing(listingId: string) {
     if (listings) {
       listings[0].type === 0
-        ? await marketplace?.direct.cancelListing(listingId)
-        : await marketplace?.auction.cancelListing(listingId);
+        ? await marketplace?.directListings.cancelListing(listingId)
+        : await marketplace?.englishAuctions.cancelAuction(listingId);
 
       router.push(`/profile/${user.address}`);
     }
   }
+
   useEffect(() => {
     if (listings[0].type === 1 || currListing.type === 1) {
       const selectedListing = currListing.id ? currListing : listings[0];
@@ -83,7 +102,6 @@ export default function NFTDetail({
           const offers: any = await marketplace?.getOffers(selectedListing.id);
           const highestOffer: any = offers?.reduce(
             (acc: any, offer: any, i: any) => {
-              console.log(acc, offer);
               return Math.max(acc, offer.currencyValue.displayValue);
             },
             [offers[0]?.currencyValue?.displayValue]
@@ -92,6 +110,7 @@ export default function NFTDetail({
         })();
       } else setMaxBid(0);
     }
+    console.log(nft);
   }, [listings, currListing, marketplace]);
   //check if contract supports erc1155
   const [contractType, setContractType] = useState<string>("erc721");
@@ -112,33 +131,31 @@ export default function NFTDetail({
         <div className={styles.container}>
           <div className={styles.metadataContainer}>
             <ThirdwebNftMedia
-              metadata={listings[0].asset}
+              metadata={nft?.metadata}
               className={styles.image}
             />
 
             <div className={styles.descriptionContainer}>
               <h3 className={styles.descriptionTitle}>Description</h3>
               <p className={styles.description}>
-                {listings[0].asset.description}
+                {nft?.metadata.description || "No description provided"}
               </p>
 
               <h3 className={styles.descriptionTitle}>Traits</h3>
 
               <div className={styles.traitsContainer}>
-                {Object.entries(listings[0].asset.attributes || {}).map(
+                {Object.entries(nft?.metadata.attributes || {}).map(
                   ([key, value]: any) => (
                     <div className={styles.traitContainer} key={key}>
                       <p className={styles.traitName}>{value.trait_type} :</p>
                       <p className={styles.traitValue}>
-                        {value.display_type === "date"
-                          ? `${new Date(
-                              value.value?.toString() * 1000 -
-                                new Date().getTimezoneOffset() * 60000
-                            ).toLocaleDateString()} @ ${new Date(
-                              value.value?.toString() * 1000 -
-                                new Date().getTimezoneOffset() * 60000
-                            ).toLocaleTimeString()}`
-                          : value.value?.toString() || ""}
+                        {`${new Date(
+                          value.value?.toString() * 1000 -
+                            new Date().getTimezoneOffset() * 60000
+                        ).toLocaleDateString()} @ ${new Date(
+                          value.value?.toString() * 1000 -
+                            new Date().getTimezoneOffset() * 60000
+                        ).toLocaleTimeString()}`}
                       </p>
                     </div>
                   )
@@ -148,7 +165,7 @@ export default function NFTDetail({
           </div>
 
           <div className={styles.listingContainer}>
-            {listings[0].id && (
+            {nft?.metadata.id && (
               <div className={styles.contractMetadataContainer}>
                 <button
                   className={styles.collectionName}
@@ -158,9 +175,9 @@ export default function NFTDetail({
                 </button>
               </div>
             )}
-            <h1 className={styles.title}>{listings[0].asset.name}</h1>
+            <h1 className={styles.title}>{nft?.metadata.name}</h1>
             <p className={styles.collectionName}>
-              Token ID #{listings[0].token_id}
+              Token ID #{nft?.metadata.id}
             </p>
             {contractType === "erc721" && (
               <Link
@@ -176,20 +193,13 @@ export default function NFTDetail({
                 />
                 <div className={styles.nftOwnerInfo}>
                   <p className={styles.label}>Current Owner</p>
-                  {listings && listings[0] ? (
+                  {nft?.metadata.owner ? (
                     <p className={styles.nftOwnerAddress}>
-                      {listings[0].sellerAddress.slice(0, 8)}...
-                      {listings[0].sellerAddress.slice(-4)}
+                      {nft?.metadata.owner.slice(0, 8)}...
+                      {nft?.metadata.owner.slice(-4)}
                     </p>
                   ) : (
-                    <p className={styles.nftOwnerAddress}>
-                      {listings[0].asset.owner
-                        ? `${listings[0].asset.owner.slice(
-                            0,
-                            8
-                          )}...${listings[0].asset.owner.slice(-4)}`
-                        : `0x000000...0000`}
-                    </p>
+                    <p className={styles.nftOwnerAddress}>0x000000...0000</p>
                   )}
                 </div>
               </Link>

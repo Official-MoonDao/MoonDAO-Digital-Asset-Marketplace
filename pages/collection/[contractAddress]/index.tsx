@@ -7,51 +7,64 @@ import {
   ThirdwebNftMedia,
   useActiveListings,
   useContract,
+  useContractRead,
 } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
 import { useEffect, useState } from "react";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  useAllCollections,
+} from "../../../lib/marketplace-v3";
+import { initSDK } from "../../../lib/thirdweb";
+import AssetPreview from "../../../components/Collection/AssetPreview";
 
-export default function Collection({ contractAddress }: any) {
+export default function Collection({
+  contractAddress,
+  listings,
+  auctions,
+}: any) {
   const router = useRouter();
-  const { contract: marketplace }: any = useContract(MARKETPLACE_ADDRESS);
-  const { data: listings, isLoading: listingsLoading } = useActiveListings(
-    marketplace,
-    { tokenContract: contractAddress }
-  );
   const [assets, setAssets]: any = useState<any>([]);
 
   useEffect(() => {
-    if (listings && listings[0]) {
+    console.log(listings, auctions);
+    if (listings || auctions) {
       const uniqueAssets: any = [];
-      const filteredAssets = listings.filter(
-        (l: any) =>
-          !uniqueAssets.includes(l.tokenId.toString()) &&
-          uniqueAssets.push(l.tokenId.toString())
-      );
+      const filteredAssets: any = [];
+      const length: number =
+        listings.length > auctions.length ? listings.length : auctions.length;
+      for (let i = 0; i < length; i++) {
+        if (listings[i] && !uniqueAssets.includes(listings[i][10])) {
+          uniqueAssets.push(listings[i][10]);
+          filteredAssets.push(listings[i]);
+        }
+        if (auctions[i] && !uniqueAssets.includes(auctions[i][10])) {
+          uniqueAssets.push(auctions[i][10]);
+          filteredAssets.push(auctions[i]);
+        }
+      }
       setAssets(filteredAssets);
     }
-    console.log(listings);
-  }, [listings]);
+  }, [listings, auctions]);
+
   return (
     <Container maxWidth="lg" className="">
       <p className={styles.nftName}></p>
       <div className="flex flex-wrap gap-[5%] mt-[5%]">
         {assets &&
           assets[0] &&
-          assets.map((listing: any, i: number) => (
+          assets.map((a: any, i: number) => (
             <div
               className="hover:translate-y-[-4%] duration-300 ease-in my-[2.5%] "
               key={`asset-${i}`}
               onClick={() =>
                 router.push(
-                  `/collection/${contractAddress}/${listing.tokenId.toString()}`
+                  `/collection/${contractAddress}/${a[10].toString()}`
                 )
               }
             >
-              <ThirdwebNftMedia
-                className="rounded-md hover:drop-shadow-[0_10px_20px_#d1d1d1] ease-in duration-300"
-                metadata={listing.asset}
-              />
+              <AssetPreview contractAddress={contractAddress} tokenId={a[10]} />
             </div>
           ))}
       </div>
@@ -59,12 +72,13 @@ export default function Collection({ contractAddress }: any) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const contractAddress = context.params?.contractAddress as string;
-
+export async function getServerSideProps({ params }: any) {
+  const contractAddress = params?.contractAddress;
+  const sdk = initSDK();
+  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const listings = await getAllValidListings(marketplace);
+  const auctions = await getAllValidAuctions(marketplace);
   return {
-    props: {
-      contractAddress,
-    },
+    props: { contractAddress, listings, auctions },
   };
-};
+}

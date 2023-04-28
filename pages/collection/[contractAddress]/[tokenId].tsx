@@ -9,13 +9,26 @@ import { useRouter } from "next/router";
 import NFTDetail from "../../../components/NFT/NFTDetail";
 import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
 import Container from "../../../components/Container/Container";
+import { initSDK } from "../../../lib/thirdweb";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  useListingsAndAuctionsForTokenId,
+} from "../../../lib/marketplace-v3";
 
 type Props = {
   contractAddress: string;
-  tokenId: string;
+  tokenId: number;
+  validListings: any;
+  validAuctions: any;
 };
 
-export default function TokenPage({ contractAddress, tokenId }: Props) {
+export default function TokenPage({
+  contractAddress,
+  tokenId,
+  validListings,
+  validAuctions,
+}: Props) {
   const router = useRouter();
 
   //check wallet for mooney
@@ -26,11 +39,11 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
   const [mooneyBalance, setMooneyBalance] = useState(0);
 
   //get nft from listing
-  const { contract: marketplace }: any = useContract(MARKETPLACE_ADDRESS);
-  const { data: listings, isLoading } = useActiveListings(marketplace, {
-    tokenContract: contractAddress,
-    tokenId: tokenId,
-  });
+  const { listings, auctions } = useListingsAndAuctionsForTokenId(
+    validListings,
+    validAuctions,
+    tokenId
+  );
 
   useEffect(() => {
     if (mooneyContract && address) {
@@ -39,6 +52,7 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
         setMooneyBalance(Math.floor(+data?.toString() / 10 ** 18));
       })();
     }
+    console.log(validListings);
   }, [mooneyContract, address]);
 
   return (
@@ -46,14 +60,12 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
       {listings && listings[0] ? (
         <NFTDetail
           contractAddress={contractAddress}
-          listings={listings}
+          tokenId={tokenId}
+          assetListings={listings}
+          assetAuctions={auctions}
           router={router}
           user={{ address, mooneyBalance }}
         />
-      ) : isLoading ? (
-        <Container maxWidth="lg" className="">
-          ...loading
-        </Container>
       ) : (
         <Container maxWidth="lg" className="">
           ...this token has no listings
@@ -63,14 +75,20 @@ export default function TokenPage({ contractAddress, tokenId }: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const contractAddress = context.params?.contractAddress;
-  const tokenId = context.params?.tokenId;
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const contractAddress = params?.contractAddress;
+  const tokenId = params?.tokenId;
+  const sdk = initSDK();
+  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const validListings = await getAllValidListings(marketplace);
+  const validAuctions = await getAllValidAuctions(marketplace);
 
   return {
     props: {
       contractAddress,
       tokenId,
+      validListings,
+      validAuctions,
     },
   };
 };
