@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import CollectionGrid from "../components/Collection/CollectionGrid";
 import Container from "../components/Container/Container";
-import { MARKETPLACE_ADDRESS } from "../const/contractAddresses";
+import { MARKETPLACE_ADDRESS } from "../const/config";
 import {
   getAllValidAuctions,
   getAllValidListings,

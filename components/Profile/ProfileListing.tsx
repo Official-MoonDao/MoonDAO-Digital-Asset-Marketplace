@@ -10,10 +10,13 @@ import Link from "next/link";
 import {
   MARKETPLACE_ADDRESS,
   MOONEY_ADDRESS_SEPOLIA,
-} from "../../const/contractAddresses";
+} from "../../const/config";
 
 import Skeleton from "../Skeleton/Skeleton";
 import styles from "../NFT/NFT.module.css";
+import { useEffect } from "react";
+import { BigNumber, ethers } from "ethers";
+import { BigConvert } from "../../lib/utils";
 
 /*
 Listing Data Structure
@@ -48,30 +51,36 @@ Auction Data Structure
   12: status : number
 */
 
-export default function Listing({ listing, type = "direct" }: any) {
+export default function ProfileListing({ listing, type = "direct" }: any) {
   const { contract: nftContract } = useContract(listing[2]);
   const { data: nft }: any = useNFT(nftContract, listing[3]);
 
+  const buyOut = type === "direct" ? listing[6] : listing[7];
+  const minBid = type === "direct" ? 0 : listing[6];
+  const end = type === "direct" ? listing[8] : listing[11];
+
+  useEffect(() => {}, [listing]);
+
   return (
     <>
-      {type === "direct" && (
+      {type === "direct" && nft && (
         <Link href={`/collection/${listing[2]}/${listing[3].toString()}`}>
           <div className="flex flex-col justify-center gap-4 items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
             <div className="flex flex-col gap-2">
               <div>
                 {"listing is active : "}
-                {new Date(listing[8].toString() * 1000) > new Date(Date.now())
+                {new Date(+BigConvert(listing[8]) * 1000) > new Date(Date.now())
                   ? "✅"
                   : "❌"}
               </div>
-              <h4 className="font-bold">{nft.metadata.name}</h4>
-              <ThirdwebNftMedia metadata={nft.metadata} />
+              <h4 className="font-bold">{nft?.metadata?.name}</h4>
+              <ThirdwebNftMedia metadata={nft?.metadata} />
             </div>
             <div className={styles.nftPriceContainer}>
               <div>
                 <p className={styles.nftPriceLabel}>Price</p>
                 <p className={styles.nftPriceValue}>
-                  {`${listing[6].toString()} MOONEY`}
+                  {`${BigConvert(buyOut)} MOONEY`}
                 </p>
               </div>
             </div>
@@ -79,32 +88,33 @@ export default function Listing({ listing, type = "direct" }: any) {
               <div>
                 <p className={styles.nftPriceLabel}>Listing Expiration</p>
                 <p className={styles.nftPriceValue}>{`${new Date(
-                  listing[8].toString() * 1000
+                  +BigConvert(end) * 1000
                 ).toLocaleDateString()} @ ${new Date(
-                  listing[8].toString() * 1000
+                  +BigConvert(end) * 1000
                 ).toLocaleTimeString()}`}</p>
               </div>
             </div>
           </div>
         </Link>
       )}
-      {type === "auction" && (
-        <Link href={`/collection/${listing[2]}/${listing[3].toString()}`}>
+      {type === "auction" && nft && (
+        <Link href={`/collection/${listing[2]}/${BigConvert(listing[3])}`}>
           <div className="flex justify-center items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
             <div className="flex flex-col gap-2">
               <div>
                 {"listing is active : "}
-                {new Date(listing[10].toString() * 1000) > new Date(Date.now())
+                {new Date(+BigConvert(listing[11]) * 1000) >
+                new Date(Date.now())
                   ? "✅"
                   : "❌"}
               </div>
-              <h4 className="font-bold">{listing.asset.name}</h4>
-              <ThirdwebNftMedia metadata={listing.asset} />
+              <h4 className="font-bold">{nft?.metadata?.name}</h4>
+              <ThirdwebNftMedia metadata={nft?.metadata} />
               <div className={styles.nftPriceContainer}>
                 <div>
                   <p className={styles.nftPriceLabel}>Buyout price</p>
                   <p className={styles.nftPriceValue}>
-                    {`${listing[6].toString()} MOONEY`}
+                    {`${BigConvert(buyOut)} MOONEY`}
                   </p>
                 </div>
               </div>
@@ -112,7 +122,7 @@ export default function Listing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Minimum bid</p>
                   <p className={styles.nftPriceValue}>
-                    {`${listing[6].toString()} MOONEY`}
+                    {`${BigConvert(buyOut)} MOONEY`}
                   </p>
                 </div>
               </div>
@@ -120,9 +130,9 @@ export default function Listing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Listing Expiration</p>
                   <p className={styles.nftPriceValue}>{`${new Date(
-                    listing[10] * 1000
+                    +BigConvert(end) * 1000
                   ).toLocaleDateString()} @ ${new Date(
-                    listing[10] * 1000
+                    +BigConvert(end) * 1000
                   ).toLocaleTimeString()}`}</p>
                 </div>
               </div>

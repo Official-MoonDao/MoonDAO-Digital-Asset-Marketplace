@@ -2,7 +2,7 @@ import type { AppProps } from "next/app";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { Navbar } from "../components/Navbar/Navbar";
 import NextNProgress from "nextjs-progressbar";
-import { NETWORK } from "../const/contractAddresses";
+import { NETWORK } from "../const/config";
 import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -21,7 +21,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       {/* Render the navigation menu above each component */}
       <Navbar />
       {/* Render the actual component (page) */}
-
       <Component {...pageProps} />
     </ThirdwebProvider>
   );

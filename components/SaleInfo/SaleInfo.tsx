@@ -19,7 +19,7 @@ import { BigNumber } from "ethers";
 import {
   MARKETPLACE_ADDRESS,
   VMOONEY_ADDRESS_GOERLI,
-} from "../../const/contractAddresses";
+} from "../../const/config";
 
 type Props = {
   nft: any;

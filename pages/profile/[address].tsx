@@ -1,15 +1,9 @@
-import {
-  useActiveListings,
-  useAddress,
-  useContract,
-  useListings,
-} from "@thirdweb-dev/react";
+import { useAddress } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Container from "../../components/Container/Container";
-import ListingGrid from "../../components/Listing/ListingGrid";
 import Skeleton from "../../components/Skeleton/Skeleton";
-import { MARKETPLACE_ADDRESS } from "../../const/contractAddresses";
+import { MARKETPLACE_ADDRESS } from "../../const/config";
 import { getAllUserNFTs } from "../../lib/opensea";
 import styles from "../../styles/Profile.module.css";
 import randomColor from "../../util/randomColor";
@@ -20,6 +14,7 @@ import {
   getAllValidListings,
   useProfileListingsAndAuctions,
 } from "../../lib/marketplace-v3";
+import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
 
 const [randomColor1, randomColor2, randomColor3, randomColor4] = [
   randomColor(),
@@ -28,15 +23,25 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
   randomColor(),
 ];
 
-export default function ProfilePage({ validListings, validAuctions }: any) {
+export default function ProfilePage({
+  validListings,
+  validAuctions,
+  walletAddress,
+}: any) {
   const router = useRouter();
-  const address: string = useAddress() || "";
-  const { listings: userListings, auctions: userAuctions } =
-    useProfileListingsAndAuctions(validListings, validAuctions, address);
+  const address: any = useAddress();
+  const { listings, auctions } = useProfileListingsAndAuctions(
+    validListings,
+    validAuctions,
+    walletAddress
+  );
   const [tab, setTab] = useState<"listings" | "auctions">("listings");
 
   //get all user nfts from opensea
   const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
+  useEffect(() => {
+    console.log(listings, auctions);
+  }, [listings, auctions]);
   useEffect(() => {
     if (address) {
       (async () => {
@@ -99,7 +104,7 @@ export default function ProfilePage({ validListings, validAuctions }: any) {
         {listings && listings.length === 0 ? (
           <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
-          <ListingGrid listings={listings} />
+          <ProfileListingGrid listings={listings} />
         )}
       </div>
 
@@ -111,7 +116,7 @@ export default function ProfilePage({ validListings, validAuctions }: any) {
         {auctions && auctions.length === 0 ? (
           <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
         ) : (
-          <ListingGrid listings={auctions} type="auction" />
+          <ProfileListingGrid listings={auctions} type="auction" />
         )}
       </div>
     </Container>
@@ -119,6 +124,7 @@ export default function ProfilePage({ validListings, validAuctions }: any) {
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const walletAddress = params?.address;
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings = await getAllValidListings(marketplace);
@@ -128,6 +134,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     props: {
       validListings,
       validAuctions,
+      walletAddress,
     },
   };
 };

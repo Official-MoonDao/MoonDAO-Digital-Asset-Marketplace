@@ -9,7 +9,7 @@ import {
   useContract,
   useContractRead,
 } from "@thirdweb-dev/react";
-import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
+import { MARKETPLACE_ADDRESS } from "../../../const/config";
 import { useEffect, useState } from "react";
 import {
   getAllValidAuctions,
@@ -18,6 +18,8 @@ import {
 } from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
 import AssetPreview from "../../../components/Collection/AssetPreview";
+import { BigNumber } from "ethers";
+import { BigConvert } from "../../../lib/utils";
 
 export default function Collection({
   contractAddress,
@@ -28,19 +30,27 @@ export default function Collection({
   const [assets, setAssets]: any = useState<any>([]);
 
   useEffect(() => {
-    console.log(listings, auctions);
     if (listings || auctions) {
+      console.log(listings, auctions);
       const uniqueAssets: any = [];
       const filteredAssets: any = [];
       const length: number =
         listings.length > auctions.length ? listings.length : auctions.length;
       for (let i = 0; i < length; i++) {
-        if (listings[i] && !uniqueAssets.includes(listings[i][10])) {
-          uniqueAssets.push(listings[i][10]);
+        if (
+          listings[i] &&
+          !uniqueAssets.includes(BigConvert(listings[i][3].hex))
+        ) {
+          const tokenId: string = BigConvert(listings[i][3].hex);
+          uniqueAssets.push(tokenId);
           filteredAssets.push(listings[i]);
         }
-        if (auctions[i] && !uniqueAssets.includes(auctions[i][10])) {
-          uniqueAssets.push(auctions[i][10]);
+        if (
+          auctions[i] &&
+          !uniqueAssets.includes(BigConvert(auctions[i][3].hex))
+        ) {
+          const tokenId: string = BigConvert(auctions[i][0].hex);
+          uniqueAssets.push(tokenId);
           filteredAssets.push(auctions[i]);
         }
       }
@@ -60,11 +70,14 @@ export default function Collection({
               key={`asset-${i}`}
               onClick={() =>
                 router.push(
-                  `/collection/${contractAddress}/${a[10].toString()}`
+                  `/collection/${contractAddress}/${BigConvert(a[3].hex)}`
                 )
               }
             >
-              <AssetPreview contractAddress={contractAddress} tokenId={a[10]} />
+              <AssetPreview
+                contractAddress={contractAddress}
+                tokenId={BigConvert(a[3].hex)}
+              />
             </div>
           ))}
       </div>

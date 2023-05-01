@@ -17,6 +17,7 @@
     "@thirdweb-dev/react": "^3.9",
     "@thirdweb-dev/sdk": "^3.9",
     "ethers": "^5.7.2",
+    "json-bigint": "^1.0.0",
     "next": "^13",
     "nextjs-progressbar": "^0.0.16",
     "react": "^18.2",
@@ -26,6 +27,7 @@
     "three": "^0.151.3"
   },
   "devDependencies": {
+    "@types/json-bigint": "^1.0.1",
     "@types/node": "^18.11.11",
     "@types/react": "^18",
     "@types/three": "^0.150.1",

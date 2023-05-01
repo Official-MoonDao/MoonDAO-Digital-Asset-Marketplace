@@ -9,7 +9,7 @@ import {
 import { NATIVE_TOKEN_ADDRESS } from "@thirdweb-dev/sdk";
 import React, { useRef, useState } from "react";
 import Container from "../components/Container/Container";
-import { NFT_COLLECTION_ADDRESS } from "../const/contractAddresses";
+import { NFT_COLLECTION_ADDRESS } from "../const/config";
 
 const NFT_COLLECTIONS = [
   { type: "nft", address: "0xCF7241560C960783E1Bb90f233f8cfF782f7ABa1" },

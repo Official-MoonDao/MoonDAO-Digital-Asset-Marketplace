@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
+import { BigNumber } from "ethers";
+import { BigConvert, serializable } from "./utils";
 
 ///Formatting////////////////////
 ////////////////////////////////
-
 //JSON serializable data
-function serializable(data: any) {
-  return JSON.parse(JSON.stringify(data));
-}
+
 /////SERVER SIDE FUNCTIONS/////
 ////////////////////////////////
 
@@ -16,8 +15,9 @@ export async function getAllValidListings(marketplace: any) {
   const listings = await marketplace.call(
     "getAllValidListings",
     0,
-    totalListings?.toNumber() - 1
+    totalListings?.toNumber() - 1 >= 0 ? totalListings?.toNumber() - 1 : 0
   );
+  if (listings.length < 1) return [];
   return serializable(listings);
 }
 
@@ -27,10 +27,29 @@ export async function getAllValidAuctions(marketplace: any) {
   const auctions = await marketplace.call(
     "getAllValidAuctions",
     0,
-    totalAuctions?.toNumber() - 1
+    totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
   );
   console.log(auctions);
+  if (auctions.length < 1) return [];
   return serializable(auctions);
+}
+
+export async function getAllValidOffersByTokenId(
+  marketplace: any,
+  tokenId: any
+) {
+  const totalOffers = await marketplace.call("totalOffers");
+  try {
+    const validOffers = await marketplace.call(
+      "getAllValidOffers",
+      0,
+      totalOffers?.toNumber() - 1 >= 0 ? totalOffers?.toNumber() - 1 : 0
+    );
+    return serializable(validOffers);
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
 }
 
 //////HOOKS//////////
@@ -79,10 +98,10 @@ export function useListingsAndAuctionsForTokenId(
   useEffect(() => {
     if (validListings && validAuctions) {
       const filteredListings = validListings?.filter(
-        (l: any) => l[10] === Number(tokenId)
+        (l: any) => +BigConvert(l[3].hex) === Number(tokenId)
       );
       const filteredAuctions = validAuctions?.filter(
-        (a: any) => a[10] === Number(tokenId)
+        (a: any) => +BigConvert(a[3].hex) === Number(tokenId)
       );
       setListings(filteredListings);
       setAuctions(filteredAuctions);
@@ -104,15 +123,16 @@ export function useProfileListingsAndAuctions(
   useEffect(() => {
     if (validListings && validAuctions) {
       const filteredListings = validListings?.filter(
-        (l: any) => l[1] === walletAddress
+        (l: any) => l[1] && l[1]?.toLowerCase() === walletAddress?.toLowerCase()
       );
       const filteredAuctions = validAuctions?.filter(
-        (a: any) => a[1] === walletAddress
+        (a: any) => a[1] && a[1]?.toLowerCase() === walletAddress?.toLowerCase()
       );
+      console.log(validListings, validAuctions);
       setListings(filteredListings);
       setAuctions(filteredAuctions);
     }
-  }, []);
+  }, [validListings, validAuctions, walletAddress]);
 
-  return { listings, auctions };
+  return { listings: validListings, auctions: validAuctions };
 }

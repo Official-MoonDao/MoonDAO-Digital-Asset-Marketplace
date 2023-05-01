@@ -7,12 +7,13 @@ import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import NFTDetail from "../../../components/NFT/NFTDetail";
-import { MARKETPLACE_ADDRESS } from "../../../const/contractAddresses";
+import { MARKETPLACE_ADDRESS } from "../../../const/config";
 import Container from "../../../components/Container/Container";
 import { initSDK } from "../../../lib/thirdweb";
 import {
   getAllValidAuctions,
   getAllValidListings,
+  getAllValidOffersByTokenId,
   useListingsAndAuctionsForTokenId,
 } from "../../../lib/marketplace-v3";
 
@@ -21,6 +22,7 @@ type Props = {
   tokenId: number;
   validListings: any;
   validAuctions: any;
+  validOffers: any;
 };
 
 export default function TokenPage({
@@ -28,6 +30,7 @@ export default function TokenPage({
   tokenId,
   validListings,
   validAuctions,
+  validOffers,
 }: Props) {
   const router = useRouter();
 
@@ -52,12 +55,13 @@ export default function TokenPage({
         setMooneyBalance(Math.floor(+data?.toString() / 10 ** 18));
       })();
     }
-    console.log(validListings);
+    console.log(validOffers);
+    console.log(listings, auctions);
   }, [mooneyContract, address]);
 
   return (
     <>
-      {listings && listings[0] ? (
+      {listings && auctions ? (
         <NFTDetail
           contractAddress={contractAddress}
           tokenId={tokenId}
@@ -82,6 +86,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings = await getAllValidListings(marketplace);
   const validAuctions = await getAllValidAuctions(marketplace);
+  const validOffers = await getAllValidOffersByTokenId(marketplace, tokenId);
 
   return {
     props: {
@@ -89,6 +94,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
       tokenId,
       validListings,
       validAuctions,
+      validOffers,
     },
   };
 };
