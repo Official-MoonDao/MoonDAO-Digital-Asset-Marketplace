@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import JSONbig from "json-bigint";
-export function BigConvert(hex: any) {
-  return BigNumber.from(hex).toString();
+export function BigConvert(data: any) {
+  return !data ? 0 : BigNumber.from(data).toString();
 }
 
 export function serializable(data: any) {

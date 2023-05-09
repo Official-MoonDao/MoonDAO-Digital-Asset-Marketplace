@@ -23,23 +23,28 @@ export async function getAllValidListings(marketplace: any) {
 
 //Get all valid auctions from marketplace v3
 export async function getAllValidAuctions(marketplace: any) {
-  const totalAuctions = await marketplace.call("totalAuctions");
-  const auctions = await marketplace.call(
-    "getAllValidAuctions",
-    0,
-    totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
-  );
-  console.log(auctions);
-  if (auctions.length < 1) return [];
-  return serializable(auctions);
+  try {
+    const totalAuctions = await marketplace.call("totalAuctions");
+    const auctions = await marketplace.call(
+      "getAllValidAuctions",
+      0,
+      totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
+    );
+
+    if (auctions.length < 1) return [];
+    return serializable(auctions);
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 export async function getAllValidOffersByTokenId(
   marketplace: any,
   tokenId: any
 ) {
-  const totalOffers = await marketplace.call("totalOffers");
   try {
+    const totalOffers = await marketplace.call("totalOffers");
+    if (totalOffers?.toNumber() <= 0) return [];
     const validOffers = await marketplace.call(
       "getAllValidOffers",
       0,
@@ -97,14 +102,18 @@ export function useListingsAndAuctionsForTokenId(
 
   useEffect(() => {
     if (validListings && validAuctions) {
-      const filteredListings = validListings?.filter(
-        (l: any) => +BigConvert(l[3].hex) === Number(tokenId)
-      );
-      const filteredAuctions = validAuctions?.filter(
-        (a: any) => +BigConvert(a[3].hex) === Number(tokenId)
-      );
-      setListings(filteredListings);
-      setAuctions(filteredAuctions);
+      const filteredListings =
+        validListings[0] &&
+        validListings?.filter(
+          (l: any) => +BigConvert(l[3].hex) === Number(tokenId)
+        );
+      const filteredAuctions =
+        validAuctions[0] &&
+        validAuctions?.filter(
+          (a: any) => +BigConvert(a[3].hex) === Number(tokenId)
+        );
+      setListings(filteredListings || []);
+      setAuctions(filteredAuctions || []);
     }
   }, [validListings, validAuctions, tokenId]);
 

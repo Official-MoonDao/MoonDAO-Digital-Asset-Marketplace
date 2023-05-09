@@ -11,12 +11,14 @@
     "deploy": "next build && next export && npx thirdweb@latest upload out"
   },
   "dependencies": {
+    "@blockadelabs/sdk": "^1.1.1",
     "@react-three/drei": "^9.64.0",
     "@react-three/fiber": "^8.12.0",
     "@thirdweb-dev/chains": "^0.1.2",
     "@thirdweb-dev/react": "^3.9",
     "@thirdweb-dev/sdk": "^3.9",
     "ethers": "^5.7.2",
+    "gsap": "^3.11.5",
     "json-bigint": "^1.0.0",
     "next": "^13",
     "nextjs-progressbar": "^0.0.16",

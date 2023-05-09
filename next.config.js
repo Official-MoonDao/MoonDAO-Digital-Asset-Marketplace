@@ -5,6 +5,12 @@ const nextConfig = {
   images: {
     domains: ["gateway.ipfscdn.io", "i.seadn.io", "ipfs.io"],
   },
+
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false };
+
+    return config;
+  },
 };
 
 module.exports = nextConfig;

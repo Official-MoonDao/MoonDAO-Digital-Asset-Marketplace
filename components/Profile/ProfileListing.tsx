@@ -44,11 +44,12 @@ Auction Data Structure
   5: currency : string
   6: minimumBidAmount: BigNumber
   7: buyoutBidAmount: BigNumber
-  8: bidBufferBps: BigNumber
-  9: startTimestamp : BigNumber
-  10: endTimestamp : BigNumber
-  11: tokenType : number
-  12: status : number
+  8: timeBufferInSeconds: BigNumber
+  9: bidBufferBps: BigNumber
+  10: startTimestamp : BigNumber
+  11: endTimestamp : BigNumber
+  12: tokenType : number
+  13: status : number
 */
 
 export default function ProfileListing({ listing, type = "direct" }: any) {

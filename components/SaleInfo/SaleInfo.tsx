@@ -18,7 +18,7 @@ import toastStyle from "../../util/toastConfig";
 import { BigNumber } from "ethers";
 import {
   MARKETPLACE_ADDRESS,
-  VMOONEY_ADDRESS_GOERLI,
+  VMOONEY_ADDRESS_SEPOLIA,
 } from "../../const/config";
 
 type Props = {
@@ -56,10 +56,10 @@ export default function SaleInfo({
   // Connect to marketplace contract
   const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
-    "marketplace"
+    "marketplace-v3"
   );
 
-  const { contract: vMooneyContract } = useContract(VMOONEY_ADDRESS_GOERLI);
+  const { contract: vMooneyContract } = useContract(VMOONEY_ADDRESS_SEPOLIA);
 
   const { data: listings, isLoading: listingsLoading } = useActiveListings(
     marketplace,
