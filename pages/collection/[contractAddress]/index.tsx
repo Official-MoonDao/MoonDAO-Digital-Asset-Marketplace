@@ -41,7 +41,7 @@ export default function Collection({
           listings[i] &&
           !uniqueAssets.includes(BigConvert(listings[i][3].hex))
         ) {
-          const tokenId: string = BigConvert(listings[i][3].hex);
+          const tokenId: any = BigConvert(listings[i][3].hex);
           uniqueAssets.push(tokenId);
           filteredAssets.push(listings[i]);
         }
@@ -49,7 +49,7 @@ export default function Collection({
           auctions[i] &&
           !uniqueAssets.includes(BigConvert(auctions[i][3].hex))
         ) {
-          const tokenId: string = BigConvert(auctions[i][0].hex);
+          const tokenId: any = BigConvert(auctions[i][0].hex);
           uniqueAssets.push(tokenId);
           filteredAssets.push(auctions[i]);
         }
