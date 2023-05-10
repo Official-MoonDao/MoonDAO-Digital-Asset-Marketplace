@@ -10,7 +10,7 @@ export default function ThreeText({ position, text }: any) {
 
   return (
     <mesh position={position}>
-      <textGeometry args={[text, { font, size: 1, height: 1 }]} />\
+      <textGeometry args={[text, { font, size: 1, height: 1 }]} />
       <meshPhysicalMaterial attach="material" color={"black"} />
     </mesh>
   );
