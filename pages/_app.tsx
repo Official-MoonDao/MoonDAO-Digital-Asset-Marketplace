@@ -4,6 +4,7 @@ import { Navbar } from "../components/Navbar/Navbar";
 import NextNProgress from "nextjs-progressbar";
 import { NETWORK } from "../const/config";
 import "../styles/globals.css";
+import { ethers } from "ethers";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

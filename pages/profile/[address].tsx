@@ -12,7 +12,7 @@ import { initSDK } from "../../lib/thirdweb";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  useProfileListingsAndAuctions,
+  useListingsAndAuctionsForWallet,
 } from "../../lib/marketplace-v3";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
 
@@ -30,7 +30,7 @@ export default function ProfilePage({
 }: any) {
   const router = useRouter();
   const address: any = useAddress();
-  const { listings, auctions } = useProfileListingsAndAuctions(
+  const { listings, auctions } = useListingsAndAuctionsForWallet(
     validListings,
     validAuctions,
     walletAddress

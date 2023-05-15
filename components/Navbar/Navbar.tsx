@@ -2,6 +2,7 @@ import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./Navbar.module.css";
+import NetworkError from "./NetworkError";
 
 /**
  * Navigation bar that shows up on all pages.
@@ -12,6 +13,7 @@ export function Navbar() {
 
   return (
     <div className={styles.navContainer}>
+      <NetworkError />
       <nav className={styles.nav}>
         <div className={styles.navLeft}>
           <Link href="/" className={`${styles.homeLink} ${styles.navLeft}`}>

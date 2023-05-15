@@ -19,6 +19,12 @@ export default function CollectionPreview({ collection }: any) {
   });
 
   const { contract: collectionContract } = useContract(collection[2]);
+  const { data: metadata } = useMetadata(collectionContract);
+
+  useEffect(() => {
+    console.log(metadata);
+    console.log(collectionContract);
+  }, [metadata]);
 
   useEffect(() => {
     if (collectionContract)
@@ -30,17 +36,27 @@ export default function CollectionPreview({ collection }: any) {
       })();
   }, [collection, collectionContract]);
   return (
-    <div className={buyStyles.nftContainer}>
+    <div className={"flex flex-col p-4 gap-2"}>
       <Link href={`/collection/${collection[2]}`}>
-        <div
-          style={{
-            backgroundImage: `linear-gradient(90deg, ${randomColor()}, ${randomColor()})`,
-            height: "20vw",
-            width: "20vw",
-          }}
-        />
+        {metadata?.image ? (
+          <Image
+            className="w-[20vw] h-[20vw] rounded-md"
+            src={metadata.image}
+            width={300}
+            height={300}
+            alt=""
+          />
+        ) : (
+          <div
+            style={{
+              backgroundImage: `linear-gradient(90deg, ${randomColor()}, ${randomColor()})`,
+              height: "20vw",
+              width: "20vw",
+            }}
+          />
+        )}
       </Link>
-      <h4>{collectionDetails.name}</h4>
+      <p className="">{collectionDetails.name}</p>
     </div>
   );
 }

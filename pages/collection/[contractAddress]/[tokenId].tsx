@@ -5,14 +5,12 @@ import {
   useContractEvents,
   useContractRead,
   useNFT,
-  useValidDirectListings,
-  useValidEnglishAuctions,
   Web3Button,
 } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import Container from "../../../components/Container/Container";
-import { GetStaticProps, GetStaticPaths, GetServerSideProps } from "next";
-import { NFT, ThirdwebSDK } from "@thirdweb-dev/sdk";
+import { GetServerSideProps } from "next";
+import { NFT } from "@thirdweb-dev/sdk";
 import styles from "../../../styles/Token.module.css";
 import styles2 from "../../../components/NFT/NFT.module.css";
 import Link from "next/link";
@@ -51,41 +49,32 @@ export default function TokenPage({
   validAuctions,
   tokenId,
 }: Props) {
-  const [bidValue, setBidValue] = useState<string>();
-
-  // Connect to marketplace smart contract
+  //Marketplace
   const { contract: marketplace, isLoading: loadingContract } = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace-v3"
   );
-
-  // Connect to NFT Collection smart contract
-  const { contract: nftCollection } = useContract(contractMetadata.address);
-
-  const { data: nft }: any = useNFT(nftCollection, tokenId);
-
+  //Marketplace data
   const { listings: directListing, auctions: auctionListing } =
-    useListingsAndAuctionsForTokenId(validListings, validAuctions, tokenId);
-
-  const [currListing, setCurrListing] = useState<any>({
+    useListingsAndAuctionsForTokenId(
+      validListings,
+      validAuctions,
+      tokenId,
+      contractMetadata.address
+    );
+  const [currListing, setCurrListing]: any = useState({
     type: "",
     listing: [],
   });
   const { data: winningBid } = useContractRead(marketplace, "getWinningBid", [
     +BigConvert(currListing.listing[0]),
   ]);
-  useEffect(() => {
-    if (nft?.type === "ERC721") {
-      if (directListing[0] || auctionListing[0]) {
-        const listing = directListing[0]
-          ? { type: "direct", listing: directListing[0] }
-          : { type: "auction", listing: auctionListing[0] };
-        setCurrListing(listing);
-        console.log(currListing.listing);
-      }
-    }
-  }, [nft, directListing, auctionListing, winningBid]);
+  const [bidValue, setBidValue] = useState<string>();
 
+  //NFT Collection & NFT
+  const { contract: nftCollection } = useContract(contractMetadata.address);
+  //NFT data
+  const { data: nft }: any = useNFT(nftCollection, tokenId);
   // Load historical transfer events: TODO - more event types like sale
   const { data: transferEvents, isLoading: loadingTransferEvents } =
     useContractEvents(nftCollection, "Transfer", {
@@ -96,6 +85,18 @@ export default function TokenPage({
         order: "desc",
       },
     });
+
+  useEffect(() => {
+    if (nft?.type === "ERC721") {
+      if (directListing[0] || auctionListing[0]) {
+        const listing = directListing[0]
+          ? { type: "direct", listing: directListing[0] }
+          : { type: "auction", listing: auctionListing[0] };
+        setCurrListing(listing);
+      }
+    }
+    console.log(auctionListing, directListing);
+  }, [nft, directListing, auctionListing, winningBid]);
 
   async function createBidOrOffer() {
     let txResult;
@@ -231,11 +232,15 @@ export default function TokenPage({
           <div className={styles.listingContainer}>
             {contractMetadata && (
               <div className={styles.contractMetadataContainer}>
-                <MediaRenderer
-                  src={contractMetadata.image}
-                  className={styles.collectionImage}
-                />
-                <p className={styles.collectionName}>{contractMetadata.name}</p>
+                <Link href={`/collection/${contractMetadata.address}`}>
+                  <MediaRenderer
+                    src={contractMetadata.image}
+                    className={styles.collectionImage}
+                  />
+                  <p className={styles.collectionName}>
+                    {contractMetadata.name}
+                  </p>
+                </Link>
               </div>
             )}
             <h1 className={styles.title}>{nft.metadata.name}</h1>
@@ -328,7 +333,7 @@ export default function TokenPage({
               </div>
             </div>
 
-            {nft.type === "ERC721" && (
+            {nft.type !== "ERC721" && (
               <div className="flex flex-col p-2 divide-y divide-[grey] border-2 border-[grey] rounded-lg mb-4">
                 <div>
                   <p className={styles.label}>Direct Listings :</p>
@@ -339,7 +344,10 @@ export default function TokenPage({
                           className={styles2.nftPriceContainer}
                           key={`erc-1155-direct-listing-${i}`}
                         >
-                          <Listing listing={l} />
+                          <Listing
+                            listing={l}
+                            setCurrListing={setCurrListing}
+                          />
                         </div>
                       ))}
                   </div>
@@ -354,7 +362,11 @@ export default function TokenPage({
                           className={styles2.nftPriceContainer}
                           key={`erc-1155-auction-listing-${i}`}
                         >
-                          <Listing type="auction" listing={a} />
+                          <Listing
+                            type="auction"
+                            listing={a}
+                            setCurrListing={setCurrListing}
+                          />
                         </div>
                       ))}
                   </div>
@@ -362,7 +374,7 @@ export default function TokenPage({
               </div>
             )}
 
-            {!auctionListing ? (
+            {!currListing ? (
               <Skeleton width="100%" height="164" />
             ) : (
               <>
@@ -388,46 +400,52 @@ export default function TokenPage({
                   Buy at asking price
                 </Web3Button>
 
-                <div className={`${styles.listingTimeContainer} ${styles.or}`}>
-                  <p className={styles.listingTime}>or</p>
-                </div>
+                {currListing.type === "auction" && (
+                  <>
+                    <div
+                      className={`${styles.listingTimeContainer} ${styles.or}`}
+                    >
+                      <p className={styles.listingTime}>or</p>
+                    </div>
+                    <input
+                      className={styles.input}
+                      defaultValue={
+                        winningBid && winningBid[2]
+                          ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS
+                          : +BigConvert(currListing.listing[6]) /
+                            MOONEY_DECIMALS
+                      }
+                      type="number"
+                      step={0.000001}
+                      onChange={(e) => {
+                        setBidValue(e.target.value);
+                      }}
+                    />
 
-                <input
-                  className={styles.input}
-                  defaultValue={
-                    winningBid && winningBid[2]
-                      ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS
-                      : +BigConvert(currListing.listing[6]) / MOONEY_DECIMALS
-                  }
-                  type="number"
-                  step={0.000001}
-                  onChange={(e) => {
-                    setBidValue(e.target.value);
-                  }}
-                />
-
-                <Web3Button
-                  contractAddress={MARKETPLACE_ADDRESS}
-                  action={async () => await createBidOrOffer()}
-                  className={styles.btn}
-                  onSuccess={() => {
-                    toast(`Bid success!`, {
-                      icon: "✅",
-                      style: toastStyle,
-                      position: "bottom-center",
-                    });
-                  }}
-                  onError={(e) => {
-                    console.log(e);
-                    toast(`Bid failed! Reason: ${e.message}`, {
-                      icon: "❌",
-                      style: toastStyle,
-                      position: "bottom-center",
-                    });
-                  }}
-                >
-                  Place bid
-                </Web3Button>
+                    <Web3Button
+                      contractAddress={MARKETPLACE_ADDRESS}
+                      action={async () => await createBidOrOffer()}
+                      className={styles.btn}
+                      onSuccess={() => {
+                        toast(`Bid success!`, {
+                          icon: "✅",
+                          style: toastStyle,
+                          position: "bottom-center",
+                        });
+                      }}
+                      onError={(e) => {
+                        console.log(e);
+                        toast(`Bid failed! Reason: ${e.message}`, {
+                          icon: "❌",
+                          style: toastStyle,
+                          position: "bottom-center",
+                        });
+                      }}
+                    >
+                      Place bid
+                    </Web3Button>
+                  </>
+                )}
               </>
             )}
           </div>

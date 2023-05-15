@@ -25,6 +25,7 @@ export function SkyboxGenerator() {
       <div>
         <p>Enter Password to continue</p>
         <input
+          type="password"
           onChange={(e) =>
             e.target.value.trim() !== "" && setPasswordAttempt(e.target.value)
           }

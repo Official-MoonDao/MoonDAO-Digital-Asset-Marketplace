@@ -5,10 +5,8 @@ import { useForm } from "react-hook-form";
 import styles from "../../styles/Sale.module.css";
 import profileStyles from "../../styles/Profile.module.css";
 import {
-  useAccount,
-  useActiveListings,
-  useAddress,
   useContract,
+  useContractWrite,
   useCreateAuctionListing,
   useCreateDirectListing,
   Web3Button,
@@ -18,14 +16,19 @@ import toastStyle from "../../util/toastConfig";
 import { BigNumber } from "ethers";
 import {
   MARKETPLACE_ADDRESS,
-  VMOONEY_ADDRESS_SEPOLIA,
+  MOONEY_ADDRESS,
+  MOONEY_DECIMALS,
+  VMOONEY_ADDRESS,
 } from "../../const/config";
+import { useListingsAndAuctionsForTokenIdAndWallet } from "../../lib/marketplace-v3";
 
 type Props = {
   nft: any;
   contractAddress: string;
   router: any;
   walletAddress: any;
+  validListings: any;
+  validAuctions: any;
 };
 
 type AuctionFormData = {
@@ -52,23 +55,38 @@ export default function SaleInfo({
   contractAddress,
   router,
   walletAddress,
+  validListings,
+  validAuctions,
 }: Props) {
-  // Connect to marketplace contract
   const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace-v3"
   );
 
-  const { contract: vMooneyContract } = useContract(VMOONEY_ADDRESS_SEPOLIA);
+  const { contract: vMooneyContract } = useContract(VMOONEY_ADDRESS);
 
-  const { data: listings, isLoading: listingsLoading } = useActiveListings(
-    marketplace,
-    {
-      seller: walletAddress,
-      tokenContract: contractAddress,
-      tokenId: nft.metadata.token_id,
-    }
+  const { listings, auctions } = useListingsAndAuctionsForTokenIdAndWallet(
+    validListings,
+    validAuctions,
+    nft.metadata.token_id,
+    nft.metadata.asset_contract.address,
+    walletAddress
   );
+
+  const { mutateAsync: createDirectListing } = useContractWrite(
+    marketplace,
+    "createListing"
+  );
+  const { mutateAsync: createAuctionListing }: any =
+    useCreateAuctionListing(marketplace);
+
+  const [isListed, setIsListed] = useState();
+
+  useEffect(() => {
+    if (listings || auctions) {
+      setIsListed(listings[0] || auctions[0]);
+    }
+  }, [listings, auctions]);
   // useContract is a React hook that returns an object with the contract key.
   // The value of the contract key is an instance of an NFT_COLLECTION on the blockchain.
   // This instance is created from the contract address (NFT_COLLECTION_ADDRESS)
@@ -77,30 +95,9 @@ export default function SaleInfo({
   // Manage form submission state using tabs and conditional rendering
   const [tab, setTab] = useState<"direct" | "auction">("direct");
 
-  // Manage form values using react-hook-form library: Auction form
-  const { register: registerAuction, handleSubmit: handleSubmitAuction } =
-    useForm<AuctionFormData>({
-      defaultValues: {
-        nftContractAddress: contractAddress,
-        tokenId: nft.metadata.token_id,
-        startDate: new Date(),
-        quantity: "0",
-        endDate: new Date(),
-        floorPrice: "0",
-        buyoutPrice: "0",
-      },
-    });
-
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
-    //Check if user has vMooney
-
-    // Check if approval is required
     try {
-      const locktime = await vMooneyContract?.call("locked", walletAddress);
-      if (locktime.end.toString() * 1000 < Date.now()) {
-        return false;
-      }
       const hasApproval = await nftCollection?.call(
         "isApprovedForAll",
         walletAddress || nft.metadata.owner,
@@ -130,24 +127,19 @@ export default function SaleInfo({
     }
   }
 
-  const [isListed, setIsListed] = useState<any>({});
-
-  useEffect(() => {
-    if (nft && contractAddress) {
-      (async () => {
-        if (listings) {
-          setIsListed(listings[listings.length - 1]);
-        }
-      })();
-      console.log(listings);
-    }
-  }, [contractAddress, nft, listings]);
-
-  async function handleRemoveListing() {
-    isListed.type === 0
-      ? await marketplace?.direct.cancelListing(isListed.id)
-      : await marketplace.auction.cancelListing(isListed.id);
-  }
+  // Manage form values using react-hook-form library: Auction form
+  const { register: registerAuction, handleSubmit: handleSubmitAuction } =
+    useForm<AuctionFormData>({
+      defaultValues: {
+        nftContractAddress: contractAddress,
+        tokenId: nft.metadata.token_id,
+        startDate: new Date(),
+        quantity: "0",
+        endDate: new Date(),
+        floorPrice: "0",
+        buyoutPrice: "0",
+      },
+    });
 
   // Manage form values using react-hook-form library: Direct form
   const { register: registerDirect, handleSubmit: handleSubmitDirect } =
@@ -177,22 +169,23 @@ export default function SaleInfo({
         style: toastStyle,
         position: "bottom-center",
       });
-    const startDate: any = new Date(data.startDate);
-    const endDate: any = new Date(data.endDate);
-    console.log(startDate, endDate);
-    const mooneyContractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
-    console.log(nft);
-    const txResult = await marketplace?.auction.createListing({
-      assetContractAddress: contractAddress,
-      tokenId: nft.metadata.token_id,
-      currencyContractAddress: mooneyContractAddress,
-      quantity: 1,
-      buyoutPricePerToken: data.buyoutPrice,
-      reservePricePerToken: data.floorPrice,
+    const startDate: any = new Date(data.startDate).valueOf() / 1000;
+    const endDate: any = new Date(data.endDate).valueOf() / 1000;
+
+    const auction = {
+      assetContract: data.nftContractAddress,
+      tokenId: data.tokenId,
+      currency: MOONEY_ADDRESS,
+      quantity: "1",
+      minimumBidAmount: String(+data.floorPrice * MOONEY_DECIMALS),
+      buyoutBidAmount: String(+data.buyoutPrice * MOONEY_DECIMALS),
+      timeBufferInSeconds: "900", //15 minutes
+      bidBufferBps: "500",
       startTimestamp: startDate,
-      listingDurationInSeconds: (endDate - startDate) / 1000,
-    });
-    router.push(`/collection/${contractAddress}/${nft.metadata.token_id}`);
+      endTimestamp: endDate,
+    };
+    const txResult = await marketplace.call("createAuction", auction);
+    router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
       style: toastStyle,
@@ -203,36 +196,41 @@ export default function SaleInfo({
 
   //handle auction listing
   async function handleSubmissionDirect(data: DirectFormData) {
-    const hasVMooney = await checkAndProvideApproval();
-    console.log(hasVMooney);
-    if (!hasVMooney) {
-      toast("You need to have vMooney to list NFTs", {
-        icon: "👎",
-        style: toastStyle,
-        position: "bottom-center",
-      });
-      return new Error("No vMooney");
-    }
+    await checkAndProvideApproval();
+
     if (isListed)
       return toast(`This NFT has already been listed!`, {
         icon: "❌",
         style: toastStyle,
         position: "bottom-center",
       });
-    const startDate: any = new Date(data.startDate);
-    const endDate: any = new Date(data.endDate);
-    console.log(startDate, endDate);
-    const contractAddress: any = process.env.NEXT_PUBLIC_MOONEY;
-    const txResult = await marketplace?.direct.createListing({
-      assetContractAddress: data.nftContractAddress,
-      tokenId: nft.metadata.token_id,
-      currencyContractAddress: contractAddress,
-      quantity: 1,
-      buyoutPricePerToken: data.price,
+    // console.log(nft.metadata.asset_contract);
+    // if (nft.asset_contract?.chain_identifier !== "goerli" || "ethereum") {
+    //   toast("This NFT is not supported", {
+    //     icon: "👎",
+    //     style: toastStyle,
+    //     position: "bottom-center",
+    //   });
+    //   return new Error("Unsupported NFT");
+    // }
+    const startDate: any = new Date(data.startDate).valueOf() / 1000;
+    const endDate: any = new Date(data.endDate).valueOf() / 1000;
+
+    const listing = {
+      assetContract: contractAddress,
+      tokenId: data.tokenId,
+      currency: MOONEY_ADDRESS,
+      quantity: "1",
+      pricePerToken: String(+data.price * MOONEY_DECIMALS),
       startTimestamp: startDate,
-      listingDurationInSeconds: (endDate - startDate) / 1000,
-    });
-    router.push(`/collection/${contractAddress}/${nft.metadata.token_id}`);
+      endTimestamp: endDate,
+      reserved: false,
+    };
+    console.log(listing);
+    const txResult = await marketplace.call("createListing", listing);
+    console.log(txResult);
+
+    // router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
       style: toastStyle,
@@ -261,11 +259,11 @@ export default function SaleInfo({
             Auction
           </h3>
         </div>
-        {listingsLoading ? (
-          <div>loading</div>
+        {!validListings && !validAuctions ? (
+          <div className="flex w-full justify-center">...loading</div>
         ) : (
           <>
-            {isListed?.asset ? (
+            {isListed ? (
               <div>
                 <h4
                   className={styles.formSectionTitle}
@@ -273,7 +271,7 @@ export default function SaleInfo({
                 <Web3Button
                   contractAddress={MARKETPLACE_ADDRESS}
                   action={async () => {
-                    await handleRemoveListing();
+                    // await handleRemoveListing();
                   }}
                   onSuccess={() => {
                     toast("You have successfully removed the listing", {
@@ -306,8 +304,7 @@ export default function SaleInfo({
                   }`}
                   style={{ flexDirection: "column" }}
                 >
-                  <h4 className={styles.formSectionTitle}>When </h4>
-
+                  <h4 className={styles.formSectionTitle}>Duration </h4>
                   {/* Input field for auction start date */}
                   <legend className={styles.legend}> Listing Starts on </legend>
                   <input
@@ -321,7 +318,6 @@ export default function SaleInfo({
                     {...registerDirect("startDate")}
                     aria-label="Auction Start Date"
                   />
-
                   {/* Input field for auction end date */}
                   <legend className={styles.legend}> Listing Ends on </legend>
                   <input
@@ -377,7 +373,7 @@ export default function SaleInfo({
                   }`}
                   style={{ flexDirection: "column" }}
                 >
-                  <h4 className={styles.formSectionTitle}>When </h4>
+                  <h4 className={styles.formSectionTitle}>Duration </h4>
 
                   {/* Input field for auction start date */}
                   <legend className={styles.legend}> Auction Starts on </legend>

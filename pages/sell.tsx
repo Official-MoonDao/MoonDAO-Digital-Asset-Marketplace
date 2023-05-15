@@ -5,8 +5,14 @@ import tokenPageStyles from "../styles/Token.module.css";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { getAllUserNFTs } from "../lib/opensea";
 import { useRouter } from "next/router";
+import { initSDK } from "../lib/thirdweb";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+} from "../lib/marketplace-v3";
+import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 
-export default function Sell() {
+export default function Sell({ validListings, validAuctions }: any) {
   // Load all of the NFTs from the NFT Collection
   const address = useAddress();
   const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
@@ -18,8 +24,27 @@ export default function Sell() {
       (async () => {
         const allUserNFTs = await getAllUserNFTs(address);
         setUserNFTs(allUserNFTs);
+        console.log(userNFTs);
       })();
   }, [address]);
+
+  if (!address) {
+    return (
+      <Container maxWidth="lg" className="">
+        <h1>Sell NFTs</h1>
+        <p>{`Please connect your wallet`}</p>
+      </Container>
+    );
+  }
+
+  if (!userNFTs) {
+    return (
+      <Container maxWidth="lg" className="">
+        <h1>Sell NFTs</h1>
+        <p>{`You do not own any NFTs on ${NETWORK.name}`}</p>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="lg" className="">
@@ -77,6 +102,8 @@ export default function Sell() {
                 contractAddress={selectedNft.metadata.asset_contract.address}
                 router={router}
                 walletAddress={address}
+                validListings={validListings}
+                validAuctions={validAuctions}
               />
             </div>
           </div>
@@ -84,4 +111,14 @@ export default function Sell() {
       )}
     </Container>
   );
+}
+
+export async function getServerSideProps() {
+  const sdk = initSDK();
+  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const validListings = (await getAllValidListings(marketplace)) || [];
+  const validAuctions = (await getAllValidAuctions(marketplace)) || [];
+  return {
+    props: { validListings, validAuctions },
+  };
 }

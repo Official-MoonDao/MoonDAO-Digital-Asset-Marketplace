@@ -10,6 +10,7 @@ import Link from "next/link";
 import {
   MARKETPLACE_ADDRESS,
   MOONEY_ADDRESS_SEPOLIA,
+  MOONEY_DECIMALS,
 } from "../../const/config";
 
 import Skeleton from "../Skeleton/Skeleton";
@@ -81,7 +82,7 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
               <div>
                 <p className={styles.nftPriceLabel}>Price</p>
                 <p className={styles.nftPriceValue}>
-                  {`${BigConvert(buyOut)} MOONEY`}
+                  {`${+BigConvert(buyOut) / MOONEY_DECIMALS} MOONEY`}
                 </p>
               </div>
             </div>
@@ -115,7 +116,7 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Buyout price</p>
                   <p className={styles.nftPriceValue}>
-                    {`${BigConvert(buyOut)} MOONEY`}
+                    {`${+BigConvert(buyOut) / MOONEY_DECIMALS} MOONEY`}
                   </p>
                 </div>
               </div>
@@ -123,7 +124,7 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Minimum bid</p>
                   <p className={styles.nftPriceValue}>
-                    {`${BigConvert(buyOut)} MOONEY`}
+                    {`${+BigConvert(buyOut) / MOONEY_DECIMALS} MOONEY`}
                   </p>
                 </div>
               </div>

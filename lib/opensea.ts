@@ -1,3 +1,5 @@
+import { NETWORK } from "../const/config";
+
 const openSeaMainnet = "https://api.opensea.io/api/v1";
 const openSeaTestnet = "https://testnets-api.opensea.io/api/v1";
 

@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: goodtimes;
+  src: url("../public/fonts/goodtimes.otf");
+}
+
 html,
 body {
   padding: 0;

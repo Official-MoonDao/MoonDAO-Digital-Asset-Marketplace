@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const [generation, setGeneration]: any = useState({});
   return (
     <Container maxWidth="lg" className="h-[70vh]">
-      <SkyboxGenerator />
+      <div></div>
     </Container>
   );
 };

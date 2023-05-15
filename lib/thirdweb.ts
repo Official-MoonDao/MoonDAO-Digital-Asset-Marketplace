@@ -1,6 +1,6 @@
-import { Ethereum, Sepolia } from "@thirdweb-dev/chains";
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
+import { NETWORK } from "../const/config";
 
 export function initSDK() {
-  return new ThirdwebSDK(Sepolia);
+  return new ThirdwebSDK("goerli");
 }

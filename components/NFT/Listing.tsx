@@ -36,7 +36,7 @@ Auction Data Structure
   13: status : number
 */
 
-export default function Listing({ type, listing }: any) {
+export default function Listing({ type, listing, setCurrListing }: any) {
   const listingId = listing[0];
   const sellerAddress = listing[1];
   const buyOut = type === "direct" ? listing[6] : listing[7];
@@ -44,7 +44,10 @@ export default function Listing({ type, listing }: any) {
   const end = type === "direct" ? "none" : listing[11];
 
   return (
-    <div className="flex flex-col">
+    <div
+      className="flex flex-col"
+      onClick={() => setCurrListing({ type, listing })}
+    >
       <div className={styles.priceContainer}>
         <div>
           <p className={styles.nftPriceLabel}>Seller</p>
