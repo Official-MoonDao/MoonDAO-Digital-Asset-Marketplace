@@ -1,4 +1,4 @@
-import { ThirdwebNftMedia, useAddress } from "@thirdweb-dev/react";
+import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import Container from "../components/Container/Container";
 import tokenPageStyles from "../styles/Token.module.css";
@@ -9,30 +9,46 @@ import { initSDK } from "../lib/thirdweb";
 import {
   getAllValidAuctions,
   getAllValidListings,
+  useUserCanList,
 } from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 
 export default function Sell({ validListings, validAuctions }: any) {
-  // Load all of the NFTs from the NFT Collection
+  const router = useRouter();
+
   const address = useAddress();
   const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
   const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
-  const router = useRouter();
+
+  const { contract: marketplace, isLoading: loadingContract }: any =
+    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+
+  const userCanList = useUserCanList(marketplace, address || "");
 
   useEffect(() => {
-    if (address)
+    if (address && userCanList)
       (async () => {
+        //get all nfts owned by user on current network
         const allUserNFTs = await getAllUserNFTs(address);
         setUserNFTs(allUserNFTs);
         console.log(userNFTs);
       })();
-  }, [address]);
+  }, [address, userCanList]);
 
   if (!address) {
     return (
       <Container maxWidth="lg" className="">
         <h1>Sell NFTs</h1>
         <p>{`Please connect your wallet`}</p>
+      </Container>
+    );
+  }
+
+  if (!userCanList) {
+    return (
+      <Container maxWidth="lg" className="">
+        <h1>Sell NFTs</h1>
+        <p>{`This wallet does not have permission to list NFTs on the marketplace`}</p>
       </Container>
     );
   }

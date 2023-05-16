@@ -36,13 +36,17 @@ Auction Data Structure
   13: status : number
 */
 
-export default function Listing({ type, listing, setCurrListing }: any) {
+export default function Listing({
+  type = "direct",
+  listing,
+  setCurrListing,
+}: any) {
   const listingId = listing[0];
   const sellerAddress = listing[1];
   const buyOut = type === "direct" ? listing[6] : listing[7];
   const minBid = type === "direct" ? 0 : listing[6];
-  const end = type === "direct" ? "none" : listing[11];
-
+  const end = type === "direct" ? listing[8] : listing[11];
+  if (!listingId) return <></>;
   return (
     <div
       className="flex flex-col"

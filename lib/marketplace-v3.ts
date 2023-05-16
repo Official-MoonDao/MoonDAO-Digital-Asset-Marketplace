@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { BigNumber } from "ethers";
 import { BigConvert, serializable } from "./utils";
+import { getAllUserNFTs } from "./opensea";
 
 /////FUNCTIONS/////
 ////////////////////////////////
@@ -220,4 +221,19 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
   }, [validListings, validAuctions, walletAddress]);
 
   return { listings, auctions };
+}
+
+//Check if user has permissions to list NFTs
+export function useUserCanList(marketplace: any, address: string) {
+  const [userCanList, setUserCanList] = useState(false);
+  useEffect(() => {
+    if (marketplace && address) {
+      (async () => {
+        const listerAddresses = await marketplace.roles.get("lister");
+        console.log(listerAddresses, address);
+        if (listerAddresses.includes(address)) setUserCanList(true);
+      })();
+    }
+  }, [marketplace, address]);
+  return userCanList;
 }

@@ -1,6 +1,7 @@
 import {
   MediaRenderer,
   ThirdwebNftMedia,
+  useAddress,
   useContract,
   useContractEvents,
   useContractRead,
@@ -28,6 +29,7 @@ import { initSDK } from "../../../lib/thirdweb";
 import {
   ETHERSCAN_URL,
   MARKETPLACE_ADDRESS,
+  MOONEY_ADDRESS,
   MOONEY_DECIMALS,
 } from "../../../const/config";
 import { BigConvert } from "../../../lib/utils";
@@ -49,11 +51,10 @@ export default function TokenPage({
   validAuctions,
   tokenId,
 }: Props) {
+  const address = useAddress();
   //Marketplace
-  const { contract: marketplace, isLoading: loadingContract } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
+  const { contract: marketplace, isLoading: loadingContract }: any =
+    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
   //Marketplace data
   const { listings: directListing, auctions: auctionListing } =
     useListingsAndAuctionsForTokenId(
@@ -136,9 +137,10 @@ export default function TokenPage({
         BigConvert(currListing.listing[0])
       );
     } else if (directListing?.[0]) {
-      txResult = await marketplace?.directListings.buyFromListing(
+      txResult = await marketplace.directListings.buyFromListing(
         BigConvert(currListing.listing[0]),
-        1
+        1,
+        address
       );
     } else {
       throw new Error("No valid listing found for this NFT");
