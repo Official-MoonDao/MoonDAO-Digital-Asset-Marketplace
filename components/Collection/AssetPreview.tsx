@@ -1,5 +1,4 @@
 import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
-import { useEffect } from "react";
 
 export default function AssetPreview({ contractAddress, tokenId }: any) {
   const { contract } = useContract(contractAddress);

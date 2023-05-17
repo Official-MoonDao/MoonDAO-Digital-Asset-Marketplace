@@ -1,22 +1,15 @@
 import {
   ThirdwebNftMedia,
   useContract,
-  useMetadata,
   useNFT,
-  useValidDirectListings,
-  useValidEnglishAuctions,
 } from "@thirdweb-dev/react";
 import Link from "next/link";
 import {
-  MARKETPLACE_ADDRESS,
-  MOONEY_ADDRESS_SEPOLIA,
   MOONEY_DECIMALS,
 } from "../../const/config";
 
-import Skeleton from "../Skeleton/Skeleton";
 import styles from "../NFT/NFT.module.css";
 import { useEffect } from "react";
-import { BigNumber, ethers } from "ethers";
 import { BigConvert } from "../../lib/utils";
 
 /*

@@ -2,7 +2,7 @@ import styles from "../../../components/NFT/NFT.module.css";
 import Container from "../../../components/Container/Container";
 import { useRouter } from "next/router";
 import { MARKETPLACE_ADDRESS } from "../../../const/config";
-import { useEffect, useState } from "react";
+
 import {
   getAllValidAuctions,
   getAllValidListings,

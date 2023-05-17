@@ -4,7 +4,6 @@ import { useGeneration } from "../../lib/blockade-labs";
 import { useEffect, useRef, useState } from "react";
 import ThreeText from "./ThreeText";
 import { useFrame } from "@react-three/fiber";
-import gsap from "gsap";
 export default function Skybox({ generation }: any) {
   const [currGeneration, setCurrGeneration] = useState<any>({});
 

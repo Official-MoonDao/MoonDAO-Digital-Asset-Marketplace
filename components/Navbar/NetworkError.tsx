@@ -1,7 +1,7 @@
 import { useNetwork } from "@thirdweb-dev/react";
 import { useEffect, useState } from "react";
 
-const chainId = process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? 1 : 11155111;
+const chainId = process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? 1 : 80001;
 
 export default function NetworkError() {
   // const network: any = useNetwork();
