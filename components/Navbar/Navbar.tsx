@@ -1,8 +1,11 @@
 import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+import LogoSmall from "../../assets/LogoSmall";
+import Hamburger from "../../assets/Hamburger"
 import Image from "next/image";
 import Link from "next/link";
-import styles from "./Navbar.module.css";
 import NetworkError from "./NetworkError";
+import Search from "./Search";
+
 
 /**
  * Navigation bar that shows up on all pages.
@@ -12,37 +15,43 @@ export function Navbar() {
   const address = useAddress();
 
   return (
-    <div className={styles.navContainer}>
+    <div className="py-3 px-5">
       <NetworkError />
-      <nav className={styles.nav}>
-        <div className={styles.navLeft}>
-          <Link href="/" className={`${styles.homeLink} ${styles.navLeft}`}>
-            <Image src="/Original_White.png" width={200} height={60} alt="" />
-          </Link>
+      <nav className="flex items-center justify-between">
+        {/*Logo and search */}
+        <div className="flex items-center gap-4">
+        <Link href="/" className="">
+          <LogoSmall />
+        </Link>
+        <Search/>
+        </div>
+        
 
-          <div className={styles.navMiddle}>
-            <Link href="/buy" className={styles.link}>
-              Buy
-            </Link>
-            <Link href="/sell" className={styles.link}>
-              Sell
-            </Link>
-          </div>
+        {/*Buy and sell desktop*/}
+        <div className="hidden md:flex md:gap-12 md:text-xl">
+          <Link href="/buy" className="">
+            Buy
+          </Link>
+          <Link href="/sell" className="">
+            Sell
+          </Link>
         </div>
 
-        <div className={styles.navRight}>
-          <div className={styles.navConnect}>
+        {/*Mobile menu */}
+        <div className="md:hidden">
+        <Hamburger/>
+        </div>
+
+
+        {/*Connect wallet desktop, upon connect the address gets activated and shows logo */}
+        <div className="hidden md:block">
+          <div className="">
             <ConnectWallet />
           </div>
+          {/*Logo upon activation */}
           {address && (
-            <Link className={styles.link} href={`/profile/${address}`}>
-              <Image
-                className={styles.profileImage}
-                src="/user-icon.png"
-                width={42}
-                height={42}
-                alt="Profile"
-              />
+            <Link className="" href={`/profile/${address}`}>
+              <Image className="" src="/user-icon.png" width={42} height={42} alt="Profile" />
             </Link>
           )}
         </div>
