@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useState } from "react";
 import Container from "../../../components/Container/Container";
 import { GetServerSideProps } from "next";
-import { NFT } from "@thirdweb-dev/sdk";
+import { DirectListing, NFT } from "@thirdweb-dev/sdk";
 import styles from "../../../styles/Token.module.css";
 import styles2 from "../../../components/NFT/NFT.module.css";
 import Link from "next/link";
@@ -32,7 +32,7 @@ import {
   MOONEY_ADDRESS,
   MOONEY_DECIMALS,
 } from "../../../const/config";
-import { BigConvert } from "../../../lib/utils";
+import { AuctionListing, BigConvert } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
 
 type Props = {
@@ -65,7 +65,7 @@ export default function TokenPage({
     );
   const [currListing, setCurrListing]: any = useState({
     type: "",
-    listing: [],
+    listing: {} as DirectListing | AuctionListing,
   });
   const { data: winningBid } = useContractRead(marketplace, "getWinningBid", [
     +BigConvert(currListing.listing[0]),
@@ -113,7 +113,7 @@ export default function TokenPage({
 
     if (currListing.type === "auction") {
       txResult = await marketplace?.englishAuctions.makeBid(
-        BigConvert(currListing?.listing[0]),
+        currListing.listing.auctionId,
         bidValue
       );
     } else if (directListing?.[0]) {
@@ -249,7 +249,7 @@ export default function TokenPage({
             <p className={styles.collectionName}>Token ID #{nft.metadata.id}</p>
             {currListing?.listing && nft.type === "ERC721" && (
               <Link
-                href={`/profile/${currListing?.listing[1]}`}
+                href={`/profile/${currListing?.listing.listingCreator}`}
                 className={styles.nftOwnerContainer}
               >
                 {/* Random linear gradient circle shape */}
@@ -280,12 +280,14 @@ export default function TokenPage({
                     <>
                       {directListing && directListing[0] ? (
                         <>
-                          {+BigConvert(directListing[0][6]) / MOONEY_DECIMALS}
+                          {+BigConvert(directListing[0].pricePerToken) /
+                            MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : auctionListing && auctionListing[0] ? (
                         <>
-                          {+BigConvert(auctionListing[0][7]) / MOONEY_DECIMALS}
+                          {+BigConvert(auctionListing[0].buyoutBidAmount) /
+                            MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -311,7 +313,7 @@ export default function TokenPage({
                             </p>
 
                             <div className={styles.pricingValue}>
-                              {+BigConvert(auctionListing[0][6]) /
+                              {+auctionListing[0].minimumBidAmount /
                                 MOONEY_DECIMALS}
                               {" " + "MOONEY"}
                             </div>
@@ -347,6 +349,7 @@ export default function TokenPage({
                           key={`erc-1155-direct-listing-${i}`}
                         >
                           <Listing
+                            type="direct"
                             listing={l}
                             setCurrListing={setCurrListing}
                           />
@@ -414,7 +417,7 @@ export default function TokenPage({
                       defaultValue={
                         winningBid && winningBid[2]
                           ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS
-                          : +BigConvert(currListing.listing[6]) /
+                          : +currListing.listing.minimumBidAmount /
                             MOONEY_DECIMALS
                       }
                       type="number"
@@ -459,7 +462,7 @@ export default function TokenPage({
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const contractAddress = params?.contractAddress;
-  const tokenId = params?.tokenId;
+  const tokenId: any = params?.tokenId;
 
   const sdk = initSDK();
 

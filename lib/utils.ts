@@ -1,10 +1,83 @@
 import { BigNumber } from "ethers";
-import JSONbig from "json-bigint";
+
+export interface DirectListing {
+  listingId: string | number;
+  listingCreator: string;
+  assetContract: string;
+  tokenId: string;
+  quantity: string;
+  currency: string;
+  pricePerToken: string | number;
+  startTimestamp: string | number;
+  endTimestamp: string | number;
+  reserved: boolean;
+  tokenType: string | number;
+  status: string | number;
+}
+
+export interface AuctionListing {
+  auctionId: string | number;
+  auctionCreator: string;
+  assetContract: string;
+  tokenId: string;
+  quantity: string;
+  currency: string;
+  minimumBidAmount: string | number;
+  buyoutBidAmount: string | number;
+  timeBufferInSeconds: string | number;
+  bidBufferBps: string | number;
+  startTimestamp: string | number;
+  endTimestamp: string | number;
+  tokenType: string | number;
+  status: string | number;
+}
+
 export function BigConvert(data: any) {
   return !data ? 0 : BigNumber.from(data).toString();
 }
 
 export function serializable(data: any) {
   //data = array of listings = [[{listingData1}], [{listingData2}]]
-  return JSONbig.parse(JSONbig.stringify(data));
+  let formatted;
+  if (data.length === 0) return [null];
+  if (data.includes("auctionId")) {
+    formatted = data.map(
+      (listing: any) =>
+        ({
+          auctionId: BigConvert(listing[0]),
+          auctionCreator: listing[1],
+          assetContract: listing[2],
+          tokenId: BigConvert(listing[3]),
+          quantity: BigConvert(listing[4]),
+          currency: listing[5],
+          minimumBidAmount: BigConvert(listing[6]),
+          buyoutBidAmount: BigConvert(listing[7]),
+          timeBufferInSeconds: BigConvert(listing[8]),
+          bidBufferBps: BigConvert(listing[9]),
+          startTimestamp: BigConvert(listing[10]),
+          endTimestamp: BigConvert(listing[11]),
+          tokenType: BigConvert(listing[12]),
+          status: BigConvert(listing[13]),
+        } as AuctionListing)
+    );
+  } else {
+    formatted = data.map(
+      (listing: any) =>
+        ({
+          listingId: BigConvert(listing[0]),
+          listingCreator: listing[1],
+          assetContract: listing[2],
+          tokenId: BigConvert(listing[3]),
+          quantity: BigConvert(listing[4]),
+          currency: listing[5],
+          pricePerToken: BigConvert(listing[6]),
+          startTimestamp: BigConvert(listing[7]),
+          endTimestamp: BigConvert(listing[8]),
+          reserved: listing[9],
+          tokenType: BigConvert(listing[10]),
+          status: BigConvert(listing[11]),
+        } as DirectListing)
+    );
+  }
+  return JSON.parse(JSON.stringify(formatted));
 }

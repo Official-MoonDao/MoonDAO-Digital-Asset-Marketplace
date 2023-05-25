@@ -1,7 +1,13 @@
 import { use, useEffect, useState } from "react";
 import { BigNumber } from "ethers";
-import { BigConvert, serializable } from "./utils";
+import {
+  AuctionListing,
+  BigConvert,
+  DirectListing,
+  serializable,
+} from "./utils";
 import { getAllUserNFTs } from "./opensea";
+import { Dir } from "fs";
 
 /////FUNCTIONS/////
 ////////////////////////////////
@@ -41,7 +47,7 @@ export async function getAllValidAuctions(marketplace: any) {
 //Get all valid offers from marketplace
 export async function getAllValidOffersByTokenId(
   marketplace: any,
-  tokenId: any
+  tokenId: string | number
 ) {
   try {
     const totalOffers = await marketplace.call("totalOffers");
@@ -62,7 +68,10 @@ export async function getAllValidOffersByTokenId(
 /////////////////////
 
 //Get all unique collections from Marketplace
-export function useAllCollections(validListings: any, validAuctions: any) {
+export function useAllCollections(
+  validListings: [DirectListing],
+  validAuctions: [AuctionListing]
+) {
   const [collections, setCollections] = useState<any>([]);
 
   useEffect(() => {
@@ -70,14 +79,14 @@ export function useAllCollections(validListings: any, validAuctions: any) {
       console.log(validListings, validAuctions);
       const uniqueCollectionAddresses: any = [];
       const filteredListings = validListings?.filter(
-        (l: any) =>
-          !uniqueCollectionAddresses.includes(l[2]) &&
-          uniqueCollectionAddresses.push(l[2])
+        (l: DirectListing) =>
+          !uniqueCollectionAddresses.includes(l.assetContract) &&
+          uniqueCollectionAddresses.push(l.assetContract)
       );
       const filteredAuctions = validAuctions?.filter(
-        (a: any) =>
-          !uniqueCollectionAddresses.includes(a[2]) &&
-          uniqueCollectionAddresses.push(a[2])
+        (a: AuctionListing) =>
+          !uniqueCollectionAddresses.includes(a.assetContract) &&
+          uniqueCollectionAddresses.push(a.assetContract)
       );
 
       let filteredCollections;
@@ -95,7 +104,10 @@ export function useAllCollections(validListings: any, validAuctions: any) {
 }
 
 //Get all unique assets for a specific collection from Marketplace
-export function useAllAssets(listings: any, auctions: any) {
+export function useAllAssets(
+  listings: [DirectListing],
+  auctions: [AuctionListing]
+) {
   const [assets, setAssets] = useState([]);
   useEffect(() => {
     if (listings || auctions) {
@@ -104,19 +116,13 @@ export function useAllAssets(listings: any, auctions: any) {
       const length: number =
         listings.length > auctions.length ? listings.length : auctions.length;
       for (let i = 0; i < length; i++) {
-        if (
-          listings[i] &&
-          !uniqueAssets.includes(BigConvert(listings[i][3].hex))
-        ) {
-          const tokenId: any = BigConvert(listings[i][3].hex);
+        if (listings[i] && !uniqueAssets.includes(listings[i].tokenId)) {
+          const tokenId: any = listings[i].tokenId;
           uniqueAssets.push(tokenId);
           filteredAssets.push(listings[i]);
         }
-        if (
-          auctions[i] &&
-          !uniqueAssets.includes(BigConvert(auctions[i][3].hex))
-        ) {
-          const tokenId: any = BigConvert(auctions[i][0].hex);
+        if (auctions[i] && !uniqueAssets.includes(auctions[i].tokenId)) {
+          const tokenId: any = auctions[i].tokenId;
           uniqueAssets.push(tokenId);
           filteredAssets.push(auctions[i]);
         }
@@ -129,9 +135,9 @@ export function useAllAssets(listings: any, auctions: any) {
 
 //Get listings and auctions for specific tokenId
 export function useListingsAndAuctionsForTokenId(
-  validListings: any,
-  validAuctions: any,
-  tokenId: number,
+  validListings: [DirectListing] | [],
+  validAuctions: [AuctionListing] | [],
+  tokenId: string | number,
   collectionAddress: string
 ) {
   const [listings, setListings] = useState<any>([]);
@@ -143,29 +149,32 @@ export function useListingsAndAuctionsForTokenId(
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
-          (l: any) =>
-            l[2].toLowerCase() === collectionAddress.toLowerCase() &&
-            +BigConvert(l[3].hex) === Number(tokenId)
+          (l: DirectListing) =>
+            l.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
+            +l.tokenId === Number(tokenId)
         );
       const filteredAuctions =
         validAuctions[0] &&
         validAuctions?.filter(
           (a: any) =>
-            a[2].toLowerCase() === collectionAddress.toLowerCase() &&
-            +BigConvert(a[3].hex) === Number(tokenId)
+            a.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
+            +a.tokenId === Number(tokenId)
         );
       setListings(filteredListings || []);
       setAuctions(filteredAuctions || []);
     }
   }, [validListings, validAuctions, tokenId]);
 
-  return { listings, auctions };
+  return { listings, auctions } as {
+    listings: [DirectListing];
+    auctions: [AuctionListing];
+  };
 }
 
 //Get listings and auctions for a specific wallet
 export function useListingsAndAuctionsForWallet(
-  validListings: any,
-  validAuctions: any,
+  validListings: [DirectListing],
+  validAuctions: [AuctionListing],
   walletAddress: string
 ) {
   const [listings, setListings] = useState<any>([]);
@@ -174,12 +183,15 @@ export function useListingsAndAuctionsForWallet(
   useEffect(() => {
     if (validListings && validAuctions) {
       const filteredListings = validListings?.filter(
-        (l: any) => l[1] && l[1]?.toLowerCase() === walletAddress?.toLowerCase()
+        (l: DirectListing) =>
+          l.listingCreator &&
+          l.listingCreator.toLowerCase() === walletAddress?.toLowerCase()
       );
       const filteredAuctions = validAuctions?.filter(
-        (a: any) => a[1] && a[1]?.toLowerCase() === walletAddress?.toLowerCase()
+        (a: AuctionListing) =>
+          a.auctionCreator &&
+          a.auctionCreator.toLowerCase() === walletAddress?.toLowerCase()
       );
-      console.log(validListings, validAuctions);
       setListings(filteredListings);
       setAuctions(filteredAuctions);
     }
@@ -190,31 +202,30 @@ export function useListingsAndAuctionsForWallet(
 
 //Get listings and auctions for a specific tokenId and wallet
 export function useListingsAndAuctionsForTokenIdAndWallet(
-  validListings: any,
-  validAuctions: any,
-  tokenId: any,
-  collectionAddress: any,
-  walletAddress: any
+  validListings: [DirectListing],
+  validAuctions: [AuctionListing],
+  tokenId: string | number,
+  collectionAddress: string,
+  walletAddress: string
 ) {
   const [listings, setListings] = useState<any>([]);
   const [auctions, setAuctions] = useState<any>([]);
   useEffect(() => {
     if (validListings && validAuctions) {
       const filteredListings = validListings?.filter(
-        (l: any) =>
-          l[1] &&
-          l[1]?.toLowerCase() === walletAddress?.toLowerCase() &&
-          l[2] === collectionAddress &&
-          +BigConvert(l[3].hex) === Number(tokenId)
+        (l: DirectListing) =>
+          l.listingCreator &&
+          l.listingCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
+          l.assetContract === collectionAddress &&
+          +l.tokenId === Number(tokenId)
       );
       const filteredAuctions = validAuctions?.filter(
-        (a: any) =>
-          a[1] &&
-          a[1]?.toLowerCase() === walletAddress?.toLowerCase() &&
-          a[2] === collectionAddress &&
-          +BigConvert(a[3].hex) === Number(tokenId)
+        (a: AuctionListing) =>
+          a.auctionCreator &&
+          a.auctionCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
+          a.assetContract === collectionAddress &&
+          +a.tokenId === Number(tokenId)
       );
-      console.log(validListings, validAuctions);
       setListings(filteredListings);
       setAuctions(filteredAuctions);
     }

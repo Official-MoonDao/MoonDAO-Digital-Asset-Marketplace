@@ -10,7 +10,7 @@ import {
 } from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
 import AssetPreview from "../../../components/Collection/AssetPreview";
-import { BigConvert } from "../../../lib/utils";
+import { AuctionListing, BigConvert, DirectListing } from "../../../lib/utils";
 
 export default function Collection({
   contractAddress,
@@ -24,19 +24,17 @@ export default function Collection({
       <p className={styles.nftName}></p>
       <div className="flex flex-wrap gap-[5%] mt-[5%]">
         {assets[0] &&
-          assets.map((a: any, i: number) => (
+          assets.map((a: DirectListing | AuctionListing, i: number) => (
             <div
               className="hover:translate-y-[-4%] duration-300 ease-in my-[2.5%] "
               key={`asset-${i}`}
               onClick={() =>
-                router.push(
-                  `/collection/${contractAddress}/${BigConvert(a[3].hex)}`
-                )
+                router.push(`/collection/${contractAddress}/${a.tokenId}`)
               }
             >
               <AssetPreview
                 contractAddress={contractAddress}
-                tokenId={BigConvert(a[3].hex)}
+                tokenId={a.tokenId}
               />
             </div>
           ))}

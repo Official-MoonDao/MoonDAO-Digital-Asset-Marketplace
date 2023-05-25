@@ -9,7 +9,9 @@ export default function CollectionPreview({ collection }: any) {
     symbol: "",
   });
 
-  const { contract: collectionContract } = useContract(collection[2]);
+  const { contract: collectionContract } = useContract(
+    collection.assetContract
+  );
   const { data: metadata } = useMetadata(collectionContract);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ export default function CollectionPreview({ collection }: any) {
   }, [collection, collectionContract]);
   return (
     <div className={"flex flex-col p-4 gap-2"}>
-      <Link href={`/collection/${collection[2]}`}>
+      <Link href={`/collection/${collection.assetContract}`}>
         {metadata?.image ? (
           <Image
             className="w-[20vw] h-[20vw] rounded-md"
