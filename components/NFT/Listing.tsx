@@ -1,4 +1,5 @@
 import { MOONEY_DECIMALS } from "../../const/config";
+import { DirectListing } from "../../lib/utils";
 import styles from "./NFT.module.css";
 
 interface ListingProps {
@@ -22,7 +23,7 @@ export default function Listing({
   if (!listingId) return <></>;
   return (
     <div
-      className="flex flex-col"
+      className={"flex flex-col"}
       onClick={() => setCurrListing({ type, listing })}
     >
       <div className={styles.priceContainer}>

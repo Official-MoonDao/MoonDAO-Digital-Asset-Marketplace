@@ -36,11 +36,14 @@ export function BigConvert(data: any) {
   return !data ? 0 : BigNumber.from(data).toString();
 }
 
-export function serializable(data: any) {
+export function serializable(data: any, totalOffers: any = "") {
   //data = array of listings = [[{listingData1}], [{listingData2}]]
   let formatted;
   if (data.length === 0) return [null];
-  if (data.includes("auctionId")) {
+  if (totalOffers !== "") {
+    return data;
+  }
+  if (data[0]["auctionId"]) {
     formatted = data.map(
       (listing: any) =>
         ({

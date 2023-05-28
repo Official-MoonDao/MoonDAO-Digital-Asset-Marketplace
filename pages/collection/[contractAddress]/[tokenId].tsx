@@ -67,9 +67,7 @@ export default function TokenPage({
     type: "",
     listing: {} as DirectListing | AuctionListing,
   });
-  const { data: winningBid } = useContractRead(marketplace, "getWinningBid", [
-    +BigConvert(currListing.listing[0]),
-  ]);
+
   const [bidValue, setBidValue] = useState<string>();
 
   //NFT Collection & NFT
@@ -88,16 +86,14 @@ export default function TokenPage({
     });
 
   useEffect(() => {
-    if (nft?.type === "ERC721") {
-      if (directListing[0] || auctionListing[0]) {
-        const listing = directListing[0]
-          ? { type: "direct", listing: directListing[0] }
-          : { type: "auction", listing: auctionListing[0] };
-        setCurrListing(listing);
-      }
+    if (directListing[0] || auctionListing[0]) {
+      const listing = directListing[0]
+        ? { type: "direct", listing: directListing[0] }
+        : { type: "auction", listing: auctionListing[0] };
+      setCurrListing(listing);
     }
-    console.log(auctionListing, directListing);
-  }, [nft, directListing, auctionListing, winningBid]);
+    console.log(directListing, auctionListing);
+  }, [nft, directListing, auctionListing]);
 
   async function createBidOrOffer() {
     let txResult;
@@ -131,17 +127,18 @@ export default function TokenPage({
 
   async function buyListing() {
     let txResult;
-    if (!currListing) return;
-    if (auctionListing?.[0]) {
-      txResult = await marketplace?.englishAuctions.buyoutAuction(
-        BigConvert(currListing.listing[0])
-      );
-    } else if (directListing?.[0]) {
-      txResult = await marketplace.directListings.buyFromListing(
-        BigConvert(currListing.listing[0]),
-        1,
-        address
-      );
+    if (currListing.type !== "") {
+      if (currListing.type === "direct") {
+        txResult = await marketplace.directListings.buyFromListing(
+          currListing.listing.listingId,
+          1,
+          address
+        );
+      } else {
+        txResult = await marketplace.englishAuctions.buyoutAuction(
+          currListing.listing.auctionId
+        );
+      }
     } else {
       throw new Error("No valid listing found for this NFT");
     }
@@ -183,50 +180,51 @@ export default function TokenPage({
               <h3 className={styles.descriptionTitle}>History</h3>
 
               <div className={styles.traitsContainer}>
-                {transferEvents?.map((event, index) => (
-                  <div
-                    key={event.transaction.transactionHash}
-                    className={styles.eventsContainer}
-                  >
-                    <div className={styles.eventContainer}>
-                      <p className={styles.traitName}>Event</p>
-                      <p className={styles.traitValue}>
-                        {
-                          // if last event in array, then it's a mint
-                          index === transferEvents.length - 1
-                            ? "Mint"
-                            : "Transfer"
-                        }
-                      </p>
-                    </div>
+                {!loadingTransferEvents &&
+                  transferEvents?.map((event, index) => (
+                    <div
+                      key={event.transaction.transactionHash}
+                      className={styles.eventsContainer}
+                    >
+                      <div className={styles.eventContainer}>
+                        <p className={styles.traitName}>Event</p>
+                        <p className={styles.traitValue}>
+                          {
+                            // if last event in array, then it's a mint
+                            index === transferEvents.length - 1
+                              ? "Mint"
+                              : "Transfer"
+                          }
+                        </p>
+                      </div>
 
-                    <div className={styles.eventContainer}>
-                      <p className={styles.traitName}>From</p>
-                      <p className={styles.traitValue}>
-                        {event.data.from?.slice(0, 4)}...
-                        {event.data.from?.slice(-2)}
-                      </p>
-                    </div>
+                      <div className={styles.eventContainer}>
+                        <p className={styles.traitName}>From</p>
+                        <p className={styles.traitValue}>
+                          {event.data.from?.slice(0, 4)}...
+                          {event.data.from?.slice(-2)}
+                        </p>
+                      </div>
 
-                    <div className={styles.eventContainer}>
-                      <p className={styles.traitName}>To</p>
-                      <p className={styles.traitValue}>
-                        {event.data.to?.slice(0, 4)}...
-                        {event.data.to?.slice(-2)}
-                      </p>
-                    </div>
+                      <div className={styles.eventContainer}>
+                        <p className={styles.traitName}>To</p>
+                        <p className={styles.traitValue}>
+                          {event.data.to?.slice(0, 4)}...
+                          {event.data.to?.slice(-2)}
+                        </p>
+                      </div>
 
-                    <div className={styles.eventContainer}>
-                      <Link
-                        className={styles.txHashArrow}
-                        href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`}
-                        target="_blank"
-                      >
-                        ↗
-                      </Link>
+                      <div className={styles.eventContainer}>
+                        <Link
+                          className={styles.txHashArrow}
+                          href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`}
+                          target="_blank"
+                        >
+                          ↗
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
             </div>
           </div>
@@ -280,14 +278,12 @@ export default function TokenPage({
                     <>
                       {directListing && directListing[0] ? (
                         <>
-                          {+BigConvert(directListing[0].pricePerToken) /
-                            MOONEY_DECIMALS}
+                          {+directListing[0].pricePerToken / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : auctionListing && auctionListing[0] ? (
                         <>
-                          {+BigConvert(auctionListing[0].buyoutBidAmount) /
-                            MOONEY_DECIMALS}
+                          {+auctionListing[0].buyoutBidAmount / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -345,7 +341,10 @@ export default function TokenPage({
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
                         <div
-                          className={styles2.nftPriceContainer}
+                          className={`flex flex-col ${
+                            currListing.listing.listingId === l.listingId &&
+                            "bg-moon-gold"
+                          }`}
                           key={`erc-1155-direct-listing-${i}`}
                         >
                           <Listing
@@ -364,7 +363,10 @@ export default function TokenPage({
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
                         <div
-                          className={styles2.nftPriceContainer}
+                          className={`flex flex-col ${
+                            currListing.listing.auctionId === a.auctionId &&
+                            "bg-moon-gold"
+                          }`}
                           key={`erc-1155-auction-listing-${i}`}
                         >
                           <Listing
@@ -415,10 +417,10 @@ export default function TokenPage({
                     <input
                       className={styles.input}
                       defaultValue={
-                        winningBid && winningBid[2]
-                          ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS
-                          : +currListing.listing.minimumBidAmount /
+                        currListing.type === "auction"
+                          ? +currListing.listing.minimumBidAmount /
                             MOONEY_DECIMALS
+                          : 0
                       }
                       type="number"
                       step={0.000001}

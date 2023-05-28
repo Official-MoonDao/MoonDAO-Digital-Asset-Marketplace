@@ -51,13 +51,13 @@ export async function getAllValidOffersByTokenId(
 ) {
   try {
     const totalOffers = await marketplace.call("totalOffers");
-    if (totalOffers?.toNumber() <= 0) return [];
+    if (!totalOffers || totalOffers?.toNumber() <= 0) return null;
     const validOffers = await marketplace.call(
       "getAllValidOffers",
       0,
       totalOffers?.toNumber() - 1 >= 0 ? totalOffers?.toNumber() - 1 : 0
     );
-    return serializable(validOffers);
+    return serializable(validOffers, totalOffers);
   } catch (err) {
     console.log(err);
     return [];
@@ -215,13 +215,13 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
       const filteredListings = validListings?.filter(
         (l: DirectListing) =>
           l.listingCreator &&
-          l.listingCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
+          l?.listingCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
           l.assetContract === collectionAddress &&
           +l.tokenId === Number(tokenId)
       );
       const filteredAuctions = validAuctions?.filter(
         (a: AuctionListing) =>
-          a.auctionCreator &&
+          a?.auctionCreator &&
           a.auctionCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
           a.assetContract === collectionAddress &&
           +a.tokenId === Number(tokenId)

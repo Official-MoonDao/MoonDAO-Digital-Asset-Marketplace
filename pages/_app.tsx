@@ -5,10 +5,11 @@ import NextNProgress from "nextjs-progressbar";
 import { NETWORK } from "../const/config";
 import "../styles/globals.css";
 import { ethers } from "ethers";
+import { Goerli } from "@thirdweb-dev/chains";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider activeChain={NETWORK}>
+    <ThirdwebProvider activeChain={Goerli}>
       {/* Progress bar when navigating between pages */}
 
       <NextNProgress
