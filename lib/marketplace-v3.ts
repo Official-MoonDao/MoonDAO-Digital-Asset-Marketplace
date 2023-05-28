@@ -78,16 +78,20 @@ export function useAllCollections(
     if (validListings && validAuctions) {
       console.log(validListings, validAuctions);
       const uniqueCollectionAddresses: any = [];
-      const filteredListings = validListings?.filter(
-        (l: DirectListing) =>
-          !uniqueCollectionAddresses.includes(l.assetContract) &&
-          uniqueCollectionAddresses.push(l.assetContract)
-      );
-      const filteredAuctions = validAuctions?.filter(
-        (a: AuctionListing) =>
-          !uniqueCollectionAddresses.includes(a.assetContract) &&
-          uniqueCollectionAddresses.push(a.assetContract)
-      );
+      const filteredListings =
+        validListings[0] &&
+        validListings?.filter(
+          (l: DirectListing) =>
+            !uniqueCollectionAddresses.includes(l.assetContract) &&
+            uniqueCollectionAddresses.push(l.assetContract)
+        );
+      const filteredAuctions =
+        validAuctions[0] &&
+        validAuctions?.filter(
+          (a: AuctionListing) =>
+            !uniqueCollectionAddresses.includes(a.assetContract) &&
+            uniqueCollectionAddresses.push(a.assetContract)
+        );
 
       let filteredCollections;
       if (filteredListings?.length > 0 && filteredAuctions?.length > 0)
