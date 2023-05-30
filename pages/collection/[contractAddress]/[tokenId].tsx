@@ -34,6 +34,7 @@ import {
 } from "../../../const/config";
 import { AuctionListing, BigConvert } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
+import { useRouter } from "next/router";
 
 type Props = {
   nft: NFT;
@@ -51,7 +52,9 @@ export default function TokenPage({
   validAuctions,
   tokenId,
 }: Props) {
+  const router = useRouter();
   const address = useAddress();
+  const [isOwner, setIsOwner] = useState<boolean>(false);
   //Marketplace
   const { contract: marketplace, isLoading: loadingContract }: any =
     useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
@@ -67,6 +70,8 @@ export default function TokenPage({
     type: "",
     listing: {} as DirectListing | AuctionListing,
   });
+
+  const [winningBid, setWinningBid] = useState<any>();
 
   const [bidValue, setBidValue] = useState<string>();
 
@@ -85,16 +90,6 @@ export default function TokenPage({
       },
     });
 
-  useEffect(() => {
-    if (directListing[0] || auctionListing[0]) {
-      const listing = directListing[0]
-        ? { type: "direct", listing: directListing[0] }
-        : { type: "auction", listing: auctionListing[0] };
-      setCurrListing(listing);
-    }
-    console.log(directListing, auctionListing);
-  }, [nft, directListing, auctionListing]);
-
   async function createBidOrOffer() {
     let txResult;
     if (!bidValue) {
@@ -107,27 +102,27 @@ export default function TokenPage({
     }
     if (!currListing) return;
 
-    if (currListing.type === "auction") {
-      txResult = await marketplace?.englishAuctions.makeBid(
-        currListing.listing.auctionId,
-        bidValue
-      );
-    } else if (directListing?.[0]) {
-      txResult = await marketplace?.offers.makeOffer({
-        assetContractAddress: contractMetadata.address,
-        tokenId: nft?.metadata.id,
-        totalPrice: bidValue,
-      });
-    } else {
-      throw new Error("No valid listing found for this NFT");
+    try {
+      if (currListing.type === "auction") {
+        txResult = await marketplace?.englishAuctions.makeBid(
+          currListing.listing.auctionId,
+          bidValue
+        );
+      } else {
+        throw new Error("No valid auction listing found for this NFT");
+      }
+      setTimeout(() => {
+        router.reload();
+      }, 5000);
+      return txResult;
+    } catch (err) {
+      console.log(err);
     }
-
-    return txResult;
   }
 
   async function buyListing() {
     let txResult;
-    if (currListing.type !== "") {
+    try {
       if (currListing.type === "direct") {
         txResult = await marketplace.directListings.buyFromListing(
           currListing.listing.listingId,
@@ -138,14 +133,46 @@ export default function TokenPage({
         txResult = await marketplace.englishAuctions.buyoutAuction(
           currListing.listing.auctionId
         );
+        await marketplace.englishAuctions.executeSale(
+          currListing.listing.auctionId
+        );
       }
-    } else {
-      throw new Error("No valid listing found for this NFT");
+      setTimeout(() => {
+        router.reload();
+      }, 5000);
+      return txResult;
+    } catch (err) {
+      console.log(err);
     }
-    return txResult;
   }
 
-  if (!nft || !currListing || !contractMetadata) return <>loading</>;
+  useEffect(() => {
+    if (directListing[0] || auctionListing[0]) {
+      const listing = directListing[0]
+        ? { type: "direct", listing: directListing[0] }
+        : { type: "auction", listing: auctionListing[0] };
+      setCurrListing(listing);
+    }
+    console.log(directListing, auctionListing);
+  }, [nft, directListing, auctionListing]);
+
+  useEffect(() => {
+    //set winning bid if auction
+    if (!loadingContract && currListing.type === "auction") {
+      (async () => {
+        const winningBid = await marketplace?.englishAuctions?.getWinningBid(
+          currListing.listing.auctionId
+        );
+        setWinningBid(winningBid);
+      })();
+    }
+
+    //check if connected wallet is owner of asset
+    setIsOwner(currListing.listing.seller === address);
+  }, [currListing, address, loadingContract]);
+
+  if (!nft || !currListing || !contractMetadata || loadingContract)
+    return <>loading</>;
 
   return (
     <>
@@ -260,8 +287,8 @@ export default function TokenPage({
                 <div className={styles.nftOwnerInfo}>
                   <p className={styles.label}>Seller</p>
                   <p className={styles.nftOwnerAddress}>
-                    {currListing?.listing[1]?.slice(0, 8)}...
-                    {currListing?.listing[1]?.slice(-4)}
+                    {currListing?.listing?.seller?.slice(0, 8)}...
+                    {currListing?.listing?.seller?.slice(-4)}
                   </p>
                 </div>
               </Link>
@@ -341,7 +368,7 @@ export default function TokenPage({
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
                         <div
-                          className={`flex flex-col ${
+                          className={`flex flex-col p-2 ${
                             currListing.listing.listingId === l.listingId &&
                             "bg-moon-gold"
                           }`}
@@ -363,7 +390,7 @@ export default function TokenPage({
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
                         <div
-                          className={`flex flex-col ${
+                          className={`flex flex-col p-2 ${
                             currListing.listing.auctionId === a.auctionId &&
                             "bg-moon-gold"
                           }`}
@@ -381,76 +408,82 @@ export default function TokenPage({
               </div>
             )}
 
-            {!currListing ? (
+            {!currListing.listing.seller ? (
               <Skeleton width="100%" height="164" />
             ) : (
               <>
-                <Web3Button
-                  contractAddress={MARKETPLACE_ADDRESS}
-                  action={async () => await buyListing()}
-                  className={styles.btn}
-                  onSuccess={() => {
-                    toast(`Purchase success!`, {
-                      icon: "✅",
-                      style: toastStyle,
-                      position: "bottom-center",
-                    });
-                  }}
-                  onError={(e) => {
-                    toast(`Purchase failed! Reason: ${e.message}`, {
-                      icon: "❌",
-                      style: toastStyle,
-                      position: "bottom-center",
-                    });
-                  }}
-                >
-                  Buy at asking price
-                </Web3Button>
-
-                {currListing.type === "auction" && (
+                {isOwner ? (
+                  <div>this listing was created by you</div>
+                ) : (
                   <>
-                    <div
-                      className={`${styles.listingTimeContainer} ${styles.or}`}
-                    >
-                      <p className={styles.listingTime}>or</p>
-                    </div>
-                    <input
-                      className={styles.input}
-                      defaultValue={
-                        currListing.type === "auction"
-                          ? +currListing.listing.minimumBidAmount /
-                            MOONEY_DECIMALS
-                          : 0
-                      }
-                      type="number"
-                      step={0.000001}
-                      onChange={(e) => {
-                        setBidValue(e.target.value);
-                      }}
-                    />
-
                     <Web3Button
                       contractAddress={MARKETPLACE_ADDRESS}
-                      action={async () => await createBidOrOffer()}
+                      action={async () => await buyListing()}
                       className={styles.btn}
                       onSuccess={() => {
-                        toast(`Bid success!`, {
+                        toast(`Purchase success!`, {
                           icon: "✅",
                           style: toastStyle,
                           position: "bottom-center",
                         });
                       }}
                       onError={(e) => {
-                        console.log(e);
-                        toast(`Bid failed! Reason: ${e.message}`, {
+                        toast(`Purchase failed! Reason: ${e.message}`, {
                           icon: "❌",
                           style: toastStyle,
                           position: "bottom-center",
                         });
                       }}
                     >
-                      Place bid
+                      Buy at asking price
                     </Web3Button>
+
+                    {currListing.type === "auction" && (
+                      <>
+                        <div
+                          className={`${styles.listingTimeContainer} ${styles.or}`}
+                        >
+                          <p className={styles.listingTime}>or</p>
+                        </div>
+                        <input
+                          className={styles.input}
+                          defaultValue={
+                            currListing.type === "auction"
+                              ? +currListing.listing.minimumBidAmount /
+                                MOONEY_DECIMALS
+                              : 0
+                          }
+                          type="number"
+                          step={0.000001}
+                          onChange={(e) => {
+                            setBidValue(e.target.value);
+                          }}
+                        />
+
+                        <Web3Button
+                          contractAddress={MARKETPLACE_ADDRESS}
+                          action={async () => await createBidOrOffer()}
+                          className={styles.btn}
+                          onSuccess={() => {
+                            toast(`Bid success!`, {
+                              icon: "✅",
+                              style: toastStyle,
+                              position: "bottom-center",
+                            });
+                          }}
+                          onError={(e) => {
+                            console.log(e);
+                            toast(`Bid failed! Reason: ${e.message}`, {
+                              icon: "❌",
+                              style: toastStyle,
+                              position: "bottom-center",
+                            });
+                          }}
+                        >
+                          Place bid
+                        </Web3Button>
+                      </>
+                    )}
                   </>
                 )}
               </>

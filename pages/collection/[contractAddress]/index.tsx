@@ -18,7 +18,8 @@ export default function Collection({
   validAuctions,
 }: any) {
   const router = useRouter();
-  const assets = useAllAssets(validListings, validAuctions);
+  const assets = useAllAssets(validListings, validAuctions, contractAddress);
+  console.log(assets);
   return (
     <Container maxWidth="lg" className="">
       <p className={styles.nftName}></p>

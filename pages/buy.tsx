@@ -8,8 +8,9 @@ import {
 } from "../lib/marketplace-v3";
 import { initSDK } from "../lib/thirdweb";
 
-export default function Buy({ listings, auctions }: any) {
-  const collections = useAllCollections(listings, auctions);
+export default function Buy({ validListings, validAuctions }: any) {
+  const collections = useAllCollections(validListings, validAuctions);
+  console.log(collections);
   return (
     <Container maxWidth="lg" className="">
       <h1>Buy NFTs</h1>
@@ -28,9 +29,9 @@ export default function Buy({ listings, auctions }: any) {
 export async function getServerSideProps() {
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
-  const listings = await getAllValidListings(marketplace);
-  const auctions = await getAllValidAuctions(marketplace);
+  const validListings = await getAllValidListings(marketplace);
+  const validAuctions = await getAllValidAuctions(marketplace);
   return {
-    props: { listings, auctions },
+    props: { validListings, validAuctions },
   };
 }

@@ -1,5 +1,4 @@
 import { MOONEY_DECIMALS } from "../../const/config";
-import { DirectListing } from "../../lib/utils";
 import styles from "./NFT.module.css";
 
 interface ListingProps {
@@ -14,8 +13,7 @@ export default function Listing({
   setCurrListing,
 }: ListingProps) {
   const listingId = type === "direct" ? listing?.listingId : listing?.auctionId;
-  const sellerAddress =
-    type === "direct" ? listing?.listingCreator : listing?.auctionCreator;
+  const sellerAddress = listing.seller;
   const buyOut =
     type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
   const minBid = type === "direct" ? 0 : listing.minimumBidAmount;
@@ -41,10 +39,12 @@ export default function Listing({
 
       <div className={styles.priceContainer}>
         {type === "auction" && (
-          <div>
-            <p className={styles.nftPriceLabel}>{"Min Bid"}</p>
-            <p className={styles.nftPrice}>{+minBid / MOONEY_DECIMALS}</p>
-          </div>
+          <>
+            <div>
+              <p className={styles.nftPriceLabel}>{"Min Bid"}</p>
+              <p className={styles.nftPrice}>{+minBid / MOONEY_DECIMALS}</p>
+            </div>
+          </>
         )}
         <div>
           <p className={styles.nftPriceLabel}>{"Expiration"}</p>

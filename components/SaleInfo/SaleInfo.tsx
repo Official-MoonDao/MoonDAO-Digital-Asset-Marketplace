@@ -1,5 +1,5 @@
-import { NFT as NFTType } from "@thirdweb-dev/sdk";
-import React, { useEffect, useState } from "react";
+
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 
 import styles from "../../styles/Sale.module.css";
@@ -8,12 +8,10 @@ import {
   useContract,
   useContractWrite,
   useCreateAuctionListing,
-  useCreateDirectListing,
   Web3Button,
 } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../util/toastConfig";
-import { BigNumber } from "ethers";
 import {
   MARKETPLACE_ADDRESS,
   MOONEY_ADDRESS,
@@ -82,14 +80,6 @@ export default function SaleInfo({
 
   const [isListed, setIsListed] = useState();
 
-  useEffect(() => {
-    if (listings || auctions) {
-      setIsListed(listings[0] || auctions[0]);
-    }
-  }, [listings, auctions]);
-  // useContract is a React hook that returns an object with the contract key.
-  // The value of the contract key is an instance of an NFT_COLLECTION on the blockchain.
-  // This instance is created from the contract address (NFT_COLLECTION_ADDRESS)
   const { contract: nftCollection } = useContract(contractAddress);
 
   // Manage form submission state using tabs and conditional rendering
@@ -226,11 +216,8 @@ export default function SaleInfo({
       endTimestamp: endDate,
       reserved: false,
     };
-    console.log(listing);
     const txResult = await marketplace.call("createListing", listing);
-    console.log(txResult);
-
-    // router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
+    router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
       style: toastStyle,

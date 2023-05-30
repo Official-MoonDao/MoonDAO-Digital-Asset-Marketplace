@@ -1,16 +1,15 @@
 import {
   ThirdwebNftMedia,
+  useAddress,
   useContract,
   useNFT,
 } from "@thirdweb-dev/react";
 import Link from "next/link";
-import {
-  MOONEY_DECIMALS,
-} from "../../const/config";
+import { MOONEY_DECIMALS } from "../../const/config";
 
 import styles from "../NFT/NFT.module.css";
 import { useEffect } from "react";
-import { BigConvert } from "../../lib/utils";
+import { AuctionListing, BigConvert, DirectListing } from "../../lib/utils";
 
 /*
 Listing Data Structure
@@ -46,27 +45,32 @@ Auction Data Structure
   13: status : number
 */
 
-export default function ProfileListing({ listing, type = "direct" }: any) {
-  const { contract: nftContract } = useContract(listing[2]);
-  const { data: nft }: any = useNFT(nftContract, listing[3]);
+interface ProfileListingProps {
+  listing: DirectListing | AuctionListing | any;
+  type: string;
+}
 
-  const buyOut = type === "direct" ? listing[6] : listing[7];
-  const minBid = type === "direct" ? 0 : listing[6];
-  const end = type === "direct" ? listing[8] : listing[11];
+export default function ProfileListing({
+  listing,
+  type = "direct",
+}: ProfileListingProps) {
+  const { contract: nftContract } = useContract(listing.assetContract);
+  const { data: nft }: any = useNFT(nftContract, listing.tokenId);
 
-  useEffect(() => {}, [listing]);
+  const buyOut =
+    type === "direct" ? listing?.pricePerToken : listing?.buyoutBidAmount;
+  const minBid = type === "direct" ? 0 : listing.minimumBidAmount;
+  const end = listing.endTimestamp;
 
   return (
     <>
       {type === "direct" && nft && (
-        <Link href={`/collection/${listing[2]}/${listing[3].toString()}`}>
+        <Link href={`/collection/${listing.assetContract}/${listing.tokenId}`}>
           <div className="flex flex-col justify-center gap-4 items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
             <div className="flex flex-col gap-2">
               <div>
                 {"listing is active : "}
-                {new Date(+BigConvert(listing[8]) * 1000) > new Date(Date.now())
-                  ? "✅"
-                  : "❌"}
+                {end * 1000 > Date.now() ? "✅" : "❌"}
               </div>
               <h4 className="font-bold">{nft?.metadata?.name}</h4>
               <ThirdwebNftMedia metadata={nft?.metadata} />
@@ -75,7 +79,7 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
               <div>
                 <p className={styles.nftPriceLabel}>Price</p>
                 <p className={styles.nftPriceValue}>
-                  {`${+BigConvert(buyOut) / MOONEY_DECIMALS} MOONEY`}
+                  {`${buyOut / MOONEY_DECIMALS} MOONEY`}
                 </p>
               </div>
             </div>
@@ -83,9 +87,9 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
               <div>
                 <p className={styles.nftPriceLabel}>Listing Expiration</p>
                 <p className={styles.nftPriceValue}>{`${new Date(
-                  +BigConvert(end) * 1000
+                  end * 1000
                 ).toLocaleDateString()} @ ${new Date(
-                  +BigConvert(end) * 1000
+                  end * 1000
                 ).toLocaleTimeString()}`}</p>
               </div>
             </div>
@@ -93,15 +97,12 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
         </Link>
       )}
       {type === "auction" && nft && (
-        <Link href={`/collection/${listing[2]}/${BigConvert(listing[3])}`}>
+        <Link href={`/collection/${listing.assetContract}/${listing.tokenId}`}>
           <div className="flex justify-center items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
             <div className="flex flex-col gap-2">
               <div>
                 {"listing is active : "}
-                {new Date(+BigConvert(listing[11]) * 1000) >
-                new Date(Date.now())
-                  ? "✅"
-                  : "❌"}
+                {end * 1000 > Date.now() ? "✅" : "❌"}
               </div>
               <h4 className="font-bold">{nft?.metadata?.name}</h4>
               <ThirdwebNftMedia metadata={nft?.metadata} />
@@ -109,7 +110,7 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Buyout price</p>
                   <p className={styles.nftPriceValue}>
-                    {`${+BigConvert(buyOut) / MOONEY_DECIMALS} MOONEY`}
+                    {`${buyOut / MOONEY_DECIMALS} MOONEY`}
                   </p>
                 </div>
               </div>
@@ -117,7 +118,7 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Minimum bid</p>
                   <p className={styles.nftPriceValue}>
-                    {`${+BigConvert(buyOut) / MOONEY_DECIMALS} MOONEY`}
+                    {`${buyOut / MOONEY_DECIMALS} MOONEY`}
                   </p>
                 </div>
               </div>
@@ -125,9 +126,9 @@ export default function ProfileListing({ listing, type = "direct" }: any) {
                 <div>
                   <p className={styles.nftPriceLabel}>Listing Expiration</p>
                   <p className={styles.nftPriceValue}>{`${new Date(
-                    +BigConvert(end) * 1000
+                    end * 1000
                   ).toLocaleDateString()} @ ${new Date(
-                    +BigConvert(end) * 1000
+                    end * 1000
                   ).toLocaleTimeString()}`}</p>
                 </div>
               </div>

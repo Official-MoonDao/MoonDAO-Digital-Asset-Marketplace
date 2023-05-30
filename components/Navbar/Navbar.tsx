@@ -1,11 +1,11 @@
 import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 import LogoSmall from "../../assets/LogoSmall";
-import Hamburger from "../../assets/Hamburger"
+import Hamburger from "../../assets/Hamburger";
 import Image from "next/image";
 import Link from "next/link";
 import NetworkError from "./NetworkError";
 import Search from "./Search";
-
+import { ClaimFeeRewards } from "./ClaimFeeRewards";
 
 /**
  * Navigation bar that shows up on all pages.
@@ -20,12 +20,11 @@ export function Navbar() {
       <nav className="flex items-center justify-between">
         {/*Logo and search */}
         <div className="flex items-center gap-4">
-        <Link href="/" className="">
-          <LogoSmall />
-        </Link>
-        <Search/>
+          <Link href="/" className="">
+            <LogoSmall />
+          </Link>
+          <Search />
         </div>
-        
 
         {/*Buy and sell desktop*/}
         <div className="hidden md:flex md:gap-12 md:text-xl">
@@ -39,9 +38,8 @@ export function Navbar() {
 
         {/*Mobile menu */}
         <div className="md:hidden">
-        <Hamburger/>
+          <Hamburger />
         </div>
-
 
         {/*Connect wallet desktop, upon connect the address gets activated and shows logo */}
         <div className="hidden md:block">
@@ -50,9 +48,18 @@ export function Navbar() {
           </div>
           {/*Logo upon activation */}
           {address && (
-            <Link className="" href={`/profile/${address}`}>
-              <Image className="" src="/user-icon.png" width={42} height={42} alt="Profile" />
-            </Link>
+            <>
+              <Link className="" href={`/profile/${address}`}>
+                <Image
+                  className=""
+                  src="/user-icon.png"
+                  width={42}
+                  height={42}
+                  alt="Profile"
+                />
+              </Link>
+              <ClaimFeeRewards />
+            </>
           )}
         </div>
       </nav>

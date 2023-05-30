@@ -1,4 +1,4 @@
-import { useAddress } from "@thirdweb-dev/react";
+import { useAddress, useContract } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Container from "../../components/Container/Container";
@@ -12,6 +12,7 @@ import { initSDK } from "../../lib/thirdweb";
 import {
   getAllValidAuctions,
   getAllValidListings,
+  useClaimableAuctions,
   useListingsAndAuctionsForWallet,
 } from "../../lib/marketplace-v3";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
@@ -26,10 +27,13 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
 export default function ProfilePage({
   validListings,
   validAuctions,
+  claimableAuctions,
   walletAddress,
 }: any) {
   const router = useRouter();
-  const address: any = useAddress();
+  const address = useAddress();
+  const [userIsOwner, setUserIsOwner] = useState<boolean>(false);
+
   const { listings, auctions } = useListingsAndAuctionsForWallet(
     validListings,
     validAuctions,
@@ -38,19 +42,22 @@ export default function ProfilePage({
   const [tab, setTab] = useState<"listings" | "auctions">("listings");
 
   //get all user nfts from opensea
-  const [userNFTs, setUserNFTs]: any = useState([{ metadata: {} }]);
-  useEffect(() => {
-    console.log(listings, auctions);
-  }, [listings, auctions]);
+  const [userNFTs, setUserNFTs] = useState<any>([{ metadata: {} }]);
+
+  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
+
+  const claimable = useClaimableAuctions(marketplace, address);
+
   useEffect(() => {
     if (address) {
+      if (router.query && router.query.address?.toString() === address)
+        setUserIsOwner(true);
       (async () => {
         const userNFTs = await getAllUserNFTs(address);
         setUserNFTs(userNFTs);
       })();
-      if (router.query && router.query.address?.toString() !== address)
-        router.push(`/profile/${address}`);
     }
+    console.log(claimable);
   }, [address, router]);
 
   return (
@@ -101,11 +108,7 @@ export default function ProfilePage({
           tab === "listings" ? styles.activeTabContent : styles.tabContent
         }`}
       >
-        {listings && listings.length === 0 ? (
-          <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
-        ) : (
-          <ProfileListingGrid listings={listings} />
-        )}
+        <ProfileListingGrid listings={listings} />
       </div>
 
       <div
@@ -113,11 +116,7 @@ export default function ProfilePage({
           tab === "auctions" ? styles.activeTabContent : styles.tabContent
         }`}
       >
-        {auctions && auctions.length === 0 ? (
-          <p>Nothing for sale yet! Head to the sell tab to list an NFT.</p>
-        ) : (
-          <ProfileListingGrid listings={auctions} type="auction" />
-        )}
+        <ProfileListingGrid listings={auctions} type="auction" />
       </div>
     </Container>
   );

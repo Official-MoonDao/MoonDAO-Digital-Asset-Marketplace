@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 
 export interface DirectListing {
   listingId: string | number;
-  listingCreator: string;
+  seller: string;
   assetContract: string;
   tokenId: string;
   quantity: string;
@@ -17,7 +17,7 @@ export interface DirectListing {
 
 export interface AuctionListing {
   auctionId: string | number;
-  auctionCreator: string;
+  seller: string;
   assetContract: string;
   tokenId: string;
   quantity: string;
@@ -48,7 +48,7 @@ export function serializable(data: any, totalOffers: any = "") {
       (listing: any) =>
         ({
           auctionId: BigConvert(listing[0]),
-          auctionCreator: listing[1],
+          seller: listing[1],
           assetContract: listing[2],
           tokenId: BigConvert(listing[3]),
           quantity: BigConvert(listing[4]),
@@ -68,7 +68,7 @@ export function serializable(data: any, totalOffers: any = "") {
       (listing: any) =>
         ({
           listingId: BigConvert(listing[0]),
-          listingCreator: listing[1],
+          seller: listing[1],
           assetContract: listing[2],
           tokenId: BigConvert(listing[3]),
           quantity: BigConvert(listing[4]),

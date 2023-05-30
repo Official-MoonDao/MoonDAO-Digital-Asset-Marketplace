@@ -64,6 +64,51 @@ export async function getAllValidOffersByTokenId(
   }
 }
 
+////MULTICALL FUNCTIONS////
+
+export async function multiAuctionPayout(
+  marketplace: any,
+  auctionIds: [number]
+) {
+  try {
+    const encodedData = auctionIds.map((id: number) =>
+      marketplace.interface.encodeFunctionData("collectAuctionPayout", [id])
+    );
+    const multicallTx = await marketplace.callStatic.multicall(encodedData);
+    return multicallTx;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function multiCancelListings(
+  marketplace: any,
+  auctionIds: [number],
+  listingIds: [number]
+) {
+  try {
+    const encodedData = [];
+    if (auctionIds.length > 0) {
+      encodedData.push(
+        ...auctionIds.map((id: number) =>
+          marketplace.interface.encodeFunctionData("cancelAuction", [id])
+        )
+      );
+    }
+    if (listingIds.length > 0) {
+      encodedData.push(
+        listingIds.map((id: number) =>
+          marketplace.interface.encodeFunctionData("cancelListing", [id])
+        )
+      );
+    }
+    const multicallTx = await marketplace.callStatic.multicall(encodedData);
+    return multicallTx;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 //////HOOKS//////////
 /////////////////////
 
@@ -76,30 +121,24 @@ export function useAllCollections(
 
   useEffect(() => {
     if (validListings && validAuctions) {
-      console.log(validListings, validAuctions);
       const uniqueCollectionAddresses: any = [];
-      const filteredListings =
-        validListings[0] &&
-        validListings?.filter(
-          (l: DirectListing) =>
-            !uniqueCollectionAddresses.includes(l.assetContract) &&
-            uniqueCollectionAddresses.push(l.assetContract)
-        );
-      const filteredAuctions =
-        validAuctions[0] &&
-        validAuctions?.filter(
-          (a: AuctionListing) =>
-            !uniqueCollectionAddresses.includes(a.assetContract) &&
-            uniqueCollectionAddresses.push(a.assetContract)
-        );
+      const filteredListings = validListings[0]
+        ? validListings?.filter(
+            (l: DirectListing) =>
+              !uniqueCollectionAddresses.includes(l.assetContract) &&
+              uniqueCollectionAddresses.push(l.assetContract)
+          )
+        : [];
+      const filteredAuctions = validAuctions[0]
+        ? validAuctions?.filter(
+            (a: AuctionListing) =>
+              !uniqueCollectionAddresses.includes(a.assetContract) &&
+              uniqueCollectionAddresses.push(a.assetContract)
+          )
+        : [];
 
       let filteredCollections;
-      if (filteredListings?.length > 0 && filteredAuctions?.length > 0)
-        filteredCollections = [...filteredListings, ...filteredAuctions];
-      else if (filteredListings?.length <= 0)
-        filteredCollections = filteredAuctions;
-      else filteredCollections = filteredListings;
-      setCollections(filteredCollections);
+      setCollections([...filteredAuctions, ...filteredListings]);
     }
     console.log(collections);
   }, [validListings, validAuctions]);
@@ -110,7 +149,8 @@ export function useAllCollections(
 //Get all unique assets for a specific collection from Marketplace
 export function useAllAssets(
   listings: [DirectListing],
-  auctions: [AuctionListing]
+  auctions: [AuctionListing],
+  assetContract: string
 ) {
   const [assets, setAssets] = useState([]);
   useEffect(() => {
@@ -120,12 +160,20 @@ export function useAllAssets(
       const length: number =
         listings.length > auctions.length ? listings.length : auctions.length;
       for (let i = 0; i < length; i++) {
-        if (listings[i] && !uniqueAssets.includes(listings[i].tokenId)) {
+        if (
+          listings[i] &&
+          listings[i].assetContract === assetContract &&
+          !uniqueAssets.includes(listings[i].tokenId)
+        ) {
           const tokenId: any = listings[i].tokenId;
           uniqueAssets.push(tokenId);
           filteredAssets.push(listings[i]);
         }
-        if (auctions[i] && !uniqueAssets.includes(auctions[i].tokenId)) {
+        if (
+          auctions[i] &&
+          auctions[i].assetContract === assetContract &&
+          !uniqueAssets.includes(auctions[i].tokenId)
+        ) {
           const tokenId: any = auctions[i].tokenId;
           uniqueAssets.push(tokenId);
           filteredAssets.push(auctions[i]);
@@ -186,16 +234,18 @@ export function useListingsAndAuctionsForWallet(
 
   useEffect(() => {
     if (validListings && validAuctions) {
-      const filteredListings = validListings?.filter(
-        (l: DirectListing) =>
-          l.listingCreator &&
-          l.listingCreator.toLowerCase() === walletAddress?.toLowerCase()
-      );
-      const filteredAuctions = validAuctions?.filter(
-        (a: AuctionListing) =>
-          a.auctionCreator &&
-          a.auctionCreator.toLowerCase() === walletAddress?.toLowerCase()
-      );
+      const filteredListings =
+        validListings[0] &&
+        validListings?.filter(
+          (l: DirectListing) =>
+            l.seller && l.seller.toLowerCase() === walletAddress?.toLowerCase()
+        );
+      const filteredAuctions =
+        validAuctions[0] &&
+        validAuctions?.filter(
+          (a: AuctionListing) =>
+            a.seller && a.seller.toLowerCase() === walletAddress?.toLowerCase()
+        );
       setListings(filteredListings);
       setAuctions(filteredAuctions);
     }
@@ -216,20 +266,24 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
   const [auctions, setAuctions] = useState<any>([]);
   useEffect(() => {
     if (validListings && validAuctions) {
-      const filteredListings = validListings?.filter(
-        (l: DirectListing) =>
-          l.listingCreator &&
-          l?.listingCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
-          l.assetContract === collectionAddress &&
-          +l.tokenId === Number(tokenId)
-      );
-      const filteredAuctions = validAuctions?.filter(
-        (a: AuctionListing) =>
-          a?.auctionCreator &&
-          a.auctionCreator?.toLowerCase() === walletAddress?.toLowerCase() &&
-          a.assetContract === collectionAddress &&
-          +a.tokenId === Number(tokenId)
-      );
+      const filteredListings =
+        validListings[0] &&
+        validListings?.filter(
+          (l: DirectListing) =>
+            l.seller &&
+            l?.seller?.toLowerCase() === walletAddress?.toLowerCase() &&
+            l.assetContract === collectionAddress &&
+            +l.tokenId === Number(tokenId)
+        );
+      const filteredAuctions =
+        validAuctions[0] &&
+        validAuctions?.filter(
+          (a: AuctionListing) =>
+            a?.seller &&
+            a.seller?.toLowerCase() === walletAddress?.toLowerCase() &&
+            a.assetContract === collectionAddress &&
+            +a.tokenId === Number(tokenId)
+        );
       setListings(filteredListings);
       setAuctions(filteredAuctions);
     }
@@ -251,4 +305,32 @@ export function useUserCanList(marketplace: any, address: string) {
     }
   }, [marketplace, address]);
   return userCanList;
+}
+
+export function useClaimableAuctions(
+  marketplace: any,
+  address: string | undefined
+) {
+  const [claimableAuctions, setClaimableAuctions] = useState<any>([]);
+  useEffect(() => {
+    if (marketplace && address) {
+      (async () => {
+        const totalAuctions = await marketplace.call("totalAuctions");
+        const auctions = await marketplace.call(
+          "getAllAuctions",
+          0,
+          totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
+        );
+        const formattedAuctions = serializable(auctions);
+        const claimable = formattedAuctions.filter(
+          (a: any) =>
+            a?.seller.toLowerCase() === address?.toLowerCase() &&
+            a.status === "1"
+        );
+        console.log(claimable);
+        setClaimableAuctions(claimable);
+      })();
+    }
+  }, [marketplace, address]);
+  return claimableAuctions;
 }
