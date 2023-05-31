@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
-    <footer className="mt-20 w-full flex flex-col items-center pb-12">
-      <svg xmlns="http://www.w3.org/2000/svg" className="mt-8 w-[300px]" width="362" height="101" viewBox="0 0 362 101" fill="none">
+    <footer className="mt-20 w-full flex flex-col items-center pb-12 lg:h-[374px] md:justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" className="mt-8 w-[300px] md:w-[361px]" width="362" height="101" viewBox="0 0 362 101" fill="none">
         <path
           d="M32.9916 50.3124C42.2339 50.3124 49.7263 42.8499 49.7263 33.6445C49.7263 24.439 42.2339 16.9766 32.9916 16.9766C23.7492 16.9766 16.2568 24.439 16.2568 33.6445C16.2568 42.8499 23.7492 50.3124 32.9916 50.3124Z"
           fill="#F2F2F2"
@@ -43,10 +45,16 @@ export default function Footer() {
           fill="#F2F2F2"
         />
       </svg>
-      <div className="mt-8 flex flex-col items-center gap-8">
-      <a className="font-bold text-moon-white tracking-wide">Privacy</a>
-      <a className="font-bold text-moon-white tracking-wide">Twitter</a>
-      <a className="font-bold text-moon-white tracking-wide">Discord</a>
+      <div className="mt-8 flex flex-col md:flex-row items-center gap-8 md:gap-[34px]">
+        <Link href="/" className="font-bold text-moon-white tracking-wide hover:scale-105">
+          Privacy
+        </Link>
+        <Link href="/" className="font-bold text-moon-white tracking-wide hover:scale-105">
+          Twitter
+        </Link>
+        <Link href="/" className="font-bold text-moon-white tracking-wide hover:scale-105">
+          Discord
+        </Link>
       </div>
       <p className="mt-11 font-light text-moon-white opacity-50 text-sm tracking-wider">MoonDAO © {new Date().getFullYear()}. All Rights Reserved.</p>
     </footer>

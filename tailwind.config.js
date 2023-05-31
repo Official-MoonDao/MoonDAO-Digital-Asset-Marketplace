@@ -4,6 +4,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        "main-background":"#090013",
         "moon-orange": "#F9B95C",
         "moon-secondary": "#D7594F",
         "moon-gold": "#F9B95C",
