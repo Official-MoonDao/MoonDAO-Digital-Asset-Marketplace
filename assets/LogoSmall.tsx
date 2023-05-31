@@ -1,8 +1,20 @@
 // If size isn't passed, defaults to the size of how the logo looks on the mobile navbar.
-// size is an object with a height and a width property.
 
-const LogoSmall = ({size}) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={`${!size? "36.52" : size.width}`} height={`${!size? "38.56" : size.height}`} viewBox="0 0 350 365"  fill="none">
+interface Logo {
+  size?: {
+    height: number;
+    width: number;
+  };
+}
+
+const LogoSmall = ({ size }: Logo) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={`${!size ? "36.52" : size.width}`}
+    height={`${!size ? "38.56" : size.height}`}
+    viewBox="0 0 350 365"
+    fill="none"
+  >
     <path
       fill="url(#a)"
       d="M332.21 295.813V67.692a267.979 267.979 0 0 0-157.325-51.039A267.98 267.98 0 0 0 17.559 67.692v228.121a268.057 268.057 0 0 0 157.326 51.02 268.054 268.054 0 0 0 157.325-51.02Z"
