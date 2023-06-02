@@ -1,0 +1,87 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: MarketplaceV3
+    network: goerli
+    source:
+      address: "0x4234D057e948B5d438e5be3d32290975e40320F9"
+      abi: MarketplaceV3
+      startBlock: 9005637
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ContractURIUpdated
+        - PlatformFeeInfoUpdated
+        - PluginAdded
+        - PluginRemoved
+        - PluginSet
+        - PluginUpdated
+        - RoleAdminChanged
+        - RoleGranted
+        - RoleRevoked
+        - BuyerApprovedForListing
+        - CancelledListing
+        - CurrencyApprovedForListing
+        - NewListing
+        - NewSale
+        - UpdatedListing
+        - AuctionClosed
+        - CancelledAuction
+        - NewAuction
+        - NewBid
+        - AcceptedOffer
+        - CancelledOffer
+        - NewOffer
+      abis:
+        - name: MarketplaceV3
+          file: ./abis/MarketplaceV3.json
+      eventHandlers:
+        - event: ContractURIUpdated(string,string)
+          handler: handleContractURIUpdated
+        - event: PlatformFeeInfoUpdated(indexed address,uint256)
+          handler: handlePlatformFeeInfoUpdated
+        - event: PluginAdded(indexed bytes4,indexed address)
+          handler: handlePluginAdded
+        - event: PluginRemoved(indexed bytes4,indexed address)
+          handler: handlePluginRemoved
+        - event: PluginSet(indexed bytes4,indexed string,indexed address)
+          handler: handlePluginSet
+        - event: PluginUpdated(indexed bytes4,indexed address,indexed address)
+          handler: handlePluginUpdated
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: BuyerApprovedForListing(indexed uint256,indexed address,bool)
+          handler: handleBuyerApprovedForListing
+        - event: CancelledListing(indexed address,indexed uint256)
+          handler: handleCancelledListing
+        - event: CurrencyApprovedForListing(indexed uint256,indexed address,uint256)
+          handler: handleCurrencyApprovedForListing
+        - event: NewListing(indexed address,indexed uint256,indexed address,(uint256,address,address,uint256,uint256,address,uint256,uint128,uint128,bool,uint8,uint8))
+          handler: handleNewListing
+        - event: NewSale(indexed address,indexed uint256,indexed address,uint256,address,uint256,uint256)
+          handler: handleNewSale
+        - event: UpdatedListing(indexed address,indexed uint256,indexed address,(uint256,address,address,uint256,uint256,address,uint256,uint128,uint128,bool,uint8,uint8))
+          handler: handleUpdatedListing
+        - event: AuctionClosed(indexed uint256,indexed address,indexed address,uint256,address,address)
+          handler: handleAuctionClosed
+        - event: CancelledAuction(indexed address,indexed uint256)
+          handler: handleCancelledAuction
+        - event: NewAuction(indexed address,indexed uint256,indexed address,(uint256,address,address,uint256,uint256,address,uint256,uint256,uint64,uint64,uint64,uint64,uint8,uint8))
+          handler: handleNewAuction
+        - event: NewBid(indexed uint256,indexed address,indexed address,uint256,(uint256,address,address,uint256,uint256,address,uint256,uint256,uint64,uint64,uint64,uint64,uint8,uint8))
+          handler: handleNewBid
+        - event: AcceptedOffer(indexed address,indexed uint256,indexed address,uint256,address,uint256,uint256)
+          handler: handleAcceptedOffer
+        - event: CancelledOffer(indexed address,indexed uint256)
+          handler: handleCancelledOffer
+        - event: NewOffer(indexed address,indexed uint256,indexed address,(uint256,address,address,uint256,uint256,address,uint256,uint256,uint8,uint8))
+          handler: handleNewOffer
+      file: ./src/marketplace-v-3.ts
