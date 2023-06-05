@@ -4,7 +4,7 @@ const CollectionThumbnail = ({ id, img, name, floor, volume, change }) => {
   return (
     <a href="">
       {/*Collection link goes on top*/}
-      <article className="flex items-center lg:hover:bg-gradient-to-br from-slate-700 to-indigo-700 transition-all duration-150 lg:rounded-xl lg:px-3 lg:py-2 xl:py-3 xl:px-4">
+      <article className="flex items-center lg:hover:bg-gradient-to-br hover:ring-2 ring-white from-main-background via-indigo-900 to-main-background transition-all duration-150 lg:rounded-xl lg:px-3 lg:py-2 xl:py-3 xl:px-4">
         <div className="flex items-center gap-2 md:gap-3 lg:gap-6">
           <p className="font-bold text-lg">{id}</p>
           <img src={img} alt={`${name} collection image`} className="w-20 h-20 rounded-full object-cover" />

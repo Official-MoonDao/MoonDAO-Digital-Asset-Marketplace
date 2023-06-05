@@ -7,13 +7,13 @@ import Footer from "../components/Footer";
 
 const Home: NextPage = () => {
   return (
-    <div className="flex flex-col items-center px-6 md:px-10">
+    <main className="flex flex-col items-center px-6 md:px-10">
       <Hero />
       <CollectionShowcase />
       <TrendingShowcase />
       <NewShowcase />
       <Footer />
-    </div>
+    </main>
   );
 };
 
