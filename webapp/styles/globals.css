@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Roboto Mono", monospace, sans-serif;
+  background: #090013;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+@font-face {
+  font-family: "Good Times";
+  src: url("../public/fonts/goodtimes.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Roboto Mono";
+  src: url("../public/fonts/RobotoMono.ttf");
+}
+
+footer {
+  background: linear-gradient(
+    270deg,
+    rgba(255, 255, 255, 0) -0.8%,
+    rgba(255, 255, 255, 0.0422917) 49.61%,
+    rgba(255, 255, 255, 0) 101.09%
+  );
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: 30px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #2e2e2eb9;
+  border-radius: 30px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.connect-button{
+  background: #D7594F !important;
+  font-family: 'Roboto Mono', monospace, sans-serif !important;
+  padding: 10px 10px 10px 10px !important;
+  border-radius: 0% !important;
+}
+
+/* Animation to slide menus in */
+.slide-menu-animation {
+  -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@-webkit-keyframes slide-top {
+  0% {
+    -webkit-transform: translateY(100px);
+    transform: translateY(100px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-top {
+  0% {
+    -webkit-transform: translateY(100px);
+    transform: translateY(100px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
