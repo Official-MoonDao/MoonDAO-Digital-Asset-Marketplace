@@ -20,7 +20,7 @@ const CollectionThumbnail = ({ id, img, name, floor, volume, change }) => {
           </p>
         </div>
         <div className="ml-3 md:ml-7 lg:ml-14 flex flex-col items-end">
-          <p className={`${change < 0 ? "text-amber-600" : "text-emerald-500"} text-lg font-bold`}>
+          <p className={`${change < 0 ? "text-amber-600" : "text-emerald-500"} text-lg font-bold blur-[0.6px]`}>
             {change < 0 ? "" : "+"}
             {change}%
           </p>

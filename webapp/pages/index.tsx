@@ -3,7 +3,6 @@ import Hero from "../components/Home/Hero";
 import CollectionShowcase from "../components/Home/CollectionShowcase";
 import TrendingShowcase from "../components/Home/TrendingShowcase";
 import NewShowcase from "../components/Home/NewShowcase";
-import Footer from "../components/Footer";
 
 const Home: NextPage = () => {
   return (
@@ -12,7 +11,6 @@ const Home: NextPage = () => {
       <CollectionShowcase />
       <TrendingShowcase />
       <NewShowcase />
-      <Footer />
     </main>
   );
 };
