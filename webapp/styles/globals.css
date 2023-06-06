@@ -56,3 +56,38 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.connect-button{
+  background: #D7594F !important;
+  font-family: 'Roboto Mono', monospace, sans-serif !important;
+  padding: 10px 10px 10px 10px !important;
+  border-radius: 0% !important;
+}
+
+/* Animation to slide menus in */
+.slide-menu-animation {
+  -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+@-webkit-keyframes slide-top {
+  0% {
+    -webkit-transform: translateY(100px);
+    transform: translateY(100px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-top {
+  0% {
+    -webkit-transform: translateY(100px);
+    transform: translateY(100px);
+  }
+  100% {
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
