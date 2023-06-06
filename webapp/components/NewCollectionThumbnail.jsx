@@ -5,6 +5,7 @@ const NewCollectionThumbnail = ({ img, name, floor }) => {
     <article className="relative flex flex-col group items-center hover:scale-[1.035] group transition-all duration-150">
       {/*Here goes the collection link*/}
       <a href="">
+        
         <img className="z-10 w-[300px] h-[235px] object-cover rounded-t-[6px] rounded-b-[15px] group-hover:ring ring-indigo-200" src={img} alt={`${name} collection thumbnail`} />
         <div className="-mt-3 border border-stone-900 group-hover:border-stone-600 w-[300px] h-[100px] flex flex-col items-center text-center rounded-md">
           <h6 className="mt-7 tracking-widest group-hover:text-indigo-400">{name}</h6>

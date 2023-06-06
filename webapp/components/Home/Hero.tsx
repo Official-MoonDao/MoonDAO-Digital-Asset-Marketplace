@@ -25,7 +25,7 @@ export default function Hero() {
       {/*Hero image*/}
       <div className="flex flex-col items-center relative">
         {/*Here goes the link to the collection and the image*/}
-        <a target="_blank" href={heroImageArray[currentSlide].link}>
+        <a target="_blank" rel="noreferrer" href={heroImageArray[currentSlide].link}>
           <img
             className="w-[290px] hover:ring-2 xl:hover:ring-4 ring-moon-orange transition-all duration-300 h-[362px] lg:h-[443.38px] xl:h-[499.58px] 2xl:h-[564px]  object-cover lg:w-[355px] xl:w-[400px] 2xl:w-[536px]  rounded-tl-[99px] rounded-br-[99px]"
             src={heroImageArray[currentSlide].img}
