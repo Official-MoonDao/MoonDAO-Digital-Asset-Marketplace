@@ -8,7 +8,7 @@ The MoonDAO Digital Asset Marketplace is where people can buy or list digital as
 ## [WebApp](/webapp/)
 **Demo:** [Marketplace-Demo](https://moondao-marketplace-test.netlify.app/)
 
-The webapp is built on a NextJS framework, using mainly React and Tailwind for the front-end and Thirdweb for interacting with the smart contracts. 
+The webapp is built on a NextJS framework, using mainly React and Tailwind for the front-end and Thirdweb for interacting with smart contracts. 
 
 Read the documentation to get started [WebApp Documentation](/webapp/README.md)
 

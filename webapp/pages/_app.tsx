@@ -2,10 +2,9 @@ import type { AppProps } from "next/app";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 import { Navbar } from "../components/Navbar/Navbar";
 import NextNProgress from "nextjs-progressbar";
-import { NETWORK } from "../const/config";
 import "../styles/globals.css";
-import { ethers } from "ethers";
 import { Goerli } from "@thirdweb-dev/chains";
+import { Toaster } from "react-hot-toast";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -24,6 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Navbar />
       {/* Render the actual component (page) */}
       <Component {...pageProps} />
+      <Toaster />
     </ThirdwebProvider>
   );
 }
