@@ -57,7 +57,7 @@ export async function queryTrending() {
 
   console.log(Object.entries(trendingCount.newBids).sort((a:any,b:any)=> b[1]-a[1]));
 
-  return { listings: trendingListings, auctions: trendingAuctions };
+  return { listings: [], auctions: [] };
 }
 
 // ListingIds & AuctionIds that are ending soon
