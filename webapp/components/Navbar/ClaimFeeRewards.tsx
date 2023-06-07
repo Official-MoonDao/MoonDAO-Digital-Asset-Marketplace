@@ -38,7 +38,7 @@ export function ClaimFeeRewards() {
     let nearestWednesday = moment()
       .utcOffset(-new Date().getTimezoneOffset())
       .day(3)
-      .set({ hour: 0, minute: 0, second: 0 });
+      .set({ hour: 19, minute: 0, second: 0 });
 
     nearestWednesday =
       nearestWednesday < moment()
@@ -97,8 +97,9 @@ export function ClaimFeeRewards() {
         contractAddress={FEE_DISTRIBUTOR_ADDRESS}
         contractAbi={FEE_DISTRIBUTOR_ABI as any}
         action={async () => await claimRewardsForSigner()}
+        isDisabled={feeRewards <= 0}
       >
-        Claim Rewards
+        {feeRewards > 0 ? "Claim Rewards" : "Claimed"}
       </Web3Button>
       <div>
         <p>Next Distribution Cycle:</p>
