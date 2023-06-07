@@ -96,7 +96,8 @@ export function serializable(data: any, totalOffers: any = "") {
   return JSON.parse(JSON.stringify(formatted));
 }
 
-//////HOOKS////////////
+//////HOOKS////////////////////////////////////////////
+////////////////////////////////////////////////////////
 
 export function useClickOutside(ref: any, _enabled: boolean) {
   const [enabled, setEnabled] = useState(false);

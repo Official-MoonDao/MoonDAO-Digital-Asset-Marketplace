@@ -7,7 +7,7 @@ import {
   serializable,
 } from "./utils";
 
-/////FUNCTIONS/////
+/////FUNCTIONS///////////////////
 ////////////////////////////////
 
 export async function getAllListings(marketplace: any) {
@@ -92,7 +92,8 @@ export async function getAllValidOffersByTokenId(
   }
 }
 
-////MULTICALL FUNCTIONS////
+////MULTICALL FUNCTIONS////////////////////////////////
+////////////////////////////////////////////////////////
 
 export async function multiAuctionPayout(
   marketplace: any,
@@ -137,8 +138,8 @@ export async function multiCancelListings(
   }
 }
 
-//////HOOKS//////////
-/////////////////////
+//////HOOKS/////////////////////////////////////////////
+////////////////////////////////////////////////////////
 
 //Get all unique collections from Marketplace
 export function useAllCollections(
@@ -165,10 +166,8 @@ export function useAllCollections(
           )
         : [];
 
-      let filteredCollections;
       setCollections([...filteredAuctions, ...filteredListings]);
     }
-    console.log(collections);
   }, [validListings, validAuctions]);
 
   return collections;
@@ -320,42 +319,6 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
   return { listings, auctions };
 }
 
-//filter listings and auctions for fitler page
-export function useFilterAllListings(
-  allListings: AllListings,
-  allAuctions: AllAuctions,
-  filterType: { filter: string; assetOrCollection: string }
-) {
-  const [filteredListings, setFilteredListings] = useState<any>([]);
-  const { valid: validListings } = allListings;
-  const { valid: validAuctions } = allAuctions;
-
-  function historicalDataFilter(
-    type: { filter: string; assetOrCollection: string },
-    startTimestamp: number = Date.now() / 1000
-  ) {
-    const historicalDataTypes = {
-      trending: (arr: [any]) => {
-        return arr.filter((l: DirectListing | AuctionListing) => {});
-      }, //collections or assets w/ most sales since timestamp
-      expiration: (arr: [any]) => {
-        return arr.filter((l: DirectListing | AuctionListing) => {});
-      }, //collections or assets by expiration date
-    };
-    if (allListings && allListings.all[0]) {
-    }
-  }
-
-  const FILTERS = {
-    all: () => setFilteredListings([...validListings, ...validAuctions]),
-    direct: () => setFilteredListings(validListings),
-    auction: () => setFilteredListings(validAuctions),
-    trending: "",
-  };
-
-  return 1;
-}
-
 //Check if user has permissions to list NFTs
 export function useUserCanList(marketplace: any, address: string) {
   const [userCanList, setUserCanList] = useState(false);
@@ -371,6 +334,7 @@ export function useUserCanList(marketplace: any, address: string) {
   return userCanList;
 }
 
+///Talking w/  Thirdweb team to see how to implement this, cannot find value for "claimableAuctionPayout" for listings
 export function useClaimableAuctions(
   marketplace: any,
   address: string | undefined
@@ -398,5 +362,3 @@ export function useClaimableAuctions(
   }, [marketplace, address]);
   return claimableAuctions;
 }
-
-//Get all listings
