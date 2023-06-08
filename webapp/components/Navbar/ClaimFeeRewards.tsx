@@ -7,7 +7,7 @@ import {
 } from "@thirdweb-dev/react";
 import { FEE_DISTRIBUTOR_ADDRESS } from "../../const/config";
 import FEE_DISTRIBUTOR_ABI from "../../const/abis/FeeDistributor.json";
-import { Contract } from "ethers";
+import { BigNumber, Contract } from "ethers";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import moment from "moment";
@@ -63,7 +63,7 @@ export function ClaimFeeRewards() {
 
   async function getRewardsForSigner() {
     const rewards = await FeeDistributor.callStatic["claim(address)"](address);
-    setFeeRewards(rewards.toNumber() / 10 ** 18);
+    setFeeRewards(Number(rewards.toString() / 10 ** 18));
   }
 
   async function claimRewardsForSigner() {
@@ -89,7 +89,7 @@ export function ClaimFeeRewards() {
     <div className="z-10 flex flex-col w-full" ref={dialogRef}>
       <p>Fee Rewards:</p>
       <div className="flex gap-2">
-        {feeRewards > 1 ? feeRewards.toFixed(2) : feeRewards.toFixed(7)}
+        {feeRewards.toFixed(7)}
         <Image src={"/favicon.ico"} width={25} height={25} alt="" />
         <p>MOONEY</p>
       </div>
