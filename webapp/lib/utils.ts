@@ -14,6 +14,7 @@ export interface DirectListing {
   reserved: boolean;
   tokenType: string | number;
   status: string | number;
+  popularity: any;
 }
 
 export interface AuctionListing {
@@ -31,6 +32,7 @@ export interface AuctionListing {
   endTimestamp: string | number;
   tokenType: string | number;
   status: string | number;
+  popularity:any;
 }
 
 export interface AllListings {

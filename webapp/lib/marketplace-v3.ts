@@ -144,12 +144,12 @@ export async function multiCancelListings(
 //Get all unique collections from Marketplace
 export function useAllCollections(
   validListings: DirectListing[],
-  validAuctions: AuctionListing[]
+  validAuctions: AuctionListing[],
 ) {
   const [collections, setCollections] = useState<any>([]);
 
   useEffect(() => {
-    if (validListings && validAuctions) {
+    if (validListings || validAuctions) {
       const uniqueCollectionAddresses: any = [];
       const filteredListings = validListings[0]
         ? validListings?.filter(

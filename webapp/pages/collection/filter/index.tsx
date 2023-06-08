@@ -14,6 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import VerticalStar from "../../../assets/VerticalStar";
 import { useFilter } from "../../../lib/marketplace-subgraph";
 import CollectionGrid from "../../../components/Collection/CollectionGrid";
+import AssetPreview from "../../../components/Collection/AssetPreview";
 
 interface FilteredListingsPageProps {
   validListings: DirectListing[];
@@ -32,9 +33,7 @@ export default function FilteredListingsPage({
   const filterSelectionRef:any = useRef();
   const [filter, setFilter] = useState<any>({type: filterType, assetOrCollection: assetType});
 
-  const collections = useAllCollections(validListings, validAuctions);
-
-  const {collections: filteredCollections, assets: filteredAssets} = useFilter(filter, collections, validListings, validAuctions);
+  const {collections: filteredCollections, assets: filteredAssets} = useFilter(filter, validListings, validAuctions);
 
   function filterTypeChange(e:any){
     setFilter({...filter, type: e.target.value});
@@ -49,6 +48,7 @@ export default function FilteredListingsPage({
       filterSelectionRef.current.value = filter.type;
     }
   },[filterSelectionRef])
+
 
   return (
   <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
@@ -73,20 +73,25 @@ export default function FilteredListingsPage({
           <select className="" onChange={(e)=> filterTypeChange(e)} ref={filterSelectionRef}>
             <option value="all">All</option>
             <option value="trending">Trending</option>
-            <option value="expiring">Expiring Soon</option>
+            {filter.assetOrCollection === "asset" && 
+            <option value="expiring">Expiring Soon</option>}
           </select>
         </div>
         {/*Collection Grid with coollection preview components inside*/}
-        {filter.assetOrCollection === "collection" && (
+        {filteredCollections && filter.assetOrCollection === "collection" && (
           <>
             <p className="mt-[14px] lg:mt-6">Pick from a collection</p>
             <CollectionGrid collections={filteredCollections} />
           </>
         )}
         {filter.assetOrCollection === "asset" && (
+         
             <>
-            <p className="mt-[14px] lg:mt-6">No assets available at this time.</p>
+            <p className="mt-[14px] lg:mt-6">Pick an asset</p>
+            {filteredAssets?.map((l:DirectListing | AuctionListing,i:number)=> <AssetPreview key={`filtered-asset-preview-${i}`} contractAddress={l.assetContract} tokenId={l.tokenId}/>)}
             </>
+          
+       
         )}
       </div>
     </div>
