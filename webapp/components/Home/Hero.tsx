@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeroImageSelector from "./HeroImageSelector";
 import ArrowButton from "../ArrowButton";
 import HeroStar from "../../assets/HeroStar";
@@ -16,9 +16,12 @@ export default function Hero() {
     { img: "hero2.png", link: "https://blur.io/" },
   ];
 
+
+
   // State for the hero, contains link of the collection when clicked and image
-  const [currentSlide, setCurrrentSlide] = useState(1);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [heroImageArray, setHeroImageArray] = useState(dummyData);
+
 
   return (
     <div className="mt-10 flex flex-col items-center pb-12 md:flex-row-reverse md:py-10 lg:pt-12 md:gap-20 xl:gap-28 2xl:gap-40">
@@ -33,7 +36,7 @@ export default function Hero() {
           />
         </a>
         {/*Buttons to change slides*/}
-        <HeroImageSelector currentSlide={currentSlide} setCurrrentSlide={setCurrrentSlide} />
+        <HeroImageSelector currentSlide={currentSlide} setCurrentSlide={setCurrentSlide} />
 
         {/*Stars and frame detail*/}
         <span className="hidden lg:block lg:absolute top-80 right-64 xl:top-96 xl:right-72 2xl:hidden">
