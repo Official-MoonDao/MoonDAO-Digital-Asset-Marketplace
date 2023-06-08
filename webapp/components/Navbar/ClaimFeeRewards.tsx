@@ -63,7 +63,7 @@ export function ClaimFeeRewards() {
 
   async function getRewardsForSigner() {
     const rewards = await FeeDistributor.callStatic["claim(address)"](address);
-    setFeeRewards(Number(rewards.toString() / 10 ** 18));
+    setFeeRewards(rewards.toString() / 10 ** 18);
   }
 
   async function claimRewardsForSigner() {
