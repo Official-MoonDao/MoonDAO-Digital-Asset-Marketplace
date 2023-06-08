@@ -100,7 +100,7 @@ export function useFilter(filter:{type: string, assetOrCollection: string}, vali
               uniqueCollectionAddresses.push(l.assetContract)
           )
         : [];
-  },[filteredAssets && assetOrCollection])
+  },[filteredAssets])
 
   const assets = useMemo(()=>{
     const uniqueAssets: any = [];

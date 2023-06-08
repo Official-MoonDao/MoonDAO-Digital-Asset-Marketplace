@@ -78,7 +78,7 @@ export default function FilteredListingsPage({
           </select>
         </div>
         {/*Collection Grid with coollection preview components inside*/}
-        {filteredCollections && filter.assetOrCollection === "collection" && (
+        {filter.assetOrCollection === "collection" && (
           <>
             <p className="mt-[14px] lg:mt-6">Pick from a collection</p>
             <CollectionGrid collections={filteredCollections} />
