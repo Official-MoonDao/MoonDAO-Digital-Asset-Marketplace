@@ -16,7 +16,8 @@ const graphClient:any = createClient({
 });
 
 async function graphQuery(query: string) {
-  return await graphClient.query(query).toPromise();
+  const data = await graphClient.query(query).toPromise();
+  return data;
 }
 
 //FILTERS//////////////////////////////////////////////
@@ -42,6 +43,7 @@ export async function queryTrending(validListings:DirectListing[], validAuctions
   const {data:{newSales, newBids}} = await graphQuery(query);
   //Find assets with the most bids/sales
   const trendingCount: any = {};
+
   newSales.forEach((sale: any) => {
     const key = sale.assetContract + "/"  + sale.tokenId;
     if (trendingCount[key]) {
@@ -68,7 +70,6 @@ export async function queryTrending(validListings:DirectListing[], validAuctions
     for(let j = 0; j < trendingListings.length; j++){
       if(allListings[i].assetContract.toLowerCase() + "/" + allListings[i].tokenId === trendingListings[j][0]){
         allListings[i].popularity = trendingListings[j][1];
-        console.log(allListings[i]);
       }
     }
   }
@@ -128,16 +129,3 @@ export function useFilter(filter:{type: string, assetOrCollection: string}, vali
 
   return { collections, assets};
 }
-
-
-
-
-
-/* 
-
-listingId, assetContract
-validListing, validAuctions
-
-
-
-*/

@@ -35,14 +35,10 @@ export interface AuctionListing {
   popularity:any;
 }
 
-export interface AllListings {
-  all: DirectListing[];
-  valid: DirectListing[];
-}
-
-export interface AllAuctions {
-  all: AuctionListing[];
-  valid: AuctionListing[];
+export interface AssetStats {
+  floorPrice: string | number;
+  supply: string | number;
+  owners: string | number;
 }
 
 export function BigConvert(data: any) {

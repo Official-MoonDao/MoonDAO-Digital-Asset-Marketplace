@@ -1,10 +1,13 @@
 import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
 import LogoSmall from "../../assets/LogoSmall";
 import { useRouter } from "next/router";
+import { useStats } from "../../lib/marketplace-v3";
 export default function AssetPreview({ contractAddress, tokenId }: any) {
   const { contract } = useContract(contractAddress);
   const { data: nft, isLoading, error } = useNFT(contract, tokenId);
   const router = useRouter();
+  const stats = useStats(contractAddress, tokenId);
+  console.log(stats);
   if (isLoading) return <div>Loading...</div>;
   if (error || !nft) return <div>NFT not found!</div>;
   console.log(nft.metadata);
@@ -31,7 +34,7 @@ export default function AssetPreview({ contractAddress, tokenId }: any) {
           {/*Insert price here*/}
           <p className="mt-11 text-xl flex items-center gap-3">
             <LogoSmall size={{ width: 24.54, height: 24.07 }} />
-            {20000}
+            {stats.floorPrice}
           </p>
         </div>
         <div className="mt-5 pr-9 flex flex-col items-end">
