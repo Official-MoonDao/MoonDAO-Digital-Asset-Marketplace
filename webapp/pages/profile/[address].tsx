@@ -10,9 +10,9 @@ import randomColor from "../../util/randomColor";
 import { GetServerSideProps } from "next";
 import { initSDK } from "../../lib/thirdweb";
 import {
-  getAllValidAuctions,
+  getAllAuctions,
+  getAllListings,
   getAllValidListings,
-  useClaimableAuctions,
   useListingsAndAuctionsForWallet,
 } from "../../lib/marketplace-v3";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
@@ -26,8 +26,7 @@ const [randomColor1, randomColor2, randomColor3, randomColor4] = [
 
 export default function ProfilePage({
   validListings,
-  validAuctions,
-  claimableAuctions,
+  allAuctions,
   walletAddress,
 }: any) {
   const router = useRouter();
@@ -36,28 +35,16 @@ export default function ProfilePage({
 
   const { listings, auctions } = useListingsAndAuctionsForWallet(
     validListings,
-    validAuctions,
+    allAuctions,
     walletAddress
   );
   const [tab, setTab] = useState<"listings" | "auctions">("listings");
-
-  //get all user nfts from opensea
-  const [userNFTs, setUserNFTs] = useState<any>([{ metadata: {} }]);
-
-  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
-
-  const claimable = useClaimableAuctions(marketplace, address);
 
   useEffect(() => {
     if (address) {
       if (router.query && router.query.address?.toString() === address)
         setUserIsOwner(true);
-      (async () => {
-        const userNFTs = await getAllUserNFTs(address);
-        setUserNFTs(userNFTs);
-      })();
     }
-    console.log(claimable);
   }, [address, router]);
 
   return (
@@ -66,13 +53,19 @@ export default function ProfilePage({
         <div
           className={styles.coverImage}
           style={{
-            background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
+            background: `linear-gradient(-45deg, #${walletAddress?.slice(
+              -12,
+              -6
+            )}, #${walletAddress?.slice(6, 12)})`,
           }}
         />
         <div
           className={styles.profilePicture}
           style={{
-            background: `linear-gradient(90deg, ${randomColor3}, ${randomColor4})`,
+            background: `linear-gradient(180deg, #${walletAddress?.slice(
+              6,
+              12
+            )}, #${walletAddress?.slice(-6)})`,
           }}
         />
         <h1 className={styles.profileName}>
@@ -127,12 +120,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings = await getAllValidListings(marketplace);
-  const validAuctions = await getAllValidAuctions(marketplace);
+  const allAuctions = await getAllAuctions(marketplace);
 
   return {
     props: {
       validListings,
-      validAuctions,
+      allAuctions,
       walletAddress,
     },
   };

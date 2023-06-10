@@ -4,7 +4,6 @@ import {
   useAddress,
   useContract,
   useContractEvents,
-  useContractRead,
   useNFT,
   Web3Button,
 } from "@thirdweb-dev/react";
@@ -13,7 +12,6 @@ import Container from "../../../components/Container/Container";
 import { GetServerSideProps } from "next";
 import { DirectListing, NFT } from "@thirdweb-dev/sdk";
 import styles from "../../../styles/Token.module.css";
-import styles2 from "../../../components/NFT/NFT.module.css";
 import Link from "next/link";
 import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
@@ -22,14 +20,13 @@ import toastStyle from "../../../util/toastConfig";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  getAllValidOffersByTokenId,
+  getAllValidOffers,
   useListingsAndAuctionsForTokenId,
 } from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
 import {
   ETHERSCAN_URL,
   MARKETPLACE_ADDRESS,
-  MOONEY_ADDRESS,
   MOONEY_DECIMALS,
 } from "../../../const/config";
 import { AuctionListing, BigConvert } from "../../../lib/utils";
@@ -92,6 +89,7 @@ export default function TokenPage({
 
   async function createBidOrOffer() {
     let txResult;
+    if (!currListing) return;
     if (!bidValue) {
       toast(`Please enter a bid value`, {
         icon: "❌",
@@ -100,7 +98,6 @@ export default function TokenPage({
       });
       return;
     }
-    if (!currListing) return;
 
     try {
       if (currListing.type === "auction") {
@@ -507,7 +504,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings = await getAllValidListings(marketplace);
   const validAuctions = await getAllValidAuctions(marketplace);
-  const validOffers = await getAllValidOffersByTokenId(marketplace, tokenId);
+  const validOffers = await getAllValidOffers(marketplace, tokenId);
 
   return {
     props: {

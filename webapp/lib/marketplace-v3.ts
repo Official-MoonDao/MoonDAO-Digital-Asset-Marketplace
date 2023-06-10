@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AssetStats,
   AuctionListing,
@@ -10,6 +10,36 @@ import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../const/config";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
+
+export async function getAllListings(marketplace: any) {
+  try {
+    const totalListings = await marketplace.call("totalListings");
+    const listings = await marketplace.call(
+      "getAllListings",
+      0,
+      totalListings?.toNumber() - 1 >= 0 ? totalListings?.toNumber() - 1 : 0
+    );
+    return serializable(listings);
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+}
+
+export async function getAllAuctions(marketplace: any) {
+  try {
+    const totalAuctions = await marketplace.call("totalAuctions");
+    const auctions = await marketplace.call(
+      "getAllAuctions",
+      0,
+      totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
+    );
+    return serializable(auctions);
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+}
 
 //Get all valid listings from marketplace
 export async function getAllValidListings(marketplace: any) {
@@ -44,10 +74,7 @@ export async function getAllValidAuctions(marketplace: any) {
 }
 
 //Get all valid offers from marketplace
-export async function getAllValidOffersByTokenId(
-  marketplace: any,
-  tokenId: string | number
-) {
+export async function getAllValidOffers(marketplace: any, tokenId: any) {
   try {
     const totalOffers = await marketplace.call("totalOffers");
     if (!totalOffers || totalOffers?.toNumber() <= 0) return null;
@@ -56,6 +83,7 @@ export async function getAllValidOffersByTokenId(
       0,
       totalOffers?.toNumber() - 1 >= 0 ? totalOffers?.toNumber() - 1 : 0
     );
+    console.log(validOffers);
     return serializable(validOffers, totalOffers);
   } catch (err) {
     console.log(err);
@@ -115,7 +143,7 @@ export async function multiCancelListings(
 //Get all unique collections from Marketplace
 export function useAllCollections(
   validListings: DirectListing[],
-  validAuctions: AuctionListing[],
+  validAuctions: AuctionListing[]
 ) {
   const [collections, setCollections] = useState<any>([]);
 
@@ -305,87 +333,83 @@ export function useUserCanList(marketplace: any, address: string) {
   return userCanList;
 }
 
-///Talking w/  Thirdweb team to see how to implement this, cannot find value for "claimableAuctionPayout" for listings
-export function useClaimableAuctions(
-  marketplace: any,
-  address: string | undefined
+export function useClaimableAuction(
+  winningBid: number,
+  buyoutBidAmount: number
 ) {
-  const [claimableAuctions, setClaimableAuctions] = useState<any>([]);
-  useEffect(() => {
-    if (marketplace && address) {
-      (async () => {
-        const totalAuctions = await marketplace.call("totalAuctions");
-        const auctions = await marketplace.call(
-          "getAllAuctions",
-          0,
-          totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
-        );
-        const formattedAuctions = serializable(auctions);
-        const claimable = formattedAuctions.filter(
-          (a: any) =>
-            a?.seller.toLowerCase() === address?.toLowerCase() &&
-            a.status === "1"
-        );
-        console.log(claimable);
-        setClaimableAuctions(claimable);
-      })();
-    }
-  }, [marketplace, address]);
-  return claimableAuctions;
+  const claimable = useMemo(() => {
+    return winningBid >= +buyoutBidAmount / MOONEY_DECIMALS;
+  }, [winningBid, buyoutBidAmount]);
+  return claimable;
 }
 
-export function useStats(contractAddress:string, tokenId:string){
-
+export function useStats(contractAddress: string, tokenId: string) {
   const [validListings, setValidListings] = useState<any>([]);
   const [validAuctions, setValidAuctions] = useState<any>([]);
 
-  const {listings:assetListings, auctions:assetAuctions} = useListingsAndAuctionsForTokenId(validListings, validAuctions, tokenId, contractAddress);
+  const { listings: assetListings, auctions: assetAuctions } =
+    useListingsAndAuctionsForTokenId(
+      validListings,
+      validAuctions,
+      tokenId,
+      contractAddress
+    );
 
-  const [stats, setStats] = useState<AssetStats>({floorPrice: 0, supply: 0, owners: 0});
+  const [stats, setStats] = useState<AssetStats>({
+    floorPrice: 0,
+    supply: 0,
+    owners: 0,
+  });
 
-  function getFloorPrice(){
+  function getFloorPrice() {
     //get floor price for validListings
-    const listingFloor = assetListings[0] ? assetListings.reduce((acc:any, listing:any)=>{
-      if(!acc) return listing.pricePerToken;
-      if(listing.pricePerToken < acc) return listing.pricePerToken;
-      return acc;
-    }).pricePerToken : 0;
+    const listingFloor = assetListings[0]
+      ? assetListings.reduce((acc: any, listing: any) => {
+          if (!acc) return listing.pricePerToken;
+          if (listing.pricePerToken < acc) return listing.pricePerToken;
+          return acc;
+        }).pricePerToken
+      : 0;
 
     //get floor price for validAuctions
-    const auctionFloor = assetAuctions[0] ? assetAuctions.reduce((acc:any, auction:any)=>{
-      if(!acc) return auction.buyoutBidAmount;
-      if(auction.buyout < acc) return auction.buyoutBidAmount;
-      return acc;
-    }
-    ).buyoutBidAmount : 0;
+    const auctionFloor = assetAuctions[0]
+      ? assetAuctions.reduce((acc: any, auction: any) => {
+          if (!acc) return auction.buyoutBidAmount;
+          if (auction.buyout < acc) return auction.buyoutBidAmount;
+          return acc;
+        }).buyoutBidAmount
+      : 0;
 
     //true floor price for asset
-    if(listingFloor === 0) return auctionFloor;
-    if(auctionFloor === 0) return listingFloor;
+    if (listingFloor === 0) return auctionFloor;
+    if (auctionFloor === 0) return listingFloor;
     return listingFloor < auctionFloor ? listingFloor : auctionFloor;
   }
 
-  useEffect(()=>{
-    if(contractAddress && tokenId){
+  useEffect(() => {
+    if (contractAddress && tokenId) {
       const sdk = initSDK();
-      sdk.getContract(MARKETPLACE_ADDRESS).then((marketplace:any)=> {
-      getAllValidListings(marketplace).then((listings:any)=>{
-        setValidListings(listings);
+      sdk.getContract(MARKETPLACE_ADDRESS).then((marketplace: any) => {
+        getAllValidListings(marketplace).then((listings: any) => {
+          setValidListings(listings);
+        });
+        getAllValidAuctions(marketplace).then((auctions: any) => {
+          setValidAuctions(auctions);
+        });
       });
-      getAllValidAuctions(marketplace).then((auctions:any)=>{
-        setValidAuctions(auctions);
-      });
-    });
-  }
-  },[contractAddress, tokenId])
-
-  useEffect(()=>{
-    if(assetListings && assetAuctions){
-      console.log("LISTINGS",assetListings, assetAuctions);
-      const floorPrice = getFloorPrice()
-      setStats((prev:any)=> ({...prev, floorPrice:+floorPrice / MOONEY_DECIMALS}));
     }
-  },[assetListings, assetAuctions]);
+  }, [contractAddress, tokenId]);
+
+  useEffect(() => {
+    if (assetListings && assetAuctions) {
+      console.log("LISTINGS", assetListings, assetAuctions);
+      const floorPrice = getFloorPrice();
+      setStats((prev: any) => ({
+        ...prev,
+        floorPrice: +floorPrice / MOONEY_DECIMALS,
+      }));
+    }
+  }, [assetListings, assetAuctions]);
 
   return stats;
 }
