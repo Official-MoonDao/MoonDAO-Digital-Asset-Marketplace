@@ -1,28 +1,18 @@
-import { useAddress, useContract } from "@thirdweb-dev/react";
+import { useAddress } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Container from "../../components/Container/Container";
 import Skeleton from "../../components/Skeleton/Skeleton";
 import { MARKETPLACE_ADDRESS } from "../../const/config";
-import { getAllUserNFTs } from "../../lib/opensea";
 import styles from "../../styles/Profile.module.css";
-import randomColor from "../../util/randomColor";
 import { GetServerSideProps } from "next";
 import { initSDK } from "../../lib/thirdweb";
 import {
   getAllAuctions,
-  getAllListings,
   getAllValidListings,
   useListingsAndAuctionsForWallet,
 } from "../../lib/marketplace-v3";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
-
-const [randomColor1, randomColor2, randomColor3, randomColor4] = [
-  randomColor(),
-  randomColor(),
-  randomColor(),
-  randomColor(),
-];
 
 export default function ProfilePage({
   validListings,

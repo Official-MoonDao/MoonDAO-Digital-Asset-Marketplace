@@ -7,6 +7,13 @@ import {
 } from "./utils";
 import { initSDK } from "./thirdweb";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../const/config";
+import {
+  SmartContract,
+  ThirdwebSDK,
+  getAllDetectedFeatureNames,
+} from "@thirdweb-dev/sdk";
+import { useSigner } from "@thirdweb-dev/react";
+import { Goerli } from "@thirdweb-dev/chains";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -318,19 +325,54 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
   return { listings, auctions };
 }
 
-//Check if user has permissions to list NFTs
-export function useUserCanList(marketplace: any, address: string) {
-  const [userCanList, setUserCanList] = useState(false);
+//Get all NFTs from collections accepted by the marketplace by wallet
+export function useUserAssets(
+  marketplace: SmartContract,
+  profileListings: DirectListing[],
+  profileAuctions: AuctionListing[]
+) {
+  const [assets, setAssets] = useState<any>([]);
+
+  const signer: any = useSigner();
+
   useEffect(() => {
-    if (marketplace && address) {
-      (async () => {
-        const listerAddresses = await marketplace.roles.get("lister");
-        console.log(listerAddresses, address);
-        if (listerAddresses.includes(address)) setUserCanList(true);
-      })();
+    if (marketplace && signer) {
+      setAssets([]);
+      marketplace.roles.get("asset").then((res: any) => {
+        res.forEach(async (collection: any) => {
+          const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, Goerli);
+          const contract: any = await sdk.getContract(collection);
+          const extensions = getAllDetectedFeatureNames(contract.abi);
+          let ownedAssets: any;
+          if (extensions[0] === "ERC1155") {
+            ownedAssets = await contract.erc1155.getOwned(signer.address);
+          } else {
+            ownedAssets = await contract.erc721.getOwned(signer.address);
+            ownedAssets = ownedAssets.filter(
+              ({ metadata }: any) =>
+                !profileListings.some(
+                  (l) =>
+                    l.assetContract === collection && l.tokenId === metadata.id
+                ) &&
+                !profileAuctions.some(
+                  (l) =>
+                    l.assetContract === collection && l.tokenId === metadata.id
+                )
+            );
+          }
+
+          ownedAssets = ownedAssets.map((asset: any) => ({
+            ...asset,
+            collection,
+          }));
+
+          ownedAssets.length > 0 &&
+            setAssets((prev: any) => [...prev, ...ownedAssets]);
+        });
+      });
     }
-  }, [marketplace, address]);
-  return userCanList;
+  }, [marketplace]);
+  return assets;
 }
 
 export function useClaimableAuction(
