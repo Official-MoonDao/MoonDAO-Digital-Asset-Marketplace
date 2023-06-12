@@ -7,7 +7,7 @@ import {
 } from "@thirdweb-dev/react";
 import { FEE_DISTRIBUTOR_ADDRESS } from "../../const/config";
 import FEE_DISTRIBUTOR_ABI from "../../const/abis/FeeDistributor.json";
-import { Contract } from "ethers";
+import { Contract, ethers } from "ethers";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import moment from "moment";
@@ -18,7 +18,7 @@ export function ClaimFeeRewards() {
   const signer = useSigner();
   const [{ data: network }] = useNetwork();
   const address = useAddress();
-  const [feeRewards, setFeeRewards] = useState<number>(0);
+  const [feeRewards, setFeeRewards] = useState<string>("0");
 
   const validChain = useMemo(() => {
     return (
@@ -63,7 +63,7 @@ export function ClaimFeeRewards() {
 
   async function getRewardsForSigner() {
     const rewards = await FeeDistributor.callStatic["claim(address)"](address);
-    setFeeRewards(rewards.toNumber() / 10 ** 18);
+    setFeeRewards(ethers.utils.formatUnits(rewards.toString(), 18));
   }
 
   async function claimRewardsForSigner() {
@@ -89,7 +89,7 @@ export function ClaimFeeRewards() {
     <div className="z-10 flex flex-col w-full" ref={dialogRef}>
       <p>Fee Rewards:</p>
       <div className="flex gap-2">
-        {feeRewards > 1 ? feeRewards.toFixed(2) : feeRewards.toFixed(7)}
+        {Number(feeRewards).toFixed(5)}
         <Image src={"/favicon.ico"} width={25} height={25} alt="" />
         <p>MOONEY</p>
       </div>
@@ -97,9 +97,9 @@ export function ClaimFeeRewards() {
         contractAddress={FEE_DISTRIBUTOR_ADDRESS}
         contractAbi={FEE_DISTRIBUTOR_ABI as any}
         action={async () => await claimRewardsForSigner()}
-        isDisabled={feeRewards <= 0}
+        isDisabled={feeRewards === "0"}
       >
-        {feeRewards > 0 ? "Claim Rewards" : "Claimed"}
+        {feeRewards !== "0" ? "Claim Rewards" : "No Rewards to Claim"}
       </Web3Button>
       <div>
         <p>Next Distribution Cycle:</p>

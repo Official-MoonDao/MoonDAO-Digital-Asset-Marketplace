@@ -1,142 +1,160 @@
 ////Advanced filtering for auctions and listings using the MarketplaceV3 subgraph. The subgraph provides historical data for all events emiited by the marketplace contract.
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cacheExchange, createClient, fetchExchange } from "urql";
 import { AuctionListing, DirectListing } from "./utils";
+import { useAllCollections } from "./marketplace-v3";
 
 ///INIT GRAPH CLIENT//////////////////////////////////
 ///////////////////////////////////////////////////////
 const SUBGRAPH_URL =
   "https://api.studio.thegraph.com/query/38443/moondao-marketplace-test/v0.0.3";
 
-const graphClient:any = createClient({
+const graphClient: any = createClient({
   url: SUBGRAPH_URL,
   exchanges: [fetchExchange, cacheExchange],
 });
 
 async function graphQuery(query: string) {
-  return await graphClient.query(query).toPromise();
+  const data = await graphClient.query(query).toPromise();
+  return data;
 }
 
 //FILTERS//////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
 // ListingIds and AuctionIds that are trending (have the most bids/sales)
-export async function queryTrending() {
+export async function queryTrending(
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[]
+) {
   const query = `
     query {
-        newSales(first: 100, orderBy: blockTimestamp, orderDirection: desc) {
+        newSales(first: 25, orderBy: blockTimestamp, orderDirection: desc) {
             listingId
             assetContract
             tokenId
           }
-          newBids(first: 100, orderBy: blockTimestamp, orderDirection: desc) {
+          newBids(first: 25, orderBy: blockTimestamp, orderDirection: desc) {
             auctionId
             assetContract
             auction_tokenId
           }
     }
     `;
-  const res = await graphQuery(query);
 
-  const trendingCount: any = { newSales: {}, newBids: {} };
-  res.data.newSales.forEach((sale: any) => {
-    if (trendingCount.newSales[sale.listingId]) {
-      trendingCount.newSales[sale.listingId] += 1;
+  const {
+    data: { newSales, newBids },
+  } = await graphQuery(query);
+  //Find assets with the most bids/sales
+  const trendingCount: any = {};
+
+  newSales.forEach((sale: any) => {
+    const key = sale.assetContract + "/" + sale.tokenId;
+    if (trendingCount[key]) {
+      trendingCount[key] += 1;
     } else {
-      trendingCount.newSales[sale.listingId] = 1;
+      trendingCount[key] = 1;
     }
   });
-  res.data.newBids.forEach((bid: any) => {
-    if (trendingCount.newBids[bid.auctionId]) {
-      trendingCount.newBids[bid.auctionId] += 1;
+  newBids.forEach((bid: any) => {
+    const key = bid.assetContract + "/" + bid.auction_tokenId;
+    if (trendingCount[key]) {
+      trendingCount[key] += 1;
     } else {
-      trendingCount.newBids[bid.auctionId] = 1;
+      trendingCount[key] = 1;
     }
   });
 
-  console.log(Object.entries(trendingCount.newBids).sort((a:any,b:any)=> b[1]-a[1]));
+  //Create new arrays of listings and auctions sorted by the number of bids/sales
+  const trendingListings = Object.entries(trendingCount);
 
-  return { listings: [], auctions: [] };
+  let allListings = !validListings[0]
+    ? validAuctions
+    : !validAuctions[0]
+    ? validListings
+    : [...validListings, ...validAuctions];
+
+  console.log(allListings);
+  for (let i = 0; i < allListings.length; i++) {
+    for (let j = 0; j < trendingListings.length; j++) {
+      if (
+        allListings[i].assetContract.toLowerCase() +
+          "/" +
+          allListings[i].tokenId ===
+        trendingListings[j][0]
+      ) {
+        allListings[i].popularity = trendingListings[j][1];
+      }
+    }
+  }
+
+  return allListings.sort((a: any, b: any) => a.popularity - b.popularity);
 }
 
-// ListingIds & AuctionIds that are ending soon
-export async function queryExpiringSoon() {
-  const query = `
-    query {
-        newListings(orderBy: listing_endTimestamp, orderDirection: asc) {
-            listingId
-            assetContract
-            listing_endTimestamp
-            listing_tokenId
-          }
-          newAuctions(orderBy: auction_endTimestamp, orderDirection: asc) {
-            auctionId
-            assetContract
-            auction_endTimestamp
-            auction_tokenId
-          }
-    }
-    `;
-
-  const res = await graphQuery(query);
-  return { listings: res.data.newListings, auctions: res.data.newAuctions };
+function filterExpiring(
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[]
+) {
+  let allListings = !validListings[0]
+    ? validAuctions
+    : !validAuctions[0]
+    ? validListings
+    : [...validListings, ...validAuctions];
+  return allListings.sort((a: any, b: any) => b.endTimestamp - a.endTimestamp);
 }
 
 //////HOOKS////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-export function useFilter(filter:{type: string, assetOrCollection: string}, collections:[any], validListings: DirectListing[], validAuctions: AuctionListing[]) {
-    const { type, assetOrCollection } = filter;;
+export function useFilter(
+  filter: { type: string; assetOrCollection: string },
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[]
+) {
+  const { type, assetOrCollection } = filter;
 
-  const [filteredListings, setFilteredListings] = useState<DirectListing[]>([]);
-  const [filteredAuctions, setFilteredAuctions] = useState<AuctionListing[]>([]);
+  const [filteredAssets, setFilteredAssets] = useState<any>([]);
 
-  const [filteredListingsByCollection, setFilteredListingsByCollection] =
-    useState<DirectListing[]>([]);
-  const [filteredAuctionsByCollection, setFilteredAuctionsByCollection] =
-    useState<AuctionListing[]>([]);
+  const collections = useMemo(() => {
+    const uniqueCollectionAddresses: any = [];
+    return filteredAssets[0]
+      ? filteredAssets?.filter(
+          (l: DirectListing | AuctionListing) =>
+            l &&
+            !uniqueCollectionAddresses.includes(l.assetContract) &&
+            uniqueCollectionAddresses.push(l.assetContract)
+        )
+      : [];
+  }, [filteredAssets]);
 
-  function handleFilter(res: any) {
-    const {listings, auctions} = res;
-    if (assetOrCollection === "asset") {
-        //todo set filtered assets
-        console.log(listings, auctions);
-
-
-    } else {
-        // set filtered collections
-      console.log(listings, auctions);
-    }
-  }
+  const assets = useMemo(() => {
+    const uniqueAssets: any = [];
+    return filteredAssets[0]
+      ? filteredAssets?.filter(
+          (l: DirectListing | AuctionListing) =>
+            l &&
+            !uniqueAssets.includes(l.assetContract + l.tokenId) &&
+            uniqueAssets.push(l.assetContract + l.tokenId)
+        )
+      : [];
+  }, [filteredAssets]);
 
   useEffect(() => {
-    if (type === "trending") {
-      queryTrending().then((res: any) => {
-        console.log(res);
-        handleFilter(res);
-      });
-    } else if (type === "expiring") {
-      queryExpiringSoon().then((res: any) => {
-        handleFilter(res);
-      });
+    if (type === "all") {
+      setFilteredAssets([...validListings, ...validAuctions]);
     }
-
-    console.log(type);
+    if (type === "trending") {
+      queryTrending(validListings, validAuctions).then(
+        (filteredListings: any) => {
+          setFilteredAssets(filteredListings);
+        }
+      );
+    } else if (type === "expiring") {
+      const filteredListings = filterExpiring(validListings, validAuctions);
+      setFilteredAssets(filteredListings);
+    }
   }, [type, assetOrCollection]);
 
-  return { collections:{listings: filteredListingsByCollection, auctions:filteredAuctionsByCollection }, assets: {listings: filteredListings, auctions: filteredAuctions}};
+  return { collections, assets };
 }
-
-
-
-
-
-/* 
-
-listingId, assetContract
-validListing, validAuctions
-
-
-
-*/

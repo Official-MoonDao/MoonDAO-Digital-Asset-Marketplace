@@ -14,6 +14,7 @@ export interface DirectListing {
   reserved: boolean;
   tokenType: string | number;
   status: string | number;
+  popularity: any;
 }
 
 export interface AuctionListing {
@@ -31,16 +32,13 @@ export interface AuctionListing {
   endTimestamp: string | number;
   tokenType: string | number;
   status: string | number;
+  popularity:any;
 }
 
-export interface AllListings {
-  all: DirectListing[];
-  valid: DirectListing[];
-}
-
-export interface AllAuctions {
-  all: AuctionListing[];
-  valid: AuctionListing[];
+export interface AssetStats {
+  floorPrice: string | number;
+  supply: string | number;
+  owners: string | number;
 }
 
 export function BigConvert(data: any) {
