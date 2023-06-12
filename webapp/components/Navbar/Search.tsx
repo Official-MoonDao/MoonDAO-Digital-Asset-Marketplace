@@ -53,7 +53,7 @@ export default function Search() {
                 () =>
                   searchRef.current.value.toLowerCase() === value &&
                   setText(value),
-                800
+                300
               );
           }}
           ref={searchRef}

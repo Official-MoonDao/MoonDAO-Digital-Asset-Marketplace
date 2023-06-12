@@ -544,5 +544,9 @@ export function useSearch(
     });
   }, [text]);
 
+  useEffect(() => {
+    uniqueAssets();
+  }, [validListings, validAuctions]);
+
   return searchResults;
 }
