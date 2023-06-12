@@ -4,6 +4,7 @@ import ArrowButton from "../ArrowButton";
 import HeroStar from "../../assets/HeroStar";
 import FrameDetail from "../../assets/FrameDetail";
 import VerticalStar from "../../assets/VerticalStar";
+import { set } from "react-hook-form";
 
 //TODO for the slide selector: Transition between images, automatic change of images after interval.
 
@@ -16,19 +17,31 @@ export default function Hero() {
     { img: "hero2.png", link: "https://blur.io/" },
   ];
 
-
-
   // State for the hero, contains link of the collection when clicked and image
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
   const [heroImageArray, setHeroImageArray] = useState(dummyData);
 
+  //Cycle images
+  useEffect(() => {
+    setTimeout(() => {
+      if (currentSlide < heroImageArray.length - 1) {
+        setCurrentSlide(currentSlide + 1);
+      } else {
+        setCurrentSlide(0);
+      }
+    }, 5000);
+  }, [currentSlide]);
 
   return (
     <div className="mt-10 flex flex-col items-center pb-12 md:flex-row-reverse md:py-10 lg:pt-12 md:gap-20 xl:gap-28 2xl:gap-40">
       {/*Hero image*/}
       <div className="flex flex-col items-center relative">
         {/*Here goes the link to the collection and the image*/}
-        <a target="_blank" rel="noreferrer" href={heroImageArray[currentSlide].link}>
+        <a
+          target="_blank"
+          rel="noreferrer"
+          href={heroImageArray[currentSlide].link}
+        >
           <img
             className="w-[290px] hover:ring-2 xl:hover:ring-4 ring-moon-orange transition-all duration-300 h-[362px] lg:h-[443.38px] xl:h-[499.58px] 2xl:h-[564px]  object-cover lg:w-[355px] xl:w-[400px] 2xl:w-[536px]  rounded-tl-[99px] rounded-br-[99px]"
             src={heroImageArray[currentSlide].img}
@@ -36,7 +49,10 @@ export default function Hero() {
           />
         </a>
         {/*Buttons to change slides*/}
-        <HeroImageSelector currentSlide={currentSlide} setCurrentSlide={setCurrentSlide} />
+        <HeroImageSelector
+          currentSlide={currentSlide}
+          setCurrentSlide={setCurrentSlide}
+        />
 
         {/*Stars and frame detail*/}
         <span className="hidden lg:block lg:absolute top-80 right-64 xl:top-96 xl:right-72 2xl:hidden">
@@ -64,11 +80,16 @@ export default function Hero() {
           <span className="lg:mt-4 lg:inline-block">MARKETPLACE</span>
         </h1>
         <p className="mt-6 2xl:mt-[26px] lg:mt-7 text-moon-orange text-lg md:text-base lg:text-lg max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
-          Gorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu
-          ad litora torquent.
+          Gorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
+          vulputate libero et velit interdum, ac aliquet odio mattis. Class
+          aptent taciti sociosqu ad litora torquent.
         </p>
 
-        <ArrowButton text={"Explore collections"} position={"mt-12 lg:mt-10 2xl:mt-[50px]"} link={"/"} />
+        <ArrowButton
+          text={"Explore collections"}
+          position={"mt-12 lg:mt-10 2xl:mt-[50px]"}
+          link={"/"}
+        />
       </div>
     </div>
   );

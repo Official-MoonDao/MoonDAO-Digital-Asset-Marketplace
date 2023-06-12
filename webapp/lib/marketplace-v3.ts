@@ -12,8 +12,9 @@ import {
   ThirdwebSDK,
   getAllDetectedFeatureNames,
 } from "@thirdweb-dev/sdk";
-import { useSigner } from "@thirdweb-dev/react";
+import { useAddress, useSigner } from "@thirdweb-dev/react";
 import { Goerli } from "@thirdweb-dev/chains";
+import { set } from "react-hook-form";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -298,14 +299,14 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
   const [listings, setListings] = useState<any>([]);
   const [auctions, setAuctions] = useState<any>([]);
   useEffect(() => {
-    if (validListings && validAuctions) {
+    if (walletAddress && validListings && validAuctions) {
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
           (l: DirectListing) =>
             l.seller &&
             l?.seller?.toLowerCase() === walletAddress?.toLowerCase() &&
-            l.assetContract === collectionAddress &&
+            l.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
             +l.tokenId === Number(tokenId)
         );
       const filteredAuctions =
@@ -314,7 +315,7 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
           (a: AuctionListing) =>
             a?.seller &&
             a.seller?.toLowerCase() === walletAddress?.toLowerCase() &&
-            a.assetContract === collectionAddress &&
+            a.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
             +a.tokenId === Number(tokenId)
         );
       setListings(filteredListings);
@@ -328,37 +329,49 @@ export function useListingsAndAuctionsForTokenIdAndWallet(
 //Get all NFTs from collections accepted by the marketplace by wallet
 export function useUserAssets(
   marketplace: SmartContract,
-  profileListings: DirectListing[],
-  profileAuctions: AuctionListing[]
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[],
+  walletAddress: string
 ) {
   const [assets, setAssets] = useState<any>([]);
 
   const signer: any = useSigner();
 
+  const { listings: profileListings, auctions: profileAuctions } =
+    useListingsAndAuctionsForWallet(
+      validListings,
+      validAuctions,
+      walletAddress
+    );
+
   useEffect(() => {
-    if (marketplace && signer) {
+    if (marketplace && signer && profileListings && profileAuctions) {
       setAssets([]);
-      marketplace.roles.get("asset").then((res: any) => {
-        res.forEach(async (collection: any) => {
+      marketplace.roles.get("asset").then(async (res: any) => {
+        await res.forEach(async (collection: any) => {
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, Goerli);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
-            ownedAssets = await contract.erc1155.getOwned(signer.address);
+            ownedAssets = await contract.erc1155.getOwned(walletAddress);
+            //get listing count for each asset
           } else {
-            ownedAssets = await contract.erc721.getOwned(signer.address);
-            ownedAssets = ownedAssets.filter(
-              ({ metadata }: any) =>
-                !profileListings.some(
-                  (l) =>
-                    l.assetContract === collection && l.tokenId === metadata.id
-                ) &&
-                !profileAuctions.some(
-                  (l) =>
-                    l.assetContract === collection && l.tokenId === metadata.id
-                )
+            ownedAssets = await contract.erc721.getOwned(walletAddress);
+            const hasListing = await ownedAssets.some(
+              async (asset: any) =>
+                (await profileListings.find(
+                  (listing: any) =>
+                    listing.assetContract === collection &&
+                    listing.tokenId === asset.metadata.id
+                )) ||
+                (await profileAuctions.some(
+                  (auction: any) =>
+                    auction.assetContract === collection &&
+                    auction.tokenId === asset.metadata.id
+                ))
             );
+            if (hasListing) return;
           }
 
           ownedAssets = ownedAssets.map((asset: any) => ({
@@ -370,8 +383,8 @@ export function useUserAssets(
             setAssets((prev: any) => [...prev, ...ownedAssets]);
         });
       });
-    }
-  }, [marketplace]);
+    } else setAssets([]);
+  }, [marketplace, signer]);
   return assets;
 }
 
@@ -454,4 +467,82 @@ export function useStats(contractAddress: string, tokenId: string) {
   }, [assetListings, assetAuctions]);
 
   return stats;
+}
+
+//Search for collection or asset by name, return collection or asset url
+export function useSearch(
+  text: string,
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[]
+) {
+  const [validAssets, setValidAssets] = useState<any>([]);
+  const [searchResults, setSearchResults] = useState<any>([]);
+
+  const [prevSearch, setPrevSearch] = useState("");
+
+  function uniqueAssets() {
+    if (validListings || validAuctions) {
+      const listings = validListings;
+      const auctions = validAuctions;
+      const uniqueAssets: any = [];
+      const filteredAssets: any = [];
+      const length: number =
+        listings.length > auctions.length ? listings.length : auctions.length;
+      for (let i = 0; i < length; i++) {
+        if (
+          listings[i] &&
+          !uniqueAssets.includes(
+            listings[i].assetContract + listings[i].tokenId
+          )
+        ) {
+          const tokenId: any = listings[i].tokenId;
+          uniqueAssets.push(listings[i].assetContract + tokenId);
+          filteredAssets.push(listings[i]);
+        }
+        if (
+          auctions[i] &&
+          !uniqueAssets.includes(
+            auctions[i].assetContract + auctions[i].tokenId
+          )
+        ) {
+          const tokenId: any = auctions[i].tokenId;
+          uniqueAssets.push(auctions[i].assetContract + tokenId);
+          filteredAssets.push(auctions[i]);
+        }
+      }
+      console.log(filteredAssets);
+      setValidAssets(filteredAssets);
+    }
+  }
+
+  useEffect(() => {
+    if (!text || text?.trim() === "" || text.length < 3)
+      return setPrevSearch("");
+
+    //only run if text is 3 longer than previous search
+
+    //update unique assets
+    uniqueAssets();
+
+    //set prev search
+    setPrevSearch(text);
+
+    validAssets.map(async (l: any) => {
+      setSearchResults([]);
+      const sdk = initSDK();
+      const contract: any = await sdk.getContract(l.assetContract);
+
+      const extensions = getAllDetectedFeatureNames(contract.abi);
+      let nft: any;
+      if (extensions[0] === "ERC1155") {
+        nft = await contract.erc1155.get(l.tokenId);
+      } else {
+        nft = await contract.erc721.get(l.tokenId);
+      }
+      if (nft.metadata.name.toLowerCase().includes(text.toLowerCase()))
+        setSearchResults((prev: any) => [...prev, nft]);
+    });
+  }, [text]);
+
+  return searchResults;
 }
