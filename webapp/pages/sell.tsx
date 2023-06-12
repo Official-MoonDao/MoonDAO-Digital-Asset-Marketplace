@@ -8,34 +8,24 @@ import { initSDK } from "../lib/thirdweb";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  useListingsAndAuctionsForWallet,
   useUserAssets,
 } from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 
 export default function Sell({ validListings, validAuctions }: any) {
   const router = useRouter();
-
-  const address = useAddress();
+  const address: any = useAddress();
   const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
-
-  const { listings: profileListings, auctions: profileAuctions } =
-    useListingsAndAuctionsForWallet(
-      validListings,
-      validAuctions,
-      address || ""
-    );
 
   const { contract: marketplace, isLoading: loadingContract }: any =
     useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
   const userAssets = useUserAssets(
     marketplace,
-    profileListings,
-    profileAuctions
+    validListings,
+    validAuctions,
+    address
   );
-
-  console.log(userAssets);
 
   if (!address) {
     return (
@@ -126,8 +116,8 @@ export default function Sell({ validListings, validAuctions }: any) {
 export async function getServerSideProps() {
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
-  const validListings = (await getAllValidListings(marketplace)) || [];
-  const validAuctions = (await getAllValidAuctions(marketplace)) || [];
+  const validListings = await getAllValidListings(marketplace);
+  const validAuctions = await getAllValidAuctions(marketplace);
   return {
     props: { validListings, validAuctions },
   };
