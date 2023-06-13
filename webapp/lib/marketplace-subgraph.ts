@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cacheExchange, createClient, fetchExchange } from "urql";
 import { AuctionListing, DirectListing } from "./utils";
-import { useAllCollections } from "./marketplace-v3";
 
 ///INIT GRAPH CLIENT//////////////////////////////////
 ///////////////////////////////////////////////////////

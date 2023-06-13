@@ -4,7 +4,6 @@ import Container from "../components/Container/Container";
 import tokenPageStyles from "../styles/Token.module.css";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { useRouter } from "next/router";
-import { initSDK } from "../lib/thirdweb";
 import {
   getAllValidAuctions,
   getAllValidListings,
@@ -39,7 +38,7 @@ export default function Sell() {
         setValidAuctions(auctions);
       });
     }
-  });
+  }, [marketplace]);
 
   if (!address) {
     return (

@@ -12,9 +12,8 @@ import {
   ThirdwebSDK,
   getAllDetectedFeatureNames,
 } from "@thirdweb-dev/sdk";
-import { useAddress, useSigner } from "@thirdweb-dev/react";
+import { useSigner } from "@thirdweb-dev/react";
 import { Goerli } from "@thirdweb-dev/chains";
-import { set } from "react-hook-form";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -91,7 +90,6 @@ export async function getAllValidOffers(marketplace: any, tokenId: any) {
       0,
       totalOffers?.toNumber() - 1 >= 0 ? totalOffers?.toNumber() - 1 : 0
     );
-    console.log(validOffers);
     return serializable(validOffers, totalOffers);
   } catch (err) {
     console.log(err);
@@ -345,10 +343,14 @@ export function useUserAssets(
     );
 
   useEffect(() => {
-    if (marketplace && signer && profileListings && profileAuctions) {
-      setAssets([]);
+    if (
+      marketplace &&
+      signer &&
+      (profileListings?.[0] || profileAuctions?.[0])
+    ) {
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
+          setAssets([]);
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, Goerli);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
@@ -383,8 +385,8 @@ export function useUserAssets(
             setAssets((prev: any) => [...prev, ...ownedAssets]);
         });
       });
-    } else setAssets([]);
-  }, [marketplace, signer]);
+    }
+  }, [marketplace, signer, profileListings, profileAuctions]);
   return assets;
 }
 
@@ -478,8 +480,6 @@ export function useSearch(
   const [validAssets, setValidAssets] = useState<any>([]);
   const [searchResults, setSearchResults] = useState<any>([]);
 
-  const [prevSearch, setPrevSearch] = useState("");
-
   function uniqueAssets() {
     if (validListings || validAuctions) {
       const listings = validListings;
@@ -510,22 +510,14 @@ export function useSearch(
           filteredAssets.push(auctions[i]);
         }
       }
-      console.log(filteredAssets);
       setValidAssets(filteredAssets);
     }
   }
 
   useEffect(() => {
-    if (!text || text?.trim() === "" || text.length < 3)
-      return setPrevSearch("");
-
-    //only run if text is 3 longer than previous search
-
+    if (!text || text?.trim() === "" || text.length < 2) return;
     //update unique assets
     uniqueAssets();
-
-    //set prev search
-    setPrevSearch(text);
 
     validAssets.map(async (l: any) => {
       setSearchResults([]);
@@ -535,9 +527,15 @@ export function useSearch(
       const extensions = getAllDetectedFeatureNames(contract.abi);
       let nft: any;
       if (extensions[0] === "ERC1155") {
-        nft = await contract.erc1155.get(l.tokenId);
+        nft = {
+          ...(await contract.erc1155.get(l.tokenId)),
+          collection: l.assetContract,
+        };
       } else {
-        nft = await contract.erc721.get(l.tokenId);
+        nft = {
+          ...(await contract.erc721.get(l.tokenId)),
+          collection: l.assetContract,
+        };
       }
       if (nft.metadata.name.toLowerCase().includes(text.toLowerCase()))
         setSearchResults((prev: any) => [...prev, nft]);
