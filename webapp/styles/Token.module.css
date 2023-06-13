@@ -71,12 +71,13 @@
 }
 
 .collectionImage {
-  width: 32px !important;
-  height: 32px !important;
+  width: 36px !important;
+  height: 36px !important;;
   border-radius: 8px;
   margin-right: 8px;
-  margin-left: 16px;
+  margin-left: 12px;
   margin-right: 16px;
+  margin-bottom: 8px;
 }
 
 .collectionName {
@@ -87,16 +88,40 @@
   margin: 0px;
   margin-left: 16px;
   margin-right: 16px;
+  margin-top: 5px;
+  opacity:0.5
+}
+.tokenIdContainer{
+  display: inline-block;
+}
+
+.tokenId{
+  text-overflow: ellipsis;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-left: 16px;
+  margin-right: 16px;
+  margin-top: 15px;
+  font-size: 20px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 2px;
+  background-color: rgba(215, 89, 79, 0.35);
 }
 
 .title {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 32px;
+  font-family: 'Good Times';
   hyphens: auto;
   overflow-wrap: break-word;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   margin-left: 16px;
   margin-right: 16px;
+  color: #E9E9F9;
 }
 
 .nftOwnerContainer {
@@ -129,6 +154,7 @@
 .nftOwnerInfo {
   margin: 0px;
   padding: 0px;
+  margin-left: 6px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -147,6 +173,15 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
+.description{
+font-family: 'Roboto Mono';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 25px;
+opacity: 0.80;
+}
+
 .descriptionContainer {
   padding-left: 16px;
   padding-right: 16px;
@@ -154,6 +189,11 @@
 
 .descriptionTitle {
   margin-top: 32px;
+  margin-bottom: 15px;
+  font-size: 23px;
+  font-weight: 500;
+  font-family: 'Good Times';
+  color: #F9B95C;
 }
 
 .traitsContainer {
@@ -162,6 +202,8 @@
   flex-wrap: wrap;
   gap: 16px;
   margin-top: 12px;
+  background-color: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .traitContainer {
@@ -169,10 +211,8 @@
   flex-direction: column;
   flex-grow: 1;
   gap: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 8px 12px;
   min-width: 128px;
-  border-radius: 16px;
   min-height: 32px;
 }
 
@@ -183,7 +223,6 @@
   align-items: center;
   flex-grow: 1;
   gap: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 8px 12px;
   min-width: 128px;
   border-radius: 16px;
@@ -209,11 +248,15 @@
 }
 
 .txHashArrow {
-  width: 24px;
-  height: 24px;
+  width: 34px;
+  height: 34px;
   padding: 8px;
+  transition: all;
+  transition-duration: 150ms;
 }
-
+.txHashArrow:hover{
+  scale: 1.35;
+}
 .pricingContainer {
   display: flex;
   flex-direction: column;
@@ -230,8 +273,9 @@
 
 .pricingInfo {
   padding: 16px;
+  padding-left: 20px;
   border-radius: 14px;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(255, 255, 255, 0.13);
   width: 100%;
   margin: 0px;
   margin-bottom: 12px;

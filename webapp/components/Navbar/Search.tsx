@@ -38,13 +38,13 @@ export default function Search() {
       });
     }
   }, [marketplace]);
-
+console.log(searchResults)
   return (
-    <div className="relative group">
+    <div className="relative group z-50">
       <div>
         <input
           type="search"
-          className="peer w-[240px] md:w-[260px] lg:w-[300px] xl:w-[390px] 2xl:w-[441px] focus:ring-2 ring-indigo-500 ring-opacity-50 py-[5px] md:py-[7px] pl-10 md:pl-12 pr-3 md:pr-5 text-sm placeholder:text-sm md:text-base md:placeholder:text-base placeholder:opacity-40 rounded-full block border-[0.6px] border-white border-opacity-50 bg-transparent"
+          className="peer w-[240px] md:w-[260px] lg:w-[300px] xl:w-[390px] 2xl:w-[441px] focus:ring-2 ring-indigo-500 ring-opacity-50 py-[5px] md:py-[7px] pl-10 md:pl-12 pr-3 md:pr-5 text-sm placeholder:text-sm md:text-base md:placeholder:text-base placeholder:opacity-40 block border-[0.6px] border-white border-opacity-50 bg-transparent"
           placeholder="Search Collections"
           onChange={(e) => {
             const value = e.target.value.toLowerCase();
@@ -58,19 +58,21 @@ export default function Search() {
           }}
           ref={searchRef}
         />
+        {/*Search result container*/}
         {searchResults && searchResults[0] && (
-          <div>
+          <div className="bg-[#1e1b4b] border-[0.6px] rounded-b-lg border-white border-opacity-50 border-t-0 gap-4 flex flex-col items-start truncate absolute w-[240px] md:w-[260px] lg:w-[300px] xl:w-[390px] 2xl:w-[441px]">
             {searchResults.map((nft: NFT, i: number) => (
               <div
-                className="flex justify-center items-center"
+                className="flex items-center hover:bg-indigo-900 w-full px-3 py-2"
                 key={"search-result-" + i}
               >
                 <ThirdwebNftMedia
                   metadata={nft.metadata}
                   width="50px"
                   height="50px"
+                  className="rounded-lg"
                 />
-                <p>{nft.metadata.name}</p>
+                <p className="pl-3">{nft.metadata.name}</p>
               </div>
             ))}
           </div>

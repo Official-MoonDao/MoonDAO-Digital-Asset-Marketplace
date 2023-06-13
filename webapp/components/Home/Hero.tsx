@@ -22,6 +22,7 @@ export default function Hero() {
   const [heroImageArray, setHeroImageArray] = useState(dummyData);
 
   //Cycle images
+  //Bugs out when you click a button and then let it move on its own
   useEffect(() => {
     setTimeout(() => {
       if (currentSlide < heroImageArray.length - 1) {
