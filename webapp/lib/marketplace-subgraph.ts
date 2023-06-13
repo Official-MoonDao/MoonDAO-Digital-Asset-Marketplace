@@ -50,7 +50,7 @@ export async function queryTrending(
   const trendingCount: any = {};
 
   newSales.forEach((sale: any) => {
-    const key = sale.assetContract + "/" + sale.tokenId;
+    const key = sale.assetContract.toLowerCase() + "/" + sale.tokenId;
     if (trendingCount[key]) {
       trendingCount[key] += 1;
     } else {
@@ -58,7 +58,7 @@ export async function queryTrending(
     }
   });
   newBids.forEach((bid: any) => {
-    const key = bid.assetContract + "/" + bid.auction_tokenId;
+    const key = bid.assetContract.toLowerCase() + "/" + bid.auction_tokenId;
     if (trendingCount[key]) {
       trendingCount[key] += 1;
     } else {
@@ -66,30 +66,28 @@ export async function queryTrending(
     }
   });
 
-  //Create new arrays of listings and auctions sorted by the number of bids/sales
-  const trendingListings = Object.entries(trendingCount);
-
   let allListings = !validListings[0]
     ? validAuctions
     : !validAuctions[0]
     ? validListings
     : [...validListings, ...validAuctions];
 
-  console.log(allListings);
-  for (let i = 0; i < allListings.length; i++) {
-    for (let j = 0; j < trendingListings.length; j++) {
-      if (
-        allListings[i].assetContract.toLowerCase() +
-          "/" +
-          allListings[i].tokenId ===
-        trendingListings[j][0]
-      ) {
-        allListings[i].popularity = trendingListings[j][1];
-      }
-    }
-  }
+  const trendingListings: any = {};
 
-  return allListings.sort((a: any, b: any) => a.popularity - b.popularity);
+  allListings.forEach((listing: any) => {
+    const trendingCountKey: string =
+      listing.assetContract.toLowerCase() + "/" + listing.tokenId;
+    if (!trendingListings[trendingCountKey]) {
+      trendingListings[trendingCountKey] = {
+        ...listing,
+        popularity: trendingCount[trendingCountKey] || 0,
+      };
+    }
+  });
+
+  return Object.values(trendingListings).sort(
+    (a: any, b: any) => b.popularity - a.popularity
+  );
 }
 
 function filterExpiring(

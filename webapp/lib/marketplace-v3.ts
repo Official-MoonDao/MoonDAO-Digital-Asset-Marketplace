@@ -224,26 +224,26 @@ export function useListingsAndAuctionsForTokenId(
   validListings: DirectListing[] | [],
   validAuctions: AuctionListing[] | [],
   tokenId: string | number,
-  collectionAddress: string
+  contractAddress: string
 ) {
   const [listings, setListings] = useState<any>([]);
   const [auctions, setAuctions] = useState<any>([]);
 
   useEffect(() => {
-    if (validListings && validAuctions) {
+    if (validListings && validAuctions && contractAddress) {
       console.log(validListings, validAuctions);
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
           (l: DirectListing) =>
-            l.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
+            l.assetContract.toLowerCase() === contractAddress.toLowerCase() &&
             +l.tokenId === Number(tokenId)
         );
       const filteredAuctions =
         validAuctions[0] &&
         validAuctions?.filter(
           (a: any) =>
-            a.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
+            a.assetContract.toLowerCase() === contractAddress.toLowerCase() &&
             +a.tokenId === Number(tokenId)
         );
       setListings(filteredListings || []);

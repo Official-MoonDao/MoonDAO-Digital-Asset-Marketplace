@@ -3,7 +3,6 @@ import { MARKETPLACE_ADDRESS } from "../const/config";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  useAllCollections,
 } from "../lib/marketplace-v3";
 
 import { DirectListing, AuctionListing } from "../lib/utils";
@@ -12,6 +11,7 @@ import VerticalStar from "../assets/VerticalStar";
 import { useFilter } from "../lib/marketplace-subgraph";
 import CollectionGrid from "../components/Collection/CollectionGrid";
 import AssetPreview from "../components/Collection/AssetPreview";
+import { useRouter } from "next/router";
 
 interface FilteredListingsPageProps {
   validListings: DirectListing[];
@@ -23,13 +23,12 @@ interface FilteredListingsPageProps {
 export default function Buy({
   validListings,
   validAuctions,
-  filterType,
-  assetType,
 }: FilteredListingsPageProps) {
+  const router = useRouter();
   const filterSelectionRef: any = useRef();
   const [filter, setFilter] = useState<any>({
-    type: filterType,
-    assetOrCollection: assetType,
+    type: "",
+    assetOrCollection: "",
   });
 
   const { collections: filteredCollections, assets: filteredAssets } =
@@ -46,10 +45,18 @@ export default function Buy({
   }
 
   useEffect(() => {
-    if (filterSelectionRef.current) {
-      filterSelectionRef.current.value = filter.type;
+    if (router.query) {
+      const { filterType, assetType } = router.query;
+      setFilter({
+        type: filterType || "all",
+        assetOrCollection: assetType || "asset",
+      });
     }
-  }, [filterSelectionRef]);
+  }, [router.query]);
+
+  if (filter.type === "") {
+    return <>loading</>;
+  }
 
   return (
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
@@ -84,8 +91,12 @@ export default function Buy({
           </div>
           <select
             className=""
-            onChange={(e) => filterTypeChange(e)}
+            onChange={(e) => {
+              filterTypeChange(e);
+              console.log(filter);
+            }}
             ref={filterSelectionRef}
+            defaultValue={router.query.filterType || "all"}
           >
             <option value="all">All</option>
             <option value="trending">Trending</option>
@@ -120,8 +131,7 @@ export default function Buy({
   );
 }
 
-export async function getServerSideProps({ query }: any) {
-  const { filterType, assetType } = query;
+export async function getStaticProps() {
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings: DirectListing[] = await getAllValidListings(marketplace);
@@ -132,8 +142,7 @@ export async function getServerSideProps({ query }: any) {
     props: {
       validListings,
       validAuctions,
-      filterType: filterType || "all",
-      assetType: assetType || "asset",
     },
+    revalidate: 5,
   };
 }
