@@ -1,5 +1,5 @@
 import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Container from "../components/Container/Container";
 import tokenPageStyles from "../styles/Token.module.css";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
@@ -12,7 +12,7 @@ import {
 } from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 
-export default function Sell({ validListings, validAuctions }: any) {
+export default function Sell() {
   const router = useRouter();
   const address: any = useAddress();
   const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
@@ -20,12 +20,26 @@ export default function Sell({ validListings, validAuctions }: any) {
   const { contract: marketplace, isLoading: loadingContract }: any =
     useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
+  const [validListings, setValidListings] = useState([]);
+  const [validAuctions, setValidAuctions] = useState([]);
+
   const userAssets = useUserAssets(
     marketplace,
     validListings,
     validAuctions,
     address
   );
+
+  useEffect(() => {
+    if (marketplace) {
+      getAllValidListings(marketplace).then((listings: any) => {
+        setValidListings(listings);
+      });
+      getAllValidAuctions(marketplace).then((auctions: any) => {
+        setValidAuctions(auctions);
+      });
+    }
+  });
 
   if (!address) {
     return (
@@ -111,14 +125,4 @@ export default function Sell({ validListings, validAuctions }: any) {
       )}
     </Container>
   );
-}
-
-export async function getServerSideProps() {
-  const sdk = initSDK();
-  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
-  const validListings = await getAllValidListings(marketplace);
-  const validAuctions = await getAllValidAuctions(marketplace);
-  return {
-    props: { validListings, validAuctions },
-  };
 }
