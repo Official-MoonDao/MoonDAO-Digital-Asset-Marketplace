@@ -1,21 +1,37 @@
-import { useRouter } from "next/router";
 import { MARKETPLACE_ADDRESS } from "../../../const/config";
 import Image from "next/image";
 import LogoSmall from "../../../assets/LogoSmall";
 
-import { getAllValidAuctions, getAllValidListings, useAllAssets } from "../../../lib/marketplace-v3";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  useAllAssets,
+} from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
 import AssetPreview from "../../../components/Collection/AssetPreview";
 import { AuctionListing, DirectListing } from "../../../lib/utils";
+import { useEffect, useState } from "react";
+import { useContract } from "@thirdweb-dev/react";
 
-/*
-All of these are filled with templates, replace the text with the real incoming data from the collections
-*/
+export default function Collection({ contractAddress }: any) {
+  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
 
-export default function Collection({ contractAddress, validListings, validAuctions }: any) {
-  const router = useRouter();
+  const [validListings, setValidListings] = useState<DirectListing[]>([]);
+  const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
+
   const assets = useAllAssets(validListings, validAuctions, contractAddress);
-  console.log(assets);
+
+  useEffect(() => {
+    if (marketplace) {
+      getAllValidListings(marketplace).then((listings: DirectListing[]) => {
+        setValidListings(listings);
+      });
+      getAllValidAuctions(marketplace).then((auctions: AuctionListing[]) => {
+        setValidAuctions(auctions);
+      });
+    }
+  }, [marketplace]);
+
   return (
     <main className="px-6 pt-10 md:pt-12 lg:pt-16 flex flex-col items-center w-full">
       {/*Collection title and data*/}
@@ -48,25 +64,35 @@ export default function Collection({ contractAddress, validListings, validAuctio
             <p className="w-[149px] xl:w-[189px] rounded-[3px] bg-[#301B3D] py-[6px] xl:py-2 px-[10px] xl:px-3 flex items-center justify-between">
               {/* Volume % change
             Will add conditional logic for styling in case of positive and negative values, fix possible truncation of %*/}
-              Change <span className="text-green-600 max-w-[60px] truncate xl:max-w-[90px]">+230%</span>
+              Change{" "}
+              <span className="text-green-600 max-w-[60px] truncate xl:max-w-[90px]">
+                +230%
+              </span>
             </p>
             {/*Listings*/}
             <p className="w-[149px] xl:w-[189px] rounded-[3px] bg-[#301B3D] py-[6px] xl:py-2 px-[10px] xl:px-3 flex items-center justify-between">
-              Listed <span className="max-w-[60px] truncate xl:max-w-[90px]">274</span>
+              Listed{" "}
+              <span className="max-w-[60px] truncate xl:max-w-[90px]">274</span>
             </p>
             {/*Supply*/}
             <p className="w-[149px] xl:w-[189px] rounded-[3px] bg-[#301B3D] py-[6px] xl:py-2 px-[10px] xl:px-3 flex items-center justify-between">
-              Supply <span className="max-w-[60px] truncate xl:max-w-[90px]">30k</span>
+              Supply{" "}
+              <span className="max-w-[60px] truncate xl:max-w-[90px]">30k</span>
             </p>
           </div>
 
           <p className="mt-8 xl:mt-9 max-w-[320px] xl:max-w-[420px] xl:text-base xl:leading-loose text-sm font-light leading-relaxed">
-            SMB is a collection of 5000 unique randomly generated SolanaMonkeys stored on the blockchain. With their accessibility-oriented design, the monkeys
-            goal is to invade the Solana blockchain with as many individuals as possible, building a large community around them, supported by owner-exclusive
-            advantages, a community wallet and a future voting system. Reject humanity, return to monke.
+            SMB is a collection of 5000 unique randomly generated SolanaMonkeys
+            stored on the blockchain. With their accessibility-oriented design,
+            the monkeys goal is to invade the Solana blockchain with as many
+            individuals as possible, building a large community around them,
+            supported by owner-exclusive advantages, a community wallet and a
+            future voting system. Reject humanity, return to monke.
           </p>
           <div className="mt-7 flex items-center gap-4">
-            <button className="rounded w-[141px] bg-moon-secondary py-[14px] font-bold hover:ring-1 ring-orange-400 transition-all duration-150">Buy</button>
+            <button className="rounded w-[141px] bg-moon-secondary py-[14px] font-bold hover:ring-1 ring-orange-400 transition-all duration-150">
+              Buy
+            </button>
             <button className="rounded w-[141px] bg-slate-900 py-[14px] border-[0.6px] border-gray-700 hover:ring-1 ring-indigo-800 transition-all duration-150">
               Sell
             </button>
@@ -80,7 +106,10 @@ export default function Collection({ contractAddress, validListings, validAuctio
             .fill(assets[0])
             .map((a: DirectListing | AuctionListing, i: number) => (
               <div className="" key={`asset-${i}`}>
-                <AssetPreview contractAddress={contractAddress} tokenId={a.tokenId} />
+                <AssetPreview
+                  contractAddress={contractAddress}
+                  tokenId={a.tokenId}
+                />
               </div>
             ))}
       </div>
@@ -90,11 +119,7 @@ export default function Collection({ contractAddress, validListings, validAuctio
 
 export async function getServerSideProps({ params }: any) {
   const contractAddress = params?.contractAddress;
-  const sdk = initSDK();
-  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
-  const validListings = await getAllValidListings(marketplace);
-  const validAuctions = await getAllValidAuctions(marketplace);
   return {
-    props: { contractAddress, validListings, validAuctions },
+    props: { contractAddress },
   };
 }

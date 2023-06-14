@@ -225,8 +225,8 @@ export function useAllAssets(
 
 //Get listings and auctions for specific tokenId
 export function useListingsAndAuctionsForTokenId(
-  validListings: DirectListing[] | [],
-  validAuctions: AuctionListing[] | [],
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[],
   tokenId: string | number,
   contractAddress: string
 ) {
@@ -464,7 +464,6 @@ export function useAssetStats(
       (async () => {
         if (extensions[0] !== "ERC1155") {
           const allOwners = await contract.erc721.getAllOwners();
-          console.log(allOwners);
           owners = new Set(
             allOwners.map((o: any) => o.tokenId === tokenId && o.owner)
           ).size;

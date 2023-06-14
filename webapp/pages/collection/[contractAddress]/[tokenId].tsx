@@ -4,13 +4,14 @@ import {
   useAddress,
   useContract,
   useContractEvents,
+  useMetadata,
   useNFT,
   Web3Button,
 } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import Container from "../../../components/Container/Container";
 import { GetServerSideProps } from "next";
-import { DirectListing, NFT } from "@thirdweb-dev/sdk";
+import { NFT } from "@thirdweb-dev/sdk";
 import Link from "next/link";
 import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
@@ -28,41 +29,40 @@ import {
   MARKETPLACE_ADDRESS,
   MOONEY_DECIMALS,
 } from "../../../const/config";
-import { AuctionListing, BigConvert } from "../../../lib/utils";
+import { DirectListing, AuctionListing, BigConvert } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
 import { useRouter } from "next/router";
 
 import styles from "../../../styles/Token.module.css";
+import { set } from "react-hook-form";
 
-type Props = {
-  nft: NFT;
-  contractMetadata: any;
-  validListings: any;
-  validAuctions: any;
-  tokenId: number;
+type TokenPageProps = {
+  contractAddress: string;
+  tokenId: string;
 };
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
 export default function TokenPage({
-  contractMetadata,
-  validListings,
-  validAuctions,
+  contractAddress,
   tokenId,
-}: Props) {
+}: TokenPageProps) {
   const router = useRouter();
   const address = useAddress();
   const [isOwner, setIsOwner] = useState<boolean>(false);
   //Marketplace
+  const [loadingListings, setLoadingListings] = useState<boolean>(true);
+  const [validListings, setValidListings] = useState<DirectListing[]>([]);
+  const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
   const { contract: marketplace, isLoading: loadingContract }: any =
     useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
-  //Marketplace data
+
   const { listings: directListing, auctions: auctionListing } =
     useListingsAndAuctionsForTokenId(
       validListings,
       validAuctions,
       tokenId,
-      contractMetadata.address
+      contractAddress
     );
   const [currListing, setCurrListing]: any = useState({
     type: "",
@@ -73,8 +73,9 @@ export default function TokenPage({
 
   const [bidValue, setBidValue] = useState<string>();
 
-  //NFT Collection & NFT
-  const { contract: nftCollection } = useContract(contractMetadata.address);
+  //NFT Collection & Metadata
+  const { contract: nftCollection } = useContract(contractAddress);
+  const { data: contractMetadata } = useMetadata(nftCollection);
   //NFT data
   const { data: nft }: any = useNFT(nftCollection, tokenId);
   // Load historical transfer events: TODO - more event types like sale
@@ -87,7 +88,6 @@ export default function TokenPage({
         order: "desc",
       },
     });
-
   async function createBidOrOffer() {
     let txResult;
     if (!currListing) return;
@@ -143,7 +143,22 @@ export default function TokenPage({
       console.log(err);
     }
   }
+  ///set valid listings and auctions
+  useEffect(() => {
+    if (marketplace) {
+      setLoadingListings(true);
+      getAllValidListings(marketplace).then((listings: DirectListing[]) => {
+        setValidListings(listings);
+        setLoadingListings(false);
+      });
+      getAllValidAuctions(marketplace).then((auctions: AuctionListing[]) => {
+        setValidAuctions(auctions);
+        setLoadingListings(false);
+      });
+    }
+  }, [marketplace]);
 
+  ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListing[0] || auctionListing[0]) {
       const listing = directListing[0]
@@ -151,9 +166,9 @@ export default function TokenPage({
         : { type: "auction", listing: auctionListing[0] };
       setCurrListing(listing);
     }
-    console.log(directListing, auctionListing);
   }, [nft, directListing, auctionListing]);
 
+  ///set winning bid
   useEffect(() => {
     //set winning bid if auction
     if (!loadingContract && currListing.type === "auction") {
@@ -168,8 +183,8 @@ export default function TokenPage({
     setIsOwner(currListing.listing.seller === address);
   }, [currListing, address, loadingContract]);
 
-  if (!nft || !currListing || !contractMetadata || loadingContract)
-    return <>loading</>;
+  if (!nft && loadingListings) return <>loading</>;
+  if (!loadingListings && !nft) return <>does not exist</>;
 
   return (
     <>
@@ -417,87 +432,92 @@ export default function TokenPage({
                 </div>
               </div>
             )}
-
-            {!currListing.listing.seller ? (
-              <Skeleton width="100%" height="164" />
-            ) : (
+            {directListing[0] || auctionListing[0] ? (
               <>
-                {/*Web3 connect button and template in case of listed by user address*/}
-                {isOwner ? (
-                  <div>This listing was created by you.</div>
+                {!currListing.listing.seller ? (
+                  <Skeleton width="100%" height="164" />
                 ) : (
                   <>
-                    <Web3Button
-                      contractAddress={MARKETPLACE_ADDRESS}
-                      action={async () => await buyListing()}
-                      className={`${styles.btn} connect-button`}
-                      onSuccess={() => {
-                        toast(`Purchase success!`, {
-                          icon: "✅",
-                          style: toastStyle,
-                          position: "bottom-center",
-                        });
-                      }}
-                      onError={(e) => {
-                        toast(`Purchase failed! Reason: ${e.message}`, {
-                          icon: "❌",
-                          style: toastStyle,
-                          position: "bottom-center",
-                        });
-                      }}
-                    >
-                      Buy at asking price
-                    </Web3Button>
-
-                    {currListing.type === "auction" && (
+                    {/*Web3 connect button and template in case of listed by user address*/}
+                    {isOwner ? (
+                      <div>This listing was created by you.</div>
+                    ) : (
                       <>
-                        <div
-                          className={`${styles.listingTimeContainer} ${styles.or}`}
-                        >
-                          <p className={styles.listingTime}>or</p>
-                        </div>
-                        <input
-                          className={styles.input}
-                          defaultValue={
-                            currListing.type === "auction"
-                              ? +currListing.listing.minimumBidAmount /
-                                MOONEY_DECIMALS
-                              : 0
-                          }
-                          type="number"
-                          step={0.000001}
-                          onChange={(e) => {
-                            setBidValue(e.target.value);
-                          }}
-                        />
-
                         <Web3Button
                           contractAddress={MARKETPLACE_ADDRESS}
-                          action={async () => await createBidOrOffer()}
+                          action={async () => await buyListing()}
                           className={`${styles.btn} connect-button`}
                           onSuccess={() => {
-                            toast(`Bid success!`, {
+                            toast(`Purchase success!`, {
                               icon: "✅",
                               style: toastStyle,
                               position: "bottom-center",
                             });
                           }}
                           onError={(e) => {
-                            console.log(e);
-                            toast(`Bid failed! Reason: ${e.message}`, {
+                            toast(`Purchase failed! Reason: ${e.message}`, {
                               icon: "❌",
                               style: toastStyle,
                               position: "bottom-center",
                             });
                           }}
                         >
-                          Place bid
+                          Buy at asking price
                         </Web3Button>
+
+                        {currListing.type === "auction" && (
+                          <>
+                            <div
+                              className={`${styles.listingTimeContainer} ${styles.or}`}
+                            >
+                              <p className={styles.listingTime}>or</p>
+                            </div>
+                            <input
+                              className={styles.input}
+                              defaultValue={
+                                currListing.type === "auction"
+                                  ? +currListing.listing.minimumBidAmount /
+                                    MOONEY_DECIMALS
+                                  : 0
+                              }
+                              type="number"
+                              step={0.000001}
+                              onChange={(e) => {
+                                setBidValue(e.target.value);
+                              }}
+                            />
+
+                            <Web3Button
+                              contractAddress={MARKETPLACE_ADDRESS}
+                              action={async () => await createBidOrOffer()}
+                              className={`${styles.btn} connect-button`}
+                              onSuccess={() => {
+                                toast(`Bid success!`, {
+                                  icon: "✅",
+                                  style: toastStyle,
+                                  position: "bottom-center",
+                                });
+                              }}
+                              onError={(e) => {
+                                console.log(e);
+                                toast(`Bid failed! Reason: ${e.message}`, {
+                                  icon: "❌",
+                                  style: toastStyle,
+                                  position: "bottom-center",
+                                });
+                              }}
+                            >
+                              Place bid
+                            </Web3Button>
+                          </>
+                        )}
                       </>
                     )}
                   </>
                 )}
               </>
+            ) : (
+              <></>
             )}
           </div>
         </div>
@@ -510,23 +530,17 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const contractAddress = params?.contractAddress;
   const tokenId: any = params?.tokenId;
 
-  const sdk = initSDK();
-
-  const nftContract = await sdk.getContract(contractAddress as string);
-  const contractMetadata = await nftContract.metadata.get();
-
-  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
-  const validListings = await getAllValidListings(marketplace);
-  const validAuctions = await getAllValidAuctions(marketplace);
-  const validOffers = await getAllValidOffers(marketplace, tokenId);
+  //if no contract address or token id, return 404
+  if (!contractAddress || !tokenId) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
     props: {
-      contractMetadata: { ...contractMetadata, address: contractAddress },
+      contractAddress,
       tokenId,
-      validListings,
-      validAuctions,
-      validOffers,
     },
   };
 };
