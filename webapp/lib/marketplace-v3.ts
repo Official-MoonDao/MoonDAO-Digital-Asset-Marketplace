@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AssetStats,
   AuctionListing,
+  CollectionStats,
   DirectListing,
   serializable,
 } from "./utils";
@@ -12,7 +13,12 @@ import {
   ThirdwebSDK,
   getAllDetectedFeatureNames,
 } from "@thirdweb-dev/sdk";
-import { useSigner } from "@thirdweb-dev/react";
+import {
+  useContract,
+  useContractRead,
+  useNFTs,
+  useSigner,
+} from "@thirdweb-dev/react";
 import { Goerli } from "@thirdweb-dev/chains";
 
 /////FUNCTIONS///////////////////
@@ -229,7 +235,6 @@ export function useListingsAndAuctionsForTokenId(
 
   useEffect(() => {
     if (validListings && validAuctions && contractAddress) {
-      console.log(validListings, validAuctions);
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
@@ -247,7 +252,7 @@ export function useListingsAndAuctionsForTokenId(
       setListings(filteredListings || []);
       setAuctions(filteredAuctions || []);
     }
-  }, [validListings, validAuctions, tokenId]);
+  }, [validListings, validAuctions, contractAddress, tokenId]);
 
   return { listings, auctions } as {
     listings: DirectListing[];
@@ -400,9 +405,47 @@ export function useClaimableAuction(
   return claimable;
 }
 
-export function useStats(contractAddress: string, tokenId: string) {
-  const [validListings, setValidListings] = useState<any>([]);
-  const [validAuctions, setValidAuctions] = useState<any>([]);
+/////STATS/////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
+  //get floor price for validListings
+  const listingFloor = listings[0]
+    ? listings.reduce((acc: any, listing: any) => {
+        if (!acc) return listing.pricePerToken;
+        if (listing.pricePerToken < acc) return listing.pricePerToken;
+        return acc;
+      }).pricePerToken
+    : 0;
+
+  //get floor price for validAuctions
+  const auctionFloor = auctions[0]
+    ? auctions.reduce((acc: any, auction: any) => {
+        if (!acc) return auction.buyoutBidAmount;
+        if (auction.buyout < acc) return auction.buyoutBidAmount;
+        return acc;
+      }).buyoutBidAmount
+    : 0;
+
+  //true floor price for asset
+  if (listingFloor === 0) return auctionFloor;
+  if (auctionFloor === 0) return listingFloor;
+  return listingFloor < auctionFloor ? listingFloor : auctionFloor;
+}
+
+export function useAssetStats(
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[],
+  contractAddress: string,
+  tokenId: string
+) {
+  const [stats, setStats] = useState<AssetStats>({
+    floorPrice: 0,
+    owners: 0,
+    supply: 0,
+  });
+
+  const { contract }: any = useContract(contractAddress);
 
   const { listings: assetListings, auctions: assetAuctions } =
     useListingsAndAuctionsForTokenId(
@@ -412,62 +455,103 @@ export function useStats(contractAddress: string, tokenId: string) {
       contractAddress
     );
 
-  const [stats, setStats] = useState<AssetStats>({
+  const floorPrice = useMemo(() => {
+    if (!assetListings || !assetAuctions || !contract) return;
+    return +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
+  }, [assetListings, assetAuctions, contract]);
+
+  const owners = useMemo(() => {
+    if (!contract) return;
+    const extensions = getAllDetectedFeatureNames(contract?.abi);
+    (async () => {
+      if (extensions[0] !== "ERC1155") {
+        const owners = await contract.erc721.totalClaimedSupply();
+        return owners.toNumber();
+      }
+    })();
+  }, [contract]);
+
+  const supply = useMemo(() => {
+    if (!contract) return;
+    const extensions = getAllDetectedFeatureNames(contract?.abi);
+    (async () => {
+      let supply;
+      if (extensions[0] !== "ERC1155") {
+        supply = await contract.erc721.totalCount();
+      } else {
+        supply = await contract.erc1155.totalSupply(tokenId);
+      }
+      return supply.toNumber();
+    })();
+  }, [contract]);
+
+  useEffect(() => {
+    let floorPrice, owners, supply;
+    if (assetListings && assetAuctions && contract) {
+      floorPrice =
+        +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
+      const extensions = getAllDetectedFeatureNames(contract?.abi);
+      (async () => {
+        if (extensions[0] !== "ERC1155") {
+          owners = await contract.erc721.totalClaimedSupply();
+          supply = await contract.erc721.totalCount();
+        } else {
+          supply = await contract.erc1155.totalSupply(tokenId);
+        }
+        setStats({
+          floorPrice: floorPrice || 0,
+          owners: owners?.toNumber() || 0,
+          supply: supply?.toNumber() || 0,
+        });
+      })();
+    }
+  }, [assetListings, assetAuctions, contract]);
+
+  return stats;
+}
+
+export function useCollectionStats(
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[],
+  contractAddress: string
+) {
+  const [collectionListings, setCollectionListings] = useState<any>([]);
+  const [collectionAuctions, setCollectionAuctions] = useState<any>([]);
+
+  const [stats, setStats] = useState<CollectionStats>({
     floorPrice: 0,
-    supply: 0,
-    owners: 0,
+    volume: 0,
+    change: 0,
   });
 
-  function getFloorPrice() {
-    //get floor price for validListings
-    const listingFloor = assetListings[0]
-      ? assetListings.reduce((acc: any, listing: any) => {
-          if (!acc) return listing.pricePerToken;
-          if (listing.pricePerToken < acc) return listing.pricePerToken;
-          return acc;
-        }).pricePerToken
-      : 0;
-
-    //get floor price for validAuctions
-    const auctionFloor = assetAuctions[0]
-      ? assetAuctions.reduce((acc: any, auction: any) => {
-          if (!acc) return auction.buyoutBidAmount;
-          if (auction.buyout < acc) return auction.buyoutBidAmount;
-          return acc;
-        }).buyoutBidAmount
-      : 0;
-
-    //true floor price for asset
-    if (listingFloor === 0) return auctionFloor;
-    if (auctionFloor === 0) return listingFloor;
-    return listingFloor < auctionFloor ? listingFloor : auctionFloor;
-  }
-
   useEffect(() => {
-    if (contractAddress && tokenId) {
-      const sdk = initSDK();
-      sdk.getContract(MARKETPLACE_ADDRESS).then((marketplace: any) => {
-        getAllValidListings(marketplace).then((listings: any) => {
-          setValidListings(listings);
-        });
-        getAllValidAuctions(marketplace).then((auctions: any) => {
-          setValidAuctions(auctions);
-        });
-      });
+    if (validListings) {
+      const filteredListings =
+        validListings[0] &&
+        validListings?.filter(
+          (l: DirectListing) => l.assetContract === contractAddress
+        );
+      setCollectionListings(filteredListings);
     }
-  }, [contractAddress, tokenId]);
+    if (validAuctions) {
+      const filteredAuctions =
+        validAuctions[0] &&
+        validAuctions?.filter(
+          (a: AuctionListing) => a.assetContract === contractAddress
+        );
+      setCollectionAuctions(filteredAuctions);
+    }
+  }, [validListings, validAuctions, contractAddress]);
 
   useEffect(() => {
-    if (assetListings && assetAuctions) {
-      console.log("LISTINGS", assetListings, assetAuctions);
-      const floorPrice = getFloorPrice();
-      setStats((prev: any) => ({
+    if (collectionListings && collectionAuctions) {
+      const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
+      setStats((prev: CollectionStats) => ({
         ...prev,
         floorPrice: +floorPrice / MOONEY_DECIMALS,
       }));
     }
-  }, [assetListings, assetAuctions]);
-
+  }, [collectionListings, collectionAuctions]);
   return stats;
 }
 

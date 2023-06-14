@@ -32,13 +32,19 @@ export interface AuctionListing {
   endTimestamp: string | number;
   tokenType: string | number;
   status: string | number;
-  popularity:any;
+  popularity: any;
 }
 
 export interface AssetStats {
+  floorPrice: string | number | undefined;
+  supply: string | number | undefined;
+  owners: string | number | undefined;
+}
+
+export interface CollectionStats {
   floorPrice: string | number;
-  supply: string | number;
-  owners: string | number;
+  volume: string | number;
+  change: string | number;
 }
 
 export function BigConvert(data: any) {

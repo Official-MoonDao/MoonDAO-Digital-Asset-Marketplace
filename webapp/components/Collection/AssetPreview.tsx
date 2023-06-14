@@ -1,14 +1,25 @@
 import { useContract, useNFT } from "@thirdweb-dev/react";
 import LogoSmall from "../../assets/LogoSmall";
 import { useRouter } from "next/router";
-import { useStats } from "../../lib/marketplace-v3";
-export default function AssetPreview({ contractAddress, tokenId }: any) {
+import { useAssetStats } from "../../lib/marketplace-v3";
+import Skeleton from "../Skeleton/Skeleton";
+export default function AssetPreview({
+  contractAddress,
+  tokenId,
+  validListings,
+  validAuctions,
+}: any) {
   const { contract } = useContract(contractAddress);
   const { data: nft, isLoading, error } = useNFT(contract, tokenId);
   const router = useRouter();
-  const stats = useStats(contractAddress, tokenId);
+  const { floorPrice, owners, supply } = useAssetStats(
+    validListings,
+    validAuctions,
+    contractAddress,
+    tokenId
+  );
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Skeleton width="335px" height="162px" />;
   if (error || !nft) return <div>NFT not found!</div>;
 
   return (
@@ -37,7 +48,7 @@ export default function AssetPreview({ contractAddress, tokenId }: any) {
           {/*Insert price here*/}
           <p className="mt-11 text-xl flex items-center gap-3">
             <LogoSmall size={{ width: 24.54, height: 24.07 }} />
-            {stats.floorPrice}
+            {floorPrice}
           </p>
         </div>
         <div className="mt-5 pr-9 flex flex-col items-end">

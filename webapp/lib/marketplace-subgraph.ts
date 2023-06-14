@@ -105,12 +105,10 @@ function filterExpiring(
 ///////////////////////////////////////////////////////
 
 export function useFilter(
-  filter: { type: string; assetOrCollection: string },
+  type: string,
   validListings: DirectListing[],
   validAuctions: AuctionListing[]
 ) {
-  const { type, assetOrCollection } = filter;
-
   const [filteredAssets, setFilteredAssets] = useState<any>([]);
 
   const collections = useMemo(() => {
@@ -147,11 +145,15 @@ export function useFilter(
           setFilteredAssets(filteredListings);
         }
       );
-    } else if (type === "expiring") {
+    } else if (type === "expiring" || type === "new") {
       const filteredListings = filterExpiring(validListings, validAuctions);
-      setFilteredAssets(filteredListings);
+      setFilteredAssets(
+        type === "new"
+          ? filteredListings.sort((a: any, b: any) => b - a)
+          : filteredListings
+      );
     }
-  }, [type, assetOrCollection]);
+  }, [type]);
 
   return { collections, assets };
 }

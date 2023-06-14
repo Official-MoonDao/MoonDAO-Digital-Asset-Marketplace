@@ -12,12 +12,11 @@ import { useFilter } from "../lib/marketplace-subgraph";
 import CollectionGrid from "../components/Collection/CollectionGrid";
 import AssetPreview from "../components/Collection/AssetPreview";
 import { useRouter } from "next/router";
+import CollectionPreview from "../components/Collection/CollectionPreview";
 
 interface FilteredListingsPageProps {
   validListings: DirectListing[];
   validAuctions: AuctionListing[];
-  filterType: string;
-  assetType: string;
 }
 
 export default function Buy({
@@ -32,7 +31,7 @@ export default function Buy({
   });
 
   const { collections: filteredCollections, assets: filteredAssets } =
-    useFilter(filter, validListings, validAuctions);
+    useFilter(filter?.type, validListings, validAuctions);
 
   function filterTypeChange(e: any) {
     setFilter({ ...filter, type: e.target.value });
@@ -45,18 +44,15 @@ export default function Buy({
   }
 
   useEffect(() => {
-    if (router.query) {
+    if (filterSelectionRef.current && router.query) {
       const { filterType, assetType } = router.query;
       setFilter({
         type: filterType || "all",
         assetOrCollection: assetType || "asset",
       });
+      filterSelectionRef.current.value = filterType || "all";
     }
   }, [router.query]);
-
-  if (filter.type === "") {
-    return <>loading</>;
-  }
 
   return (
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
@@ -70,15 +66,15 @@ export default function Buy({
         </h2>
         <div className="flex gap-[10%] w-full py-4">
           <div className="flex gap-2">
-            <div className="flex flex-col divide-y-2 text-left gap-1">
+            <div className="flex flex-col divide-y-2 text-left gap-1 font-bold">
               <p>Assets</p>
               <p>Collections</p>
             </div>
             <div
               className={`flex w-8 h-14 ${
                 filter.assetOrCollection === "asset"
-                  ? "bg-[#D7594F]"
-                  : "bg-[blue]"
+                  ? "bg-moon-gold"
+                  : "bg-moon-secondary"
               } rounded-full ease-in-ease-out duration-150`}
               onClick={assetTypeChange}
             >
@@ -90,11 +86,8 @@ export default function Buy({
             </div>
           </div>
           <select
-            className=""
-            onChange={(e) => {
-              filterTypeChange(e);
-              console.log(filter);
-            }}
+            className="font-bold rounded-sm pl-2 w-[200px]"
+            onChange={(e) => filterTypeChange(e)}
             ref={filterSelectionRef}
             defaultValue={router.query.filterType || "all"}
           >
@@ -105,26 +98,40 @@ export default function Buy({
             )}
           </select>
         </div>
+        <p className="my-[14px] lg:mt-6">
+          {filter.assetOrCollection === "asset"
+            ? "Pick an Asset"
+            : "Pick from a collection"}
+        </p>
         {/*Collection Grid with coollection preview components inside*/}
-        {filter.assetOrCollection === "collection" && (
-          <>
-            <p className="mt-[14px] lg:mt-6">Pick from a collection</p>
-            <CollectionGrid collections={filteredCollections} />
-          </>
-        )}
-        {filter.assetOrCollection === "asset" && (
-          <>
-            <p className="mt-[14px] lg:mt-6">Pick an asset</p>
-            {filteredAssets?.map(
-              (l: DirectListing | AuctionListing, i: number) => (
-                <AssetPreview
-                  key={`filtered-asset-preview-${i}`}
-                  contractAddress={l.assetContract}
-                  tokenId={l.tokenId}
-                />
-              )
+        {filter.type !== "" && (
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            {filter.assetOrCollection === "collection" && (
+              <>
+                {filteredCollections?.map((collection: any, i: number) => (
+                  <CollectionPreview
+                    key={`collection-preview-${i}`}
+                    collection={collection}
+                  />
+                ))}
+              </>
             )}
-          </>
+            {filter.assetOrCollection === "asset" && (
+              <>
+                {filteredAssets?.map(
+                  (l: DirectListing | AuctionListing, i: number) => (
+                    <AssetPreview
+                      key={`filtered-asset-preview-${i}`}
+                      contractAddress={l.assetContract}
+                      tokenId={l.tokenId}
+                      validListings={validListings}
+                      validAuctions={validAuctions}
+                    />
+                  )
+                )}
+              </>
+            )}
+          </div>
         )}
       </div>
     </div>

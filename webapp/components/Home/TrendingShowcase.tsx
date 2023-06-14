@@ -1,8 +1,19 @@
 import ArrowButton from "../ArrowButton";
 import TrendingThumbnail from "../TrendingThumbnail";
 import SectionHeader from "../SectionHeader";
+import { AuctionListing, DirectListing } from "../../lib/utils";
 
-export default function TrendingShowcase() {
+interface TrendingShowcaseProps {
+  assets: DirectListing[] | AuctionListing[];
+  validListings: DirectListing[];
+  validAuctions: AuctionListing[];
+}
+
+export default function TrendingShowcase({
+  assets,
+  validListings,
+  validAuctions,
+}: TrendingShowcaseProps) {
   return (
     <div className="mt-14 md:mt-20 flex flex-col items-center">
       <SectionHeader title={"Trending Assets"} />
@@ -11,29 +22,29 @@ export default function TrendingShowcase() {
       Incoming data is being sliced before mapping
       */}
       <div className="mt-9 md:mt-12 flex flex-col items-center gap-12 lg:hidden">
-        {dummyData.slice(4).map((e, i) => (
-          <TrendingThumbnail
-            key={i}
-            name={e.name}
-            img={e.img}
-            holders={e.holders}
-            floor={e.floor}
-            number={e.number}
-          />
-        ))}
+        {assets &&
+          assets
+            .slice(assets.length < 4 ? -assets.length : 0, 4)
+            .map((asset, i) => (
+              <TrendingThumbnail
+                key={"trending-thumbnail-" + i}
+                asset={asset}
+                validListings={validListings}
+                validAuctions={validAuctions}
+              />
+            ))}
       </div>
       {/*Desktop grid, not slicing*/}
       <div className="hidden lg:mt-20 lg:grid lg:grid-cols-2 lg:grid-flow-row lg:gap-12 xl:grid-cols-3 xl:gap-20">
-        {dummyData.map((e, i) => (
-          <TrendingThumbnail
-            key={i}
-            name={e.name}
-            img={e.img}
-            holders={e.holders}
-            floor={e.floor}
-            number={e.number}
-          />
-        ))}
+        {assets &&
+          assets.map((asset, i) => (
+            <TrendingThumbnail
+              key={"trending-thumbnail-" + i}
+              asset={asset}
+              validListings={validListings}
+              validAuctions={validAuctions}
+            />
+          ))}
       </div>
       <ArrowButton
         text="See all"
