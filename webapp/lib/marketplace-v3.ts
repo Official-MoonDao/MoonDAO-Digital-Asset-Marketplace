@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AssetStats,
   AuctionListing,
+  CollectionStats,
   DirectListing,
   serializable,
 } from "./utils";
@@ -12,9 +13,13 @@ import {
   ThirdwebSDK,
   getAllDetectedFeatureNames,
 } from "@thirdweb-dev/sdk";
-import { useAddress, useSigner } from "@thirdweb-dev/react";
+import {
+  useContract,
+  useContractRead,
+  useNFTs,
+  useSigner,
+} from "@thirdweb-dev/react";
 import { Goerli } from "@thirdweb-dev/chains";
-import { set } from "react-hook-form";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -91,7 +96,6 @@ export async function getAllValidOffers(marketplace: any, tokenId: any) {
       0,
       totalOffers?.toNumber() - 1 >= 0 ? totalOffers?.toNumber() - 1 : 0
     );
-    console.log(validOffers);
     return serializable(validOffers, totalOffers);
   } catch (err) {
     console.log(err);
@@ -224,32 +228,31 @@ export function useListingsAndAuctionsForTokenId(
   validListings: DirectListing[] | [],
   validAuctions: AuctionListing[] | [],
   tokenId: string | number,
-  collectionAddress: string
+  contractAddress: string
 ) {
   const [listings, setListings] = useState<any>([]);
   const [auctions, setAuctions] = useState<any>([]);
 
   useEffect(() => {
-    if (validListings && validAuctions) {
-      console.log(validListings, validAuctions);
+    if (validListings && validAuctions && contractAddress) {
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
           (l: DirectListing) =>
-            l.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
+            l.assetContract.toLowerCase() === contractAddress.toLowerCase() &&
             +l.tokenId === Number(tokenId)
         );
       const filteredAuctions =
         validAuctions[0] &&
         validAuctions?.filter(
           (a: any) =>
-            a.assetContract.toLowerCase() === collectionAddress.toLowerCase() &&
+            a.assetContract.toLowerCase() === contractAddress.toLowerCase() &&
             +a.tokenId === Number(tokenId)
         );
       setListings(filteredListings || []);
       setAuctions(filteredAuctions || []);
     }
-  }, [validListings, validAuctions, tokenId]);
+  }, [validListings, validAuctions, contractAddress, tokenId]);
 
   return { listings, auctions } as {
     listings: DirectListing[];
@@ -345,10 +348,14 @@ export function useUserAssets(
     );
 
   useEffect(() => {
-    if (marketplace && signer && profileListings && profileAuctions) {
-      setAssets([]);
+    if (
+      marketplace &&
+      signer &&
+      (profileListings?.[0] || profileAuctions?.[0])
+    ) {
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
+          setAssets([]);
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, Goerli);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
@@ -383,8 +390,8 @@ export function useUserAssets(
             setAssets((prev: any) => [...prev, ...ownedAssets]);
         });
       });
-    } else setAssets([]);
-  }, [marketplace, signer]);
+    }
+  }, [marketplace, signer, profileListings, profileAuctions]);
   return assets;
 }
 
@@ -398,9 +405,47 @@ export function useClaimableAuction(
   return claimable;
 }
 
-export function useStats(contractAddress: string, tokenId: string) {
-  const [validListings, setValidListings] = useState<any>([]);
-  const [validAuctions, setValidAuctions] = useState<any>([]);
+/////STATS/////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
+  //get floor price for validListings
+  const listingFloor = listings[0]
+    ? listings.reduce((acc: any, listing: any) => {
+        if (!acc) return listing.pricePerToken;
+        if (listing.pricePerToken < acc) return listing.pricePerToken;
+        return acc;
+      }).pricePerToken
+    : 0;
+
+  //get floor price for validAuctions
+  const auctionFloor = auctions[0]
+    ? auctions.reduce((acc: any, auction: any) => {
+        if (!acc) return auction.buyoutBidAmount;
+        if (auction.buyout < acc) return auction.buyoutBidAmount;
+        return acc;
+      }).buyoutBidAmount
+    : 0;
+
+  //true floor price for asset
+  if (listingFloor === 0) return auctionFloor;
+  if (auctionFloor === 0) return listingFloor;
+  return listingFloor < auctionFloor ? listingFloor : auctionFloor;
+}
+
+export function useAssetStats(
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[],
+  contractAddress: string,
+  tokenId: string
+) {
+  const [stats, setStats] = useState<AssetStats>({
+    floorPrice: 0,
+    owners: 0,
+    supply: 0,
+  });
+
+  const { contract }: any = useContract(contractAddress);
 
   const { listings: assetListings, auctions: assetAuctions } =
     useListingsAndAuctionsForTokenId(
@@ -410,62 +455,77 @@ export function useStats(contractAddress: string, tokenId: string) {
       contractAddress
     );
 
-  const [stats, setStats] = useState<AssetStats>({
+  useEffect(() => {
+    let floorPrice, owners, supply;
+    if (assetListings && assetAuctions && contract) {
+      floorPrice =
+        +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
+      const extensions = getAllDetectedFeatureNames(contract?.abi);
+      (async () => {
+        if (extensions[0] !== "ERC1155") {
+          const allOwners = await contract.erc721.getAllOwners();
+          console.log(allOwners);
+          owners = new Set(
+            allOwners.map((o: any) => o.tokenId === tokenId && o.owner)
+          ).size;
+          supply = await contract.erc721.totalCount();
+        } else {
+          supply = await contract.erc1155.totalSupply(tokenId);
+        }
+        setStats({
+          floorPrice: floorPrice || 0,
+          owners: owners || 0,
+          supply: supply?.toNumber() || 0,
+        });
+      })();
+    }
+  }, [assetListings, assetAuctions, contract]);
+
+  return stats;
+}
+
+export function useCollectionStats(
+  validListings: DirectListing[],
+  validAuctions: AuctionListing[],
+  contractAddress: string
+) {
+  const [collectionListings, setCollectionListings] = useState<any>([]);
+  const [collectionAuctions, setCollectionAuctions] = useState<any>([]);
+
+  const [stats, setStats] = useState<CollectionStats>({
     floorPrice: 0,
-    supply: 0,
-    owners: 0,
+    volume: 0,
+    change: 0,
   });
 
-  function getFloorPrice() {
-    //get floor price for validListings
-    const listingFloor = assetListings[0]
-      ? assetListings.reduce((acc: any, listing: any) => {
-          if (!acc) return listing.pricePerToken;
-          if (listing.pricePerToken < acc) return listing.pricePerToken;
-          return acc;
-        }).pricePerToken
-      : 0;
-
-    //get floor price for validAuctions
-    const auctionFloor = assetAuctions[0]
-      ? assetAuctions.reduce((acc: any, auction: any) => {
-          if (!acc) return auction.buyoutBidAmount;
-          if (auction.buyout < acc) return auction.buyoutBidAmount;
-          return acc;
-        }).buyoutBidAmount
-      : 0;
-
-    //true floor price for asset
-    if (listingFloor === 0) return auctionFloor;
-    if (auctionFloor === 0) return listingFloor;
-    return listingFloor < auctionFloor ? listingFloor : auctionFloor;
-  }
-
   useEffect(() => {
-    if (contractAddress && tokenId) {
-      const sdk = initSDK();
-      sdk.getContract(MARKETPLACE_ADDRESS).then((marketplace: any) => {
-        getAllValidListings(marketplace).then((listings: any) => {
-          setValidListings(listings);
-        });
-        getAllValidAuctions(marketplace).then((auctions: any) => {
-          setValidAuctions(auctions);
-        });
-      });
+    if (validListings) {
+      const filteredListings =
+        validListings[0] &&
+        validListings?.filter(
+          (l: DirectListing) => l.assetContract === contractAddress
+        );
+      setCollectionListings(filteredListings);
     }
-  }, [contractAddress, tokenId]);
+    if (validAuctions) {
+      const filteredAuctions =
+        validAuctions[0] &&
+        validAuctions?.filter(
+          (a: AuctionListing) => a.assetContract === contractAddress
+        );
+      setCollectionAuctions(filteredAuctions);
+    }
+  }, [validListings, validAuctions, contractAddress]);
 
   useEffect(() => {
-    if (assetListings && assetAuctions) {
-      console.log("LISTINGS", assetListings, assetAuctions);
-      const floorPrice = getFloorPrice();
-      setStats((prev: any) => ({
+    if (collectionListings && collectionAuctions) {
+      const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
+      setStats((prev: CollectionStats) => ({
         ...prev,
         floorPrice: +floorPrice / MOONEY_DECIMALS,
       }));
     }
-  }, [assetListings, assetAuctions]);
-
+  }, [collectionListings, collectionAuctions]);
   return stats;
 }
 
@@ -477,8 +537,6 @@ export function useSearch(
 ) {
   const [validAssets, setValidAssets] = useState<any>([]);
   const [searchResults, setSearchResults] = useState<any>([]);
-
-  const [prevSearch, setPrevSearch] = useState("");
 
   function uniqueAssets() {
     if (validListings || validAuctions) {
@@ -510,22 +568,14 @@ export function useSearch(
           filteredAssets.push(auctions[i]);
         }
       }
-      console.log(filteredAssets);
       setValidAssets(filteredAssets);
     }
   }
 
   useEffect(() => {
-    if (!text || text?.trim() === "" || text.length < 3)
-      return setPrevSearch("");
-
-    //only run if text is 3 longer than previous search
-
+    if (!text || text?.trim() === "" || text.length < 2) return;
     //update unique assets
     uniqueAssets();
-
-    //set prev search
-    setPrevSearch(text);
 
     validAssets.map(async (l: any) => {
       setSearchResults([]);
@@ -535,9 +585,15 @@ export function useSearch(
       const extensions = getAllDetectedFeatureNames(contract.abi);
       let nft: any;
       if (extensions[0] === "ERC1155") {
-        nft = await contract.erc1155.get(l.tokenId);
+        nft = {
+          ...(await contract.erc1155.get(l.tokenId)),
+          collection: l.assetContract,
+        };
       } else {
-        nft = await contract.erc721.get(l.tokenId);
+        nft = {
+          ...(await contract.erc721.get(l.tokenId)),
+          collection: l.assetContract,
+        };
       }
       if (nft.metadata.name.toLowerCase().includes(text.toLowerCase()))
         setSearchResults((prev: any) => [...prev, nft]);

@@ -1,29 +1,28 @@
 import { initSDK } from "../lib/thirdweb";
 import { MARKETPLACE_ADDRESS } from "../const/config";
-import { getAllValidAuctions, getAllValidListings, useAllCollections } from "../lib/marketplace-v3";
-import CollectionPreview from "../components/Collection/CollectionPreview";
-
+import { getAllValidAuctions, getAllValidListings } from "../lib/marketplace-v3";
 import { DirectListing, AuctionListing } from "../lib/utils";
 import { useEffect, useRef, useState } from "react";
 import VerticalStar from "../assets/VerticalStar";
 import { useFilter } from "../lib/marketplace-subgraph";
 import AssetPreview from "../components/Collection/AssetPreview";
+import { useRouter } from "next/router";
+import CollectionPreview from "../components/Collection/CollectionPreview";
 
 interface FilteredListingsPageProps {
   validListings: DirectListing[];
   validAuctions: AuctionListing[];
-  filterType: string;
-  assetType: string;
 }
 
-export default function Buy({ validListings, validAuctions, filterType, assetType }: FilteredListingsPageProps) {
+export default function Buy({ validListings, validAuctions }: FilteredListingsPageProps) {
+  const router = useRouter();
   const filterSelectionRef: any = useRef();
   const [filter, setFilter] = useState<any>({
-    type: filterType,
-    assetOrCollection: assetType,
+    type: "",
+    assetOrCollection: "",
   });
 
-  const { collections: filteredCollections, assets: filteredAssets } = useFilter(filter, validListings, validAuctions);
+  const { collections: filteredCollections, assets: filteredAssets } = useFilter(filter?.type, validListings, validAuctions);
 
   function filterTypeChange(e: any) {
     setFilter({ ...filter, type: e.target.value });
@@ -34,10 +33,15 @@ export default function Buy({ validListings, validAuctions, filterType, assetTyp
   }
 
   useEffect(() => {
-    if (filterSelectionRef.current) {
-      filterSelectionRef.current.value = filter.type;
+    if (filterSelectionRef.current && router.query) {
+      const { filterType, assetType } = router.query;
+      setFilter({
+        type: filterType || "all",
+        assetOrCollection: assetType || "asset",
+      });
+      filterSelectionRef.current.value = filterType || "all";
     }
-  }, [filterSelectionRef]);
+  }, [router.query]);
 
   return (
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
@@ -51,12 +55,14 @@ export default function Buy({ validListings, validAuctions, filterType, assetTyp
         </h2>
         <div className="flex gap-[10%] w-full py-4">
           <div className="flex gap-2">
-            <div className="flex flex-col divide-y-2 text-left gap-1">
+            <div className="flex flex-col divide-y-2 text-left gap-1 font-bold">
               <p>Assets</p>
               <p>Collections</p>
             </div>
             <div
-              className={`flex w-8 h-14 ${filter.assetOrCollection === "asset" ? "bg-[#D7594F]" : "bg-[blue]"} rounded-full ease-in-ease-out duration-150`}
+              className={`flex w-8 h-14 ${
+                filter.assetOrCollection === "asset" ? "bg-moon-gold" : "bg-moon-secondary"
+              } rounded-full ease-in-ease-out duration-150`}
               onClick={assetTypeChange}
             >
               <button
@@ -64,7 +70,12 @@ export default function Buy({ validListings, validAuctions, filterType, assetTyp
               ></button>
             </div>
           </div>
-          <select className="" onChange={(e) => filterTypeChange(e)} ref={filterSelectionRef}>
+          <select
+            className="font-bold rounded-sm pl-2 w-[200px]"
+            onChange={(e) => filterTypeChange(e)}
+            ref={filterSelectionRef}
+            defaultValue={router.query.filterType || "all"}
+          >
             <option value="all">All</option>
             <option value="trending">Trending</option>
             {filter.assetOrCollection === "asset" && <option value="expiring">Expiring Soon</option>}
@@ -72,31 +83,38 @@ export default function Buy({ validListings, validAuctions, filterType, assetTyp
         </div>
 
         <p className="mt-[14px] lg:mt-6 text-xl opacity-80">Pick {filter.assetOrCollection === "collection" ? "from a collection" : "an asset"}</p>
+
         <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
           {/*Collections*/}
           {filter.assetOrCollection === "collection" && (
             <>
-              {filteredCollections &&
-                filteredCollections[0] &&
-                filteredCollections.map((c: any, i: number) => <CollectionPreview key={i + c.assetContract} collection={c} />)}
+              {filteredCollections?.map((collection: any, i: number) => (
+                <CollectionPreview key={`collection-preview-${i}`} collection={collection} />
+              ))}
             </>
           )}
           {/*Assets*/}
           {filter.assetOrCollection === "asset" && (
             <>
               {filteredAssets?.map((l: DirectListing | AuctionListing, i: number) => (
-                <AssetPreview key={`filtered-asset-preview-${i}`} contractAddress={l.assetContract} tokenId={l.tokenId} />
+                <AssetPreview
+                  key={`filtered-asset-preview-${i}`}
+                  contractAddress={l.assetContract}
+                  tokenId={l.tokenId}
+                  validListings={validListings}
+                  validAuctions={validAuctions}
+                />
               ))}
             </>
           )}
         </section>
+
       </div>
     </div>
   );
 }
 
-export async function getServerSideProps({ query }: any) {
-  const { filterType, assetType } = query;
+export async function getStaticProps() {
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings: DirectListing[] = await getAllValidListings(marketplace);
@@ -105,8 +123,7 @@ export async function getServerSideProps({ query }: any) {
     props: {
       validListings,
       validAuctions,
-      filterType: filterType || "all",
-      assetType: assetType || "asset",
     },
+    revalidate: 60,
   };
 }

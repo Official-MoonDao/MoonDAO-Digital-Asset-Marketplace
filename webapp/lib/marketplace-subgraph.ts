@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cacheExchange, createClient, fetchExchange } from "urql";
 import { AuctionListing, DirectListing } from "./utils";
-import { useAllCollections } from "./marketplace-v3";
 
 ///INIT GRAPH CLIENT//////////////////////////////////
 ///////////////////////////////////////////////////////
@@ -50,7 +49,7 @@ export async function queryTrending(
   const trendingCount: any = {};
 
   newSales.forEach((sale: any) => {
-    const key = sale.assetContract + "/" + sale.tokenId;
+    const key = sale.assetContract.toLowerCase() + "/" + sale.tokenId;
     if (trendingCount[key]) {
       trendingCount[key] += 1;
     } else {
@@ -58,7 +57,7 @@ export async function queryTrending(
     }
   });
   newBids.forEach((bid: any) => {
-    const key = bid.assetContract + "/" + bid.auction_tokenId;
+    const key = bid.assetContract.toLowerCase() + "/" + bid.auction_tokenId;
     if (trendingCount[key]) {
       trendingCount[key] += 1;
     } else {
@@ -66,30 +65,28 @@ export async function queryTrending(
     }
   });
 
-  //Create new arrays of listings and auctions sorted by the number of bids/sales
-  const trendingListings = Object.entries(trendingCount);
-
   let allListings = !validListings[0]
     ? validAuctions
     : !validAuctions[0]
     ? validListings
     : [...validListings, ...validAuctions];
 
-  console.log(allListings);
-  for (let i = 0; i < allListings.length; i++) {
-    for (let j = 0; j < trendingListings.length; j++) {
-      if (
-        allListings[i].assetContract.toLowerCase() +
-          "/" +
-          allListings[i].tokenId ===
-        trendingListings[j][0]
-      ) {
-        allListings[i].popularity = trendingListings[j][1];
-      }
-    }
-  }
+  const trendingListings: any = {};
 
-  return allListings.sort((a: any, b: any) => a.popularity - b.popularity);
+  allListings.forEach((listing: any) => {
+    const trendingCountKey: string =
+      listing.assetContract.toLowerCase() + "/" + listing.tokenId;
+    if (!trendingListings[trendingCountKey]) {
+      trendingListings[trendingCountKey] = {
+        ...listing,
+        popularity: trendingCount[trendingCountKey] || 0,
+      };
+    }
+  });
+
+  return Object.values(trendingListings).sort(
+    (a: any, b: any) => b.popularity - a.popularity
+  );
 }
 
 function filterExpiring(
@@ -108,12 +105,10 @@ function filterExpiring(
 ///////////////////////////////////////////////////////
 
 export function useFilter(
-  filter: { type: string; assetOrCollection: string },
+  type: string,
   validListings: DirectListing[],
   validAuctions: AuctionListing[]
 ) {
-  const { type, assetOrCollection } = filter;
-
   const [filteredAssets, setFilteredAssets] = useState<any>([]);
 
   const collections = useMemo(() => {
@@ -150,11 +145,15 @@ export function useFilter(
           setFilteredAssets(filteredListings);
         }
       );
-    } else if (type === "expiring") {
+    } else if (type === "expiring" || type === "new") {
       const filteredListings = filterExpiring(validListings, validAuctions);
-      setFilteredAssets(filteredListings);
+      setFilteredAssets(
+        type === "new"
+          ? filteredListings.sort((a: any, b: any) => b - a)
+          : filteredListings
+      );
     }
-  }, [type, assetOrCollection]);
+  }, [type]);
 
   return { collections, assets };
 }

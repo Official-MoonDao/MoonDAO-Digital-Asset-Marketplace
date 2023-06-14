@@ -6,7 +6,7 @@ import LogoSmall from "../../../assets/LogoSmall";
 import { getAllValidAuctions, getAllValidListings, useAllAssets } from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
 import AssetPreview from "../../../components/Collection/AssetPreview";
-import { AuctionListing, BigConvert, DirectListing } from "../../../lib/utils";
+import { AuctionListing, DirectListing } from "../../../lib/utils";
 
 /*
 All of these are filled with templates, replace the text with the real incoming data from the collections

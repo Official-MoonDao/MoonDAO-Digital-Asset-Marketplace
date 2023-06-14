@@ -124,7 +124,6 @@ export default function TokenPage({ contractMetadata, validListings, validAuctio
         setWinningBid(winningBid);
       })();
     }
-
     //check if connected wallet is owner of asset
     setIsOwner(currListing.listing.seller === address);
   }, [currListing, address, loadingContract]);
@@ -148,53 +147,70 @@ export default function TokenPage({ contractMetadata, validListings, validAuctio
               <h3 className={styles.descriptionTitle}>Traits</h3>
 
               <div className={styles.traitsContainer}>
-                {Object.entries(nft?.metadata?.attributes || {}).map(([key, value]: any) => (
-                  <div className={styles.traitContainer} key={key}>
-                    <p className={styles.traitName}>{key}</p>
-                    <p className={styles.traitValue}>{value.value?.toString() || ""}</p>
-                  </div>
-                ))}
+                {Object.entries(nft?.metadata?.attributes || {}).map(
+                  ([key, value]: any) => (
+                    <div className={styles.traitContainer} key={key}>
+                      <p className={styles.traitName}>{value.trait_type}</p>
+                      <p className={styles.traitValue}>
+                        {value.value?.toString() || ""}
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
               {/*History*/}
-              <h3 className={styles.descriptionTitle}>History</h3>
-              <div className={styles.traitsContainer}>
-                {!loadingTransferEvents &&
-                  transferEvents?.map((event, index) => (
-                    <div key={event.transaction.transactionHash} className={styles.eventsContainer}>
-                      <div className={styles.eventContainer}>
-                        <p className={styles.traitName}>Event</p>
-                        <p className={styles.traitValue}>
-                          {
-                            // if last event in array, then it's a mint
-                            index === transferEvents.length - 1 ? "Mint" : "Transfer"
-                          }
-                        </p>
-                      </div>
+              {currListing?.listing && nft.type === "ERC721" && (
+                <>
+                  <h3 className={styles.descriptionTitle}>History</h3>
+                  <div className={styles.traitsContainer}>
+                    {!loadingTransferEvents &&
+                      transferEvents?.map((event, index) => (
+                        <div
+                          key={event.transaction.transactionHash}
+                          className={styles.eventsContainer}
+                        >
+                          <div className={styles.eventContainer}>
+                            <p className={styles.traitName}>Event</p>
+                            <p className={styles.traitValue}>
+                              {
+                                // if last event in array, then it's a mint
+                                index === transferEvents.length - 1
+                                  ? "Mint"
+                                  : "Transfer"
+                              }
+                            </p>
+                          </div>
 
-                      <div className={styles.eventContainer}>
-                        <p className={styles.traitName}>From</p>
-                        <p className={styles.traitValue}>
-                          {event.data.from?.slice(0, 4)}...
-                          {event.data.from?.slice(-2)}
-                        </p>
-                      </div>
+                          <div className={styles.eventContainer}>
+                            <p className={styles.traitName}>From</p>
+                            <p className={styles.traitValue}>
+                              {event.data.from?.slice(0, 4)}...
+                              {event.data.from?.slice(-2)}
+                            </p>
+                          </div>
 
-                      <div className={styles.eventContainer}>
-                        <p className={styles.traitName}>To</p>
-                        <p className={styles.traitValue}>
-                          {event.data.to?.slice(0, 4)}...
-                          {event.data.to?.slice(-2)}
-                        </p>
-                      </div>
+                          <div className={styles.eventContainer}>
+                            <p className={styles.traitName}>To</p>
+                            <p className={styles.traitValue}>
+                              {event.data.to?.slice(0, 4)}...
+                              {event.data.to?.slice(-2)}
+                            </p>
+                          </div>
 
-                      <div className={styles.eventContainer}>
-                        <Link className={styles.txHashArrow} href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`} target="_blank">
-                          ↗
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-              </div>
+                          <div className={styles.eventContainer}>
+                            <Link
+                              className={styles.txHashArrow}
+                              href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`}
+                              target="_blank"
+                            >
+                              ↗
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </>
+              )}
             </div>
 
           </div>
@@ -204,8 +220,13 @@ export default function TokenPage({ contractMetadata, validListings, validAuctio
             {contractMetadata && (
               <div className={styles.contractMetadataContainer}>
                 <Link href={`/collection/${contractMetadata.address}`}>
-                  <MediaRenderer src={contractMetadata.image} className={styles.collectionImage} />
-                  <p className={`${styles.collectionName}`}>{contractMetadata.name}</p>
+                  <MediaRenderer
+                    src={contractMetadata.image}
+                    className={styles.collectionImage}
+                  />
+                  <p className={`${styles.collectionName}`}>
+                    {contractMetadata.name}
+                  </p>
                 </Link>
               </div>
             )}
@@ -241,18 +262,20 @@ export default function TokenPage({ contractMetadata, validListings, validAuctio
               <div className={styles.pricingInfo}>
                 <p className={styles.label}>Price</p>
                 <div className={styles.pricingValue}>
-                  {!directListing || !auctionListing ? (
+                  {!currListing ? (
                     <Skeleton width="120" height="24" />
                   ) : (
                     <>
-                      {directListing && directListing[0] ? (
+                      {currListing.listing && currListing.type === "direct" ? (
                         <>
-                          {+directListing[0].pricePerToken / MOONEY_DECIMALS}
+                          {+currListing.listing.pricePerToken / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
-                      ) : auctionListing && auctionListing[0] ? (
+                      ) : currListing.listing &&
+                        currListing.type === "auction" ? (
                         <>
-                          {+auctionListing[0].buyoutBidAmount / MOONEY_DECIMALS}
+                          {+currListing.listing.buyoutBidAmount /
+                            MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : (
