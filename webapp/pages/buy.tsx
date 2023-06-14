@@ -53,25 +53,26 @@ export default function Buy({ validListings, validAuctions }: FilteredListingsPa
             <VerticalStar />
           </span>
         </h2>
-        <div className="flex gap-[10%] w-full py-4">
-          <div className="flex gap-2">
-            <div className="flex flex-col divide-y-2 text-left gap-1 font-bold">
-              <p>Assets</p>
-              <p>Collections</p>
+        {/*Filtering options */}
+        <div className="my-8 flex gap-6 sm:gap-8 lg:my-10 flex-col items-center sm:flex-row">
+          <div className="flex gap-6">
+            <div className="flex flex-col divide-y-2 text-left font-semibold tracking-wider">
+              <p className={`${filter.assetOrCollection !== "asset" && "opacity-60"} text-yellow-200 py-1 transition-all duration-150`}>Assets</p>
+              <p className={`text-orange-600 py-1`}><span className={`${filter.assetOrCollection !== "collection" && "opacity-60"} transition-all duration-150`}>Collections</span></p>
             </div>
             <div
-              className={`flex w-8 h-14 ${
+              className={`flex w-8 h-16 ${
                 filter.assetOrCollection === "asset" ? "bg-moon-gold" : "bg-moon-secondary"
               } rounded-full ease-in-ease-out duration-150`}
               onClick={assetTypeChange}
             >
               <button
-                className={`${filter.assetOrCollection === "collection" && "translate-y-6"} w-8 h-8 bg-white rounded-full ease-in-ease-out duration-150`}
+                className={`${filter.assetOrCollection === "collection" && "translate-y-8"} w-9 h-9 bg-white rounded-full ease-in-ease-out duration-150`}
               ></button>
             </div>
           </div>
           <select
-            className="font-bold rounded-sm pl-2 w-[200px]"
+            className="font-bold rounded-sm pl-3 mt-3 py-2 w-[230px]"
             onChange={(e) => filterTypeChange(e)}
             ref={filterSelectionRef}
             defaultValue={router.query.filterType || "all"}

@@ -37,7 +37,7 @@ export function Navbar() {
         </div>
 
         {/*Mobile menu*/}
-        <div className="flex gap-4 sm:items-center md:hidden">
+        <div className="flex gap-4 sm:items-center md:hidden z-50">
           {/*Logo upon activation */}
           {address && (
             <div className="absolute sm: top-16 right-2">
