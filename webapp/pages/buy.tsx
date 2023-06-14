@@ -1,16 +1,12 @@
 import { initSDK } from "../lib/thirdweb";
 import { MARKETPLACE_ADDRESS } from "../const/config";
-import {
-  getAllValidAuctions,
-  getAllValidListings,
-  useAllCollections,
-} from "../lib/marketplace-v3";
+import { getAllValidAuctions, getAllValidListings, useAllCollections } from "../lib/marketplace-v3";
+import CollectionPreview from "../components/Collection/CollectionPreview";
 
 import { DirectListing, AuctionListing } from "../lib/utils";
 import { useEffect, useRef, useState } from "react";
 import VerticalStar from "../assets/VerticalStar";
 import { useFilter } from "../lib/marketplace-subgraph";
-import CollectionGrid from "../components/Collection/CollectionGrid";
 import AssetPreview from "../components/Collection/AssetPreview";
 
 interface FilteredListingsPageProps {
@@ -20,29 +16,21 @@ interface FilteredListingsPageProps {
   assetType: string;
 }
 
-export default function Buy({
-  validListings,
-  validAuctions,
-  filterType,
-  assetType,
-}: FilteredListingsPageProps) {
+export default function Buy({ validListings, validAuctions, filterType, assetType }: FilteredListingsPageProps) {
   const filterSelectionRef: any = useRef();
   const [filter, setFilter] = useState<any>({
     type: filterType,
     assetOrCollection: assetType,
   });
 
-  const { collections: filteredCollections, assets: filteredAssets } =
-    useFilter(filter, validListings, validAuctions);
+  const { collections: filteredCollections, assets: filteredAssets } = useFilter(filter, validListings, validAuctions);
 
   function filterTypeChange(e: any) {
     setFilter({ ...filter, type: e.target.value });
   }
 
   function assetTypeChange() {
-    filter.assetOrCollection === "asset"
-      ? setFilter({ ...filter, assetOrCollection: "collection" })
-      : setFilter({ ...filter, assetOrCollection: "asset" });
+    filter.assetOrCollection === "asset" ? setFilter({ ...filter, assetOrCollection: "collection" }) : setFilter({ ...filter, assetOrCollection: "asset" });
   }
 
   useEffect(() => {
@@ -68,53 +56,40 @@ export default function Buy({
               <p>Collections</p>
             </div>
             <div
-              className={`flex w-8 h-14 ${
-                filter.assetOrCollection === "asset"
-                  ? "bg-[#D7594F]"
-                  : "bg-[blue]"
-              } rounded-full ease-in-ease-out duration-150`}
+              className={`flex w-8 h-14 ${filter.assetOrCollection === "asset" ? "bg-[#D7594F]" : "bg-[blue]"} rounded-full ease-in-ease-out duration-150`}
               onClick={assetTypeChange}
             >
               <button
-                className={`${
-                  filter.assetOrCollection === "collection" && "translate-y-6"
-                } w-8 h-8 bg-white rounded-full ease-in-ease-out duration-150`}
+                className={`${filter.assetOrCollection === "collection" && "translate-y-6"} w-8 h-8 bg-white rounded-full ease-in-ease-out duration-150`}
               ></button>
             </div>
           </div>
-          <select
-            className=""
-            onChange={(e) => filterTypeChange(e)}
-            ref={filterSelectionRef}
-          >
+          <select className="" onChange={(e) => filterTypeChange(e)} ref={filterSelectionRef}>
             <option value="all">All</option>
             <option value="trending">Trending</option>
-            {filter.assetOrCollection === "asset" && (
-              <option value="expiring">Expiring Soon</option>
-            )}
+            {filter.assetOrCollection === "asset" && <option value="expiring">Expiring Soon</option>}
           </select>
         </div>
-        {/*Collection Grid with coollection preview components inside*/}
-        {filter.assetOrCollection === "collection" && (
-          <>
-            <p className="mt-[14px] lg:mt-6">Pick from a collection</p>
-            <CollectionGrid collections={filteredCollections} />
-          </>
-        )}
-        {filter.assetOrCollection === "asset" && (
-          <>
-            <p className="mt-[14px] lg:mt-6">Pick an asset</p>
-            {filteredAssets?.map(
-              (l: DirectListing | AuctionListing, i: number) => (
-                <AssetPreview
-                  key={`filtered-asset-preview-${i}`}
-                  contractAddress={l.assetContract}
-                  tokenId={l.tokenId}
-                />
-              )
-            )}
-          </>
-        )}
+
+        <p className="mt-[14px] lg:mt-6 text-xl opacity-80">Pick {filter.assetOrCollection === "collection" ? "from a collection" : "an asset"}</p>
+        <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
+          {/*Collections*/}
+          {filter.assetOrCollection === "collection" && (
+            <>
+              {filteredCollections &&
+                filteredCollections[0] &&
+                filteredCollections.map((c: any, i: number) => <CollectionPreview key={i + c.assetContract} collection={c} />)}
+            </>
+          )}
+          {/*Assets*/}
+          {filter.assetOrCollection === "asset" && (
+            <>
+              {filteredAssets?.map((l: DirectListing | AuctionListing, i: number) => (
+                <AssetPreview key={`filtered-asset-preview-${i}`} contractAddress={l.assetContract} tokenId={l.tokenId} />
+              ))}
+            </>
+          )}
+        </section>
       </div>
     </div>
   );
@@ -125,9 +100,7 @@ export async function getServerSideProps({ query }: any) {
   const sdk = initSDK();
   const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
   const validListings: DirectListing[] = await getAllValidListings(marketplace);
-  const validAuctions: AuctionListing[] = await getAllValidAuctions(
-    marketplace
-  );
+  const validAuctions: AuctionListing[] = await getAllValidAuctions(marketplace);
   return {
     props: {
       validListings,
