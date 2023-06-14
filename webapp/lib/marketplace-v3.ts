@@ -455,36 +455,6 @@ export function useAssetStats(
       contractAddress
     );
 
-  const floorPrice = useMemo(() => {
-    if (!assetListings || !assetAuctions || !contract) return;
-    return +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
-  }, [assetListings, assetAuctions, contract]);
-
-  const owners = useMemo(() => {
-    if (!contract) return;
-    const extensions = getAllDetectedFeatureNames(contract?.abi);
-    (async () => {
-      if (extensions[0] !== "ERC1155") {
-        const owners = await contract.erc721.totalClaimedSupply();
-        return owners.toNumber();
-      }
-    })();
-  }, [contract]);
-
-  const supply = useMemo(() => {
-    if (!contract) return;
-    const extensions = getAllDetectedFeatureNames(contract?.abi);
-    (async () => {
-      let supply;
-      if (extensions[0] !== "ERC1155") {
-        supply = await contract.erc721.totalCount();
-      } else {
-        supply = await contract.erc1155.totalSupply(tokenId);
-      }
-      return supply.toNumber();
-    })();
-  }, [contract]);
-
   useEffect(() => {
     let floorPrice, owners, supply;
     if (assetListings && assetAuctions && contract) {
@@ -493,14 +463,18 @@ export function useAssetStats(
       const extensions = getAllDetectedFeatureNames(contract?.abi);
       (async () => {
         if (extensions[0] !== "ERC1155") {
-          owners = await contract.erc721.totalClaimedSupply();
+          const allOwners = await contract.erc721.getAllOwners();
+          console.log(allOwners);
+          owners = new Set(
+            allOwners.map((o: any) => o.tokenId === tokenId && o.owner)
+          ).size;
           supply = await contract.erc721.totalCount();
         } else {
           supply = await contract.erc1155.totalSupply(tokenId);
         }
         setStats({
           floorPrice: floorPrice || 0,
-          owners: owners?.toNumber() || 0,
+          owners: owners || 0,
           supply: supply?.toNumber() || 0,
         });
       })();
