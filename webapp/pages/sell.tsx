@@ -76,7 +76,10 @@ export default function Sell() {
                     className="rounded-md hover:drop-shadow-[0_10px_20px_#d1d1d1] ease-in duration-300"
                     metadata={nft?.metadata}
                   />
-                  <p>{nft?.quantityOwned ? "x" + nft.quantityOwned : "x1"}</p>
+                  <p>{nft.collectionName}</p>
+                  <p>{nft.metadata.name}</p>
+                  <p>{nft.type}</p>
+                  {nft.type === "ERC1155" && <p>{"x" + nft.quantityOwned}</p>}
                 </div>
               ))}
           </div>

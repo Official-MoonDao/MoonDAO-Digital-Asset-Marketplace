@@ -397,13 +397,17 @@ export function useUserAssets(
             );
           }
 
+          const collectionName = await contract.call("name");
+
           ownedAssets = ownedAssets.map((asset: any) => ({
             ...asset,
             collection,
+            collectionName,
           }));
 
           ownedAssets.length > 0 &&
             setAssets((prev: any) => [...prev, ...ownedAssets]);
+          console.log(assets);
         });
       });
     }
