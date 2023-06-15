@@ -83,7 +83,7 @@ export default function TokenPage({
     useContractEvents(nftCollection, "Transfer", {
       queryFilter: {
         filters: {
-          tokenId: nft?.metadata.id,
+          tokenId: tokenId,
         },
         order: "desc",
       },
@@ -91,14 +91,6 @@ export default function TokenPage({
   async function createBidOrOffer() {
     let txResult;
     if (!currListing) return;
-    if (!bidValue) {
-      toast(`Please enter a bid value`, {
-        icon: "❌",
-        style: toastStyle,
-        position: "bottom-center",
-      });
-      return;
-    }
 
     try {
       if (currListing.type === "auction") {
@@ -113,8 +105,8 @@ export default function TokenPage({
         router.reload();
       }, 5000);
       return txResult;
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      toast.error(`Bid failed! Reason: ${err.message}`);
     }
   }
 
@@ -474,8 +466,10 @@ export default function TokenPage({
                             </div>
                             <input
                               className={styles.input}
-                              defaultValue={
-                                currListing.type === "auction"
+                              placeholder={
+                                currListing.type === "auction" && winningBid > 0
+                                  ? winningBid
+                                  : currListing.listing
                                   ? +currListing.listing.minimumBidAmount /
                                     MOONEY_DECIMALS
                                   : 0
@@ -491,21 +485,6 @@ export default function TokenPage({
                               contractAddress={MARKETPLACE_ADDRESS}
                               action={async () => await createBidOrOffer()}
                               className={`${styles.btn} connect-button`}
-                              onSuccess={() => {
-                                toast(`Bid success!`, {
-                                  icon: "✅",
-                                  style: toastStyle,
-                                  position: "bottom-center",
-                                });
-                              }}
-                              onError={(e) => {
-                                console.log(e);
-                                toast(`Bid failed! Reason: ${e.message}`, {
-                                  icon: "❌",
-                                  style: toastStyle,
-                                  position: "bottom-center",
-                                });
-                              }}
                             >
                               Place bid
                             </Web3Button>

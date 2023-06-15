@@ -118,8 +118,6 @@ export default function Sell() {
                 contractAddress={selectedNft.collection}
                 router={router}
                 walletAddress={address}
-                validListings={validListings}
-                validAuctions={validAuctions}
               />
             </div>
           </div>

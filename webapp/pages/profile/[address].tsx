@@ -1,4 +1,4 @@
-import { useAddress } from "@thirdweb-dev/react";
+import { useAddress, useContract } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import Container from "../../components/Container/Container";
@@ -6,26 +6,30 @@ import Skeleton from "../../components/Skeleton/Skeleton";
 import { MARKETPLACE_ADDRESS } from "../../const/config";
 import styles from "../../styles/Profile.module.css";
 import { GetServerSideProps } from "next";
-import { initSDK } from "../../lib/thirdweb";
 import {
   getAllAuctions,
   getAllValidListings,
   useListingsAndAuctionsForWallet,
 } from "../../lib/marketplace-v3";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
+import { AuctionListing, DirectListing } from "../../lib/utils";
 
-export default function ProfilePage({
-  validListings,
-  allAuctions,
-  walletAddress,
-}: any) {
+export default function ProfilePage({ walletAddress }: any) {
   const router = useRouter();
   const address = useAddress();
-  const [userIsOwner, setUserIsOwner] = useState<boolean>(false);
+  const [userIsOwner, setUserIsOwner] = useState<boolean>(true);
+
+  const { contract: marketplace } = useContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
+  const [loadingListings, setLoadingListings] = useState<boolean>(true);
+  const [validListings, setValidListings] = useState<DirectListing[]>([]);
+  const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
 
   const { listings, auctions } = useListingsAndAuctionsForWallet(
     validListings,
-    allAuctions,
+    validAuctions,
     walletAddress
   );
   const [tab, setTab] = useState<"listings" | "auctions">("listings");
@@ -36,6 +40,19 @@ export default function ProfilePage({
         setUserIsOwner(true);
     }
   }, [address, router]);
+
+  useEffect(() => {
+    if (marketplace) {
+      getAllValidListings(marketplace).then((listings: DirectListing[]) => {
+        setValidListings(listings);
+        setLoadingListings(false);
+      });
+      getAllAuctions(marketplace).then((auctions: AuctionListing[]) => {
+        setValidAuctions(auctions);
+        setLoadingListings(false);
+      });
+    }
+  }, [marketplace]);
 
   return (
     <Container maxWidth="lg" className="">
@@ -91,7 +108,11 @@ export default function ProfilePage({
           tab === "listings" ? styles.activeTabContent : styles.tabContent
         }`}
       >
-        <ProfileListingGrid listings={listings} />
+        {marketplace && !loadingListings ? (
+          <ProfileListingGrid listings={listings} />
+        ) : (
+          <Skeleton />
+        )}
       </div>
 
       <div
@@ -99,7 +120,11 @@ export default function ProfilePage({
           tab === "auctions" ? styles.activeTabContent : styles.tabContent
         }`}
       >
-        <ProfileListingGrid listings={auctions} type="auction" />
+        {marketplace && !loadingListings ? (
+          <ProfileListingGrid listings={auctions} type="auction" />
+        ) : (
+          <Skeleton />
+        )}
       </div>
     </Container>
   );
@@ -107,15 +132,8 @@ export default function ProfilePage({
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const walletAddress = params?.address;
-  const sdk = initSDK();
-  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
-  const validListings = await getAllValidListings(marketplace);
-  const allAuctions = await getAllAuctions(marketplace);
-
   return {
     props: {
-      validListings,
-      allAuctions,
       walletAddress,
     },
   };
