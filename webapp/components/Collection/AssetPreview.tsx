@@ -3,6 +3,7 @@ import LogoSmall from "../../assets/LogoSmall";
 import { useRouter } from "next/router";
 import { useAssetStats } from "../../lib/marketplace-v3";
 import Skeleton from "../Skeleton/Skeleton";
+import Image from "next/image";
 export default function AssetPreview({
   contractAddress,
   tokenId,
@@ -34,10 +35,12 @@ export default function AssetPreview({
             router.push(`/collection/${contractAddress}/${tokenId}`)
           }
         >
-          <img
+          <Image
             className="object-cover w-[335px] h-[275px] object-center group-hover:scale-110 transition-all duration-200"
             src={`${nft.metadata.image}`}
             alt={`${nft.metadata.name} image.`}
+            width={335}
+            height={275}
           />
         </button>
       </div>

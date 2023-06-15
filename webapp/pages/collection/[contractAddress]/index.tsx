@@ -13,6 +13,7 @@ import { AuctionListing, DirectListing } from "../../../lib/utils";
 import { useEffect, useState } from "react";
 import { useContract, useMetadata } from "@thirdweb-dev/react";
 import Skeleton from "../../../components/Skeleton/Skeleton";
+import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 
 export default function Collection({ contractAddress }: any) {
   //Marketplace data
@@ -23,6 +24,7 @@ export default function Collection({ contractAddress }: any) {
   const assets = useAllAssets(validListings, validAuctions, contractAddress);
 
   //NFT Collection Data
+  const [collectionType, setCollectionType] = useState<string>("");
   const { contract: collectionContract }: any = useContract(contractAddress);
   const { data: metadata } = useMetadata(collectionContract);
 
@@ -32,13 +34,17 @@ export default function Collection({ contractAddress }: any) {
     collectionContract
   );
   useEffect(() => {
-    if (marketplace) {
+    if (marketplace && collectionContract) {
       getAllValidListings(marketplace).then((listings: DirectListing[]) => {
         setValidListings(listings);
       });
       getAllValidAuctions(marketplace).then((auctions: AuctionListing[]) => {
         setValidAuctions(auctions);
       });
+
+      //set collection type
+      const extensions = getAllDetectedFeatureNames(collectionContract.abi);
+      setCollectionType(extensions[0]);
     }
   }, [marketplace]);
 
@@ -91,12 +97,14 @@ export default function Collection({ contractAddress }: any) {
               </span>
             </p>
             {/*Supply*/}
-            <p className="w-[149px] xl:w-[189px] rounded-[3px] bg-[#301B3D] py-[6px] xl:py-2 px-[10px] xl:px-3 flex items-center justify-between">
-              Supply{" "}
-              <span className="max-w-[60px] truncate xl:max-w-[90px]">
-                {supply}
-              </span>
-            </p>
+            {collectionType !== "ERC1155" && (
+              <p className="w-[149px] xl:w-[189px] rounded-[3px] bg-[#301B3D] py-[6px] xl:py-2 px-[10px] xl:px-3 flex items-center justify-between">
+                Supply{" "}
+                <span className="max-w-[60px] truncate xl:max-w-[90px]">
+                  {supply}
+                </span>
+              </p>
+            )}
           </div>
           <div className="mt-8 xl:mt-9 max-w-[320px] xl:max-w-[420px]">
             {metadata ? (
