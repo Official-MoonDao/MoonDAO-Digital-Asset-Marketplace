@@ -10,7 +10,7 @@ export default function CollectionShowcase({
   return (
     <div className="mt-10 md:mt-12 lg:mt-32 2xl:mt-48 m flex flex-col items-center w-full">
       <SectionHeader title="Popular collections" />
-      <div className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
+      <div className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14 items-center">
         {collections &&
           collections.map((collection, index) => (
             <CollectionThumbnail

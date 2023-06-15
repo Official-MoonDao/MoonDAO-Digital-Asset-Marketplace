@@ -17,7 +17,12 @@ import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../../util/toastConfig";
-import { getAllValidAuctions, getAllValidListings, getAllValidOffers, useListingsAndAuctionsForTokenId } from "../../../lib/marketplace-v3";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  getAllValidOffers,
+  useListingsAndAuctionsForTokenId,
+} from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
 import {
   ETHERSCAN_URL,
@@ -74,10 +79,13 @@ export default function TokenPage({
   //NFT data
   const { data: nft }: any = useNFT(nftCollection, tokenId);
   // Load historical transfer events: TODO - more event types like sale
-  const { data: transferEvents, isLoading: loadingTransferEvents } = useContractEvents(nftCollection, "Transfer", {
-    queryFilter: {
-      filters: {
-        tokenId: nft?.metadata.id,
+  const { data: transferEvents, isLoading: loadingTransferEvents } =
+    useContractEvents(nftCollection, "Transfer", {
+      queryFilter: {
+        filters: {
+          tokenId: nft?.metadata.id,
+        },
+        order: "desc",
       },
     });
   async function createBidOrOffer() {
@@ -94,7 +102,10 @@ export default function TokenPage({
 
     try {
       if (currListing.type === "auction") {
-        txResult = await marketplace?.englishAuctions.makeBid(currListing.listing.auctionId, bidValue);
+        txResult = await marketplace?.englishAuctions.makeBid(
+          currListing.listing.auctionId,
+          bidValue
+        );
       } else {
         throw new Error("No valid auction listing found for this NFT");
       }
@@ -111,10 +122,18 @@ export default function TokenPage({
     let txResult;
     try {
       if (currListing.type === "direct") {
-        txResult = await marketplace.directListings.buyFromListing(currListing.listing.listingId, 1, address);
+        txResult = await marketplace.directListings.buyFromListing(
+          currListing.listing.listingId,
+          1,
+          address
+        );
       } else {
-        txResult = await marketplace.englishAuctions.buyoutAuction(currListing.listing.auctionId);
-        await marketplace.englishAuctions.executeSale(currListing.listing.auctionId);
+        txResult = await marketplace.englishAuctions.buyoutAuction(
+          currListing.listing.auctionId
+        );
+        await marketplace.englishAuctions.executeSale(
+          currListing.listing.auctionId
+        );
       }
       setTimeout(() => {
         router.reload();
@@ -142,7 +161,9 @@ export default function TokenPage({
   ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListing[0] || auctionListing[0]) {
-      const listing = directListing[0] ? { type: "direct", listing: directListing[0] } : { type: "auction", listing: auctionListing[0] };
+      const listing = directListing[0]
+        ? { type: "direct", listing: directListing[0] }
+        : { type: "auction", listing: auctionListing[0] };
       setCurrListing(listing);
     }
   }, [nft, directListing, auctionListing]);
@@ -152,7 +173,9 @@ export default function TokenPage({
     //set winning bid if auction
     if (!loadingContract && currListing.type === "auction") {
       (async () => {
-        const winningBid = await marketplace?.englishAuctions?.getWinningBid(currListing.listing.auctionId);
+        const winningBid = await marketplace?.englishAuctions?.getWinningBid(
+          currListing.listing.auctionId
+        );
         setWinningBid(winningBid);
       })();
     }
@@ -169,11 +192,13 @@ export default function TokenPage({
       <Container maxWidth="lg" className="">
         <div className={styles.container}>
           <div className={styles.metadataContainer}>
-            <ThirdwebNftMedia metadata={nft?.metadata} className={styles.image} />
+            <ThirdwebNftMedia
+              metadata={nft?.metadata}
+              className={styles.image}
+            />
 
             {/*Description, traits*/}
             <div className={styles.descriptionContainer}>
-              
               <h3 className={styles.descriptionTitle}>Description</h3>
               <p className={styles.description}>{nft.metadata.description}</p>
 
@@ -245,7 +270,6 @@ export default function TokenPage({
                 </>
               )}
             </div>
-
           </div>
 
           {/*Collection title, image and description*/}
@@ -269,7 +293,10 @@ export default function TokenPage({
             </div>
 
             {currListing?.listing && nft.type === "ERC721" && (
-              <Link href={`/profile/${currListing?.listing.listingCreator}`} className={styles.nftOwnerContainer}>
+              <Link
+                href={`/profile/${currListing?.listing.listingCreator}`}
+                className={styles.nftOwnerContainer}
+              >
                 {/* Random linear gradient circle shape */}
                 <div
                   className={styles.nftOwnerImage}
@@ -326,18 +353,29 @@ export default function TokenPage({
                       <>
                         {auctionListing && auctionListing[0] && (
                           <>
-                            <p className={styles.label} style={{ marginTop: 12 }}>
+                            <p
+                              className={styles.label}
+                              style={{ marginTop: 12 }}
+                            >
                               Bids starting from
                             </p>
 
                             <div className={styles.pricingValue}>
-                              {+auctionListing[0].minimumBidAmount / MOONEY_DECIMALS}
+                              {+auctionListing[0].minimumBidAmount /
+                                MOONEY_DECIMALS}
                               {" " + "MOONEY"}
                             </div>
-                            <p className={styles.label} style={{ marginTop: 12 }}>
+                            <p
+                              className={styles.label}
+                              style={{ marginTop: 12 }}
+                            >
                               {"Winning Bid"}
                             </p>
-                            <div className={styles.pricingValue}>{winningBid && +BigConvert(winningBid[2]) / MOONEY_DECIMALS + " MOONEY"}</div>
+                            <div className={styles.pricingValue}>
+                              {winningBid &&
+                                +BigConvert(winningBid[2]) / MOONEY_DECIMALS +
+                                  " MOONEY"}
+                            </div>
                           </>
                         )}
                       </>
@@ -355,10 +393,17 @@ export default function TokenPage({
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
                         <div
-                          className={`flex flex-col p-2 ${currListing.listing.listingId === l.listingId && "bg-moon-gold"}`}
+                          className={`flex flex-col p-2 ${
+                            currListing.listing.listingId === l.listingId &&
+                            "bg-moon-gold"
+                          }`}
                           key={`erc-1155-direct-listing-${i}`}
                         >
-                          <Listing type="direct" listing={l} setCurrListing={setCurrListing} />
+                          <Listing
+                            type="direct"
+                            listing={l}
+                            setCurrListing={setCurrListing}
+                          />
                         </div>
                       ))}
                   </div>
@@ -370,10 +415,17 @@ export default function TokenPage({
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
                         <div
-                          className={`flex flex-col p-2 ${currListing.listing.auctionId === a.auctionId && "bg-moon-gold"}`}
+                          className={`flex flex-col p-2 ${
+                            currListing.listing.auctionId === a.auctionId &&
+                            "bg-moon-gold"
+                          }`}
                           key={`erc-1155-auction-listing-${i}`}
                         >
-                          <Listing type="auction" listing={a} setCurrListing={setCurrListing} />
+                          <Listing
+                            type="auction"
+                            listing={a}
+                            setCurrListing={setCurrListing}
+                          />
                         </div>
                       ))}
                   </div>

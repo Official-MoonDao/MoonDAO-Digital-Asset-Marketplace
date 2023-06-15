@@ -47,7 +47,7 @@ export default function Buy({ validListings, validAuctions }: FilteredListingsPa
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
       <div className="flex flex-col items-center md:items-start">
         {/*Title*/}
-        <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-secondary to-indigo-100">
+        <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">
           Buy NFTs
           <span className="ml-2 lg:ml-4">
             <VerticalStar />
@@ -58,11 +58,11 @@ export default function Buy({ validListings, validAuctions }: FilteredListingsPa
           <div className="flex gap-6">
             <div className="flex flex-col divide-y-2 text-left font-semibold tracking-wider">
               <p className={`${filter.assetOrCollection !== "asset" && "opacity-60"} text-yellow-200 py-1 transition-all duration-150`}>Assets</p>
-              <p className={`text-orange-600 py-1`}><span className={`${filter.assetOrCollection !== "collection" && "opacity-60"} transition-all duration-150`}>Collections</span></p>
+              <p className={`text-indigo-300 py-1`}><span className={`${filter.assetOrCollection !== "collection" && "opacity-60"} transition-all duration-150`}>Collections</span></p>
             </div>
             <div
               className={`flex w-8 h-16 ${
-                filter.assetOrCollection === "asset" ? "bg-moon-gold" : "bg-moon-secondary"
+                filter.assetOrCollection === "asset" ? "bg-moon-gold" : "bg-indigo-600"
               } rounded-full ease-in-ease-out duration-150`}
               onClick={assetTypeChange}
             >
@@ -72,7 +72,7 @@ export default function Buy({ validListings, validAuctions }: FilteredListingsPa
             </div>
           </div>
           <select
-            className="font-bold rounded-sm pl-3 mt-3 py-2 w-[230px]"
+            className="font-bold rounded-sm px-3 mt-3 py-2 w-[230px] focus:ring ring-indigo-200"
             onChange={(e) => filterTypeChange(e)}
             ref={filterSelectionRef}
             defaultValue={router.query.filterType || "all"}
