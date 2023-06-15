@@ -362,23 +362,39 @@ export function useUserAssets(
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
             ownedAssets = await contract.erc1155.getOwned(walletAddress);
-            //get listing count for each asset
-          } else {
-            ownedAssets = await contract.erc721.getOwned(walletAddress);
-            const hasListing = await ownedAssets.some(
-              async (asset: any) =>
-                (await profileListings.find(
+            //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
+            ownedAssets = ownedAssets.map((asset: any) => {
+              const quantity =
+                asset.quantityOwned -
+                profileListings.filter(
                   (listing: any) =>
                     listing.assetContract === collection &&
                     listing.tokenId === asset.metadata.id
-                )) ||
-                (await profileAuctions.some(
+                ).length;
+
+              //Only add the asset to the array if the quanity is greater than 0
+              if (quantity <= 0) return null;
+              return {
+                ...asset,
+                collection,
+                quantityOwned: quantity,
+              };
+            });
+          } else {
+            ownedAssets = await contract.erc721.getOwned(walletAddress);
+            ownedAssets = ownedAssets.filter(
+              (asset: any) =>
+                !profileListings.find(
+                  (listing: any) =>
+                    listing.assetContract === collection &&
+                    listing.tokenId === asset.metadata.id
+                ) &&
+                !profileAuctions.find(
                   (auction: any) =>
                     auction.assetContract === collection &&
                     auction.tokenId === asset.metadata.id
-                ))
+                )
             );
-            if (hasListing) return;
           }
 
           ownedAssets = ownedAssets.map((asset: any) => ({
