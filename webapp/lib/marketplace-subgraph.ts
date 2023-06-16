@@ -153,7 +153,7 @@ export function useFilter(
           : filteredListings
       );
     }
-  }, [type]);
+  }, [validListings, validAuctions, type]);
 
   return { collections, assets };
 }

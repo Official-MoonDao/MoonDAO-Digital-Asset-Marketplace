@@ -268,7 +268,7 @@ export default function TokenPage({
           <div className={styles.listingContainer}>
             {contractMetadata && (
               <div className={styles.contractMetadataContainer}>
-                <Link href={`/collection/${contractMetadata.address}`}>
+                <Link href={`/collection/${contractAddress}`}>
                   <MediaRenderer
                     src={contractMetadata.image}
                     className={styles.collectionImage}
@@ -364,9 +364,25 @@ export default function TokenPage({
                               {"Winning Bid"}
                             </p>
                             <div className={styles.pricingValue}>
-                              {winningBid &&
-                                +BigConvert(winningBid[2]) / MOONEY_DECIMALS +
-                                  " MOONEY"}
+                              {winningBid
+                                ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS +
+                                  " MOONEY"
+                                : "No bids yet"}
+                            </div>
+                            <p
+                              className={styles.label}
+                              style={{ marginTop: 12 }}
+                            >
+                              {"Expiration"}
+                            </p>
+                            <div className={styles.pricingValue}>
+                              {new Date(
+                                +auctionListing[0].endTimestamp * 1000
+                              ).toLocaleDateString() +
+                                " @ " +
+                                new Date(
+                                  +auctionListing[0].endTimestamp * 1000
+                                ).toLocaleTimeString()}
                             </div>
                           </>
                         )}
