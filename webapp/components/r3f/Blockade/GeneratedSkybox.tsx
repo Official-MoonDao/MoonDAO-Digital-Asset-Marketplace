@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
-import { useGeneration } from "../../lib/blockade-labs";
+import { useGeneration } from "../../../lib/blockade-labs";
 import { useEffect, useRef, useState } from "react";
-import ThreeText from "./ThreeText";
+import ThreeText from "../ThreeText";
 import { useFrame } from "@react-three/fiber";
-export default function Skybox({ generation }: any) {
+export default function GeneratedSkybox({ generation }: any) {
   const [currGeneration, setCurrGeneration] = useState<any>({});
 
   const { data: generationData, isLoading: loadingGeneration }: any =

@@ -66,22 +66,27 @@ export default function Sell() {
           <p>Select which NFT you&rsquo;d like to sell below.</p>
           <div className="flex flex-wrap gap-[5%] mt-[5%]">
             {userAssets[0]?.metadata?.id &&
-              userAssets.map((nft: any, i: number) => (
-                <div
-                  className="hover:translate-y-[-4%] duration-300 ease-in my-[2.5%] "
-                  key={`userNFT-${i}`}
-                  onClick={() => setSelectedNft(nft)}
-                >
-                  <ThirdwebNftMedia
-                    className="rounded-md hover:drop-shadow-[0_10px_20px_#d1d1d1] ease-in duration-300"
-                    metadata={nft?.metadata}
-                  />
-                  <p>{nft.collectionName}</p>
-                  <p>{nft.metadata.name}</p>
-                  <p>{nft.type}</p>
-                  {nft.type === "ERC1155" && <p>{"x" + nft.quantityOwned}</p>}
-                </div>
-              ))}
+              userAssets.map(
+                (nft: any, i: number) =>
+                  nft?.metadata && (
+                    <div
+                      className="hover:translate-y-[-4%] duration-300 ease-in my-[2.5%] "
+                      key={`userNFT-${i}`}
+                      onClick={() => setSelectedNft(nft)}
+                    >
+                      <ThirdwebNftMedia
+                        className="rounded-md hover:drop-shadow-[0_10px_20px_#d1d1d1] ease-in duration-300"
+                        metadata={nft?.metadata}
+                      />
+                      <p>{nft.collectionName}</p>
+                      <p>{nft.metadata?.name}</p>
+                      <p>{nft?.type}</p>
+                      {nft.type === "ERC1155" && (
+                        <p>{"x" + nft.quantityOwned}</p>
+                      )}
+                    </div>
+                  )
+              )}
           </div>
         </>
       ) : (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createSkybox, useStyles } from "../../lib/blockade-labs";
+import { createSkybox, useStyles } from "../../../lib/blockade-labs";
 import Scene from "./Scene";
 
 export function SkyboxGenerator() {
