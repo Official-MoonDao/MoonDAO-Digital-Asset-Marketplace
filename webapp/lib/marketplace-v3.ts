@@ -413,7 +413,6 @@ export function useUserAssets(
 
           ownedAssets.length > 0 &&
             setAssets((prev: any) => [...prev, ...ownedAssets]);
-          console.log(assets);
         });
       });
     }
@@ -441,27 +440,29 @@ export function useClaimableAuction(
 
 function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
   //get floor price for validListings
-  const listingFloor = listings[0]
-    ? listings.reduce((acc: any, listing: any) => {
-        if (!acc) return listing.pricePerToken;
-        if (listing.pricePerToken < acc) return listing.pricePerToken;
-        return acc;
-      }).pricePerToken
-    : 0;
+  const listingFloor =
+    listings && listings[0]
+      ? listings.reduce((acc: any, listing: any) => {
+          if (!acc) return listing.pricePerToken;
+          if (listing.pricePerToken < acc) return listing.pricePerToken;
+          return acc;
+        }).pricePerToken
+      : 0;
 
   //get floor price for validAuctions
-  const auctionFloor = auctions[0]
-    ? auctions.reduce((acc: any, auction: any) => {
-        if (!acc) return auction.buyoutBidAmount;
-        if (auction.buyout < acc) return auction.buyoutBidAmount;
-        return acc;
-      }).buyoutBidAmount
-    : 0;
+  const auctionFloor =
+    auctions && auctions[0]
+      ? auctions.reduce((acc: any, auction: any) => {
+          if (!acc) return auction.buyoutBidAmount;
+          if (auction.buyout < acc) return auction.buyoutBidAmount;
+          return acc;
+        }).buyoutBidAmount
+      : 0;
 
   //true floor price for asset
   if (listingFloor === 0) return auctionFloor;
   if (auctionFloor === 0) return listingFloor;
-  return listingFloor < auctionFloor ? listingFloor : auctionFloor;
+  return +listingFloor < +auctionFloor ? listingFloor : auctionFloor;
 }
 
 export function useAssetStats(
@@ -535,7 +536,8 @@ export function useCollectionStats(
         validListings[0] &&
         validListings?.filter(
           (l: DirectListing) =>
-            l.assetContract === collectionContract.getAddress()
+            l.assetContract.toLowerCase() ===
+            collectionContract.getAddress().toLowerCase()
         );
       setCollectionListings(filteredListings);
     }
@@ -544,7 +546,8 @@ export function useCollectionStats(
         validAuctions[0] &&
         validAuctions?.filter(
           (a: AuctionListing) =>
-            a.assetContract === collectionContract.getAddress()
+            a.assetContract.toLowerCase() ===
+            collectionContract.getAddress().toLowerCase()
         );
       setCollectionAuctions(filteredAuctions);
     }
@@ -552,16 +555,19 @@ export function useCollectionStats(
 
   //Get stats
   useEffect(() => {
-    if (collectionContract && collectionListings && collectionAuctions) {
+    if (collectionContract && (collectionListings || collectionAuctions)) {
       const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
-      const listed = collectionListings.length + collectionAuctions.length;
+      const listed =
+        collectionListings?.length && collectionAuctions?.length
+          ? collectionListings?.length + collectionAuctions?.length
+          : collectionListings?.length || collectionAuctions?.length;
       let supply: any;
       (async () => {
         const extensions = getAllDetectedFeatureNames(collectionContract?.abi);
-        if (extensions[0] !== "ERC1155") {
-          supply = await collectionContract.erc721.totalCount();
-        } else {
+        if (extensions[0] === "ERC1155") {
           supply = await collectionContract.erc1155.totalCount();
+        } else {
+          supply = await collectionContract.erc721.totalCount();
         }
         setStats({
           floorPrice: +floorPrice / MOONEY_DECIMALS,

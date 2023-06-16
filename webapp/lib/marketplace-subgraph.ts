@@ -137,13 +137,13 @@ export function useFilter(
 
   useEffect(() => {
     if (type === "all") {
-      const allListings =
-        !validListings[0] && !validAuctions[0]
-          ? []
-          : !validListings[0]
+      setFilteredAssets(
+        validAuctions[0] && validListings[0]
+          ? [...validListings, ...validAuctions]
+          : validAuctions[0]
           ? validAuctions
-          : validListings;
-      setFilteredAssets(allListings);
+          : validListings
+      );
     }
     if (type === "trending") {
       queryTrending(validListings, validAuctions).then(
