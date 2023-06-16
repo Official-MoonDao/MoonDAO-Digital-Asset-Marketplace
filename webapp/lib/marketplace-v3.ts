@@ -367,16 +367,16 @@ export function useUserAssets(
             ownedAssets = ownedAssets.map((asset: any) => {
               const quantity =
                 asset.quantityOwned -
-                (profileListings.filter(
+                ((profileListings?.filter(
                   (listing: any) =>
                     listing.assetContract === collection &&
                     listing.tokenId === asset.metadata.id
-                ).length +
-                  profileAuctions.filter(
+                ).length || 0) +
+                  profileAuctions?.filter(
                     (auction: any) =>
                       auction.assetContract === collection &&
                       auction.tokenId === asset.metadata.id
-                  ).length);
+                  ).length || 0);
 
               //Only add the asset to the array if the quanity is greater than 0
               if (quantity <= 0) return null;
