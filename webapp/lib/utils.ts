@@ -43,8 +43,8 @@ export interface AssetStats {
 
 export interface CollectionStats {
   floorPrice: string | number;
-  volume: string | number;
-  change: string | number;
+  listed: string | number;
+  supply: string | number;
 }
 
 export function BigConvert(data: any) {

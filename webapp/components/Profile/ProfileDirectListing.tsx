@@ -5,6 +5,7 @@ import styles from "../NFT/NFT.module.css";
 import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
 import { MOONEY_DECIMALS } from "../../const/config";
 import Skeleton from "../Skeleton/Skeleton";
+import CancelListing from "./CancelListing";
 
 interface ProfileDirectListingProps {
   listing: DirectListing;
@@ -54,6 +55,7 @@ export default function ProfileDirectListing({
           ).toLocaleTimeString()}`}</p>
         </div>
       </div>
+      <CancelListing type="direct" listingId={+listing.listingId} />
     </div>
   );
 }

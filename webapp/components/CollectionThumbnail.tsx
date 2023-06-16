@@ -17,7 +17,7 @@ export default function CollectionThumbnail({
   const { floorPrice } = useCollectionStats(
     validListings,
     validAuctions,
-    collection.assetContract
+    collectionContract
   );
 
   if (!metadata) return <Skeleton width="335px" height="162px"/>;

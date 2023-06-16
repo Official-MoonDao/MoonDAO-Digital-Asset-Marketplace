@@ -24,8 +24,6 @@ type Props = {
   contractAddress: string;
   router: any;
   walletAddress: any;
-  validListings: any;
-  validAuctions: any;
 };
 
 type AuctionFormData = {
@@ -52,8 +50,6 @@ export default function SaleInfo({
   contractAddress,
   router,
   walletAddress,
-  validListings,
-  validAuctions,
 }: Props) {
   const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
@@ -197,158 +193,154 @@ export default function SaleInfo({
             Auction
           </h3>
         </div>
-        {!validListings && !validAuctions ? (
-          <div className="flex w-full justify-center">...loading</div>
-        ) : (
+        <>
           <>
-            <>
-              {/* Direct listing fields */}
+            {/* Direct listing fields */}
 
-              <div
-                className={`${
-                  tab === "direct"
-                    ? styles.activeTabContent
-                    : profileStyles.tabContent
-                }`}
-                style={{ flexDirection: "column" }}
-              >
-                <h4 className={styles.formSectionTitle}>Duration </h4>
-                {/* Input field for auction start date */}
-                <legend className={styles.legend}> Listing Starts on </legend>
-                <input
-                  className={styles.input}
-                  type="datetime-local"
-                  min={new Date(
-                    Date.now() - new Date().getTimezoneOffset() * 60000
-                  )
-                    .toISOString()
-                    .slice(0, -8)}
-                  {...registerDirect("startDate")}
-                  aria-label="Auction Start Date"
-                />
-                {/* Input field for auction end date */}
-                <legend className={styles.legend}> Listing Ends on </legend>
-                <input
-                  className={styles.input}
-                  type="datetime-local"
-                  min={new Date(
-                    Date.now() - new Date().getTimezoneOffset() * 60000
-                  )
-                    .toISOString()
-                    .slice(0, -8)}
-                  {...registerDirect("endDate")}
-                  aria-label="Auction End Date"
-                />
-                {
-                  <>
-                    <h4 className={styles.formSectionTitle}>Price </h4>
-                    <legend className={styles.legend}> Price per token</legend>
-                    <input
-                      className={styles.input}
-                      type="number"
-                      step={0.000001}
-                      {...registerDirect("price")}
-                    />
+            <div
+              className={`${
+                tab === "direct"
+                  ? styles.activeTabContent
+                  : profileStyles.tabContent
+              }`}
+              style={{ flexDirection: "column" }}
+            >
+              <h4 className={styles.formSectionTitle}>Duration </h4>
+              {/* Input field for auction start date */}
+              <legend className={styles.legend}> Listing Starts on </legend>
+              <input
+                className={styles.input}
+                type="datetime-local"
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
+                {...registerDirect("startDate")}
+                aria-label="Auction Start Date"
+              />
+              {/* Input field for auction end date */}
+              <legend className={styles.legend}> Listing Ends on </legend>
+              <input
+                className={styles.input}
+                type="datetime-local"
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
+                {...registerDirect("endDate")}
+                aria-label="Auction End Date"
+              />
+              {
+                <>
+                  <h4 className={styles.formSectionTitle}>Price </h4>
+                  <legend className={styles.legend}> Price per token</legend>
+                  <input
+                    className={styles.input}
+                    type="number"
+                    step={0.000001}
+                    {...registerDirect("price")}
+                  />
 
-                    <Web3Button
-                      contractAddress={MARKETPLACE_ADDRESS}
-                      action={async () => {
-                        await handleSubmitDirect(handleSubmissionDirect)();
-                      }}
-                      onError={(error) => {
-                        toast(`Listed Failed! Reason: ${error.cause}`, {
-                          icon: "❌",
-                          style: toastStyle,
-                          position: "bottom-center",
-                        });
-                      }}
-                    >
-                      Create Direct Listing
-                    </Web3Button>
-                  </>
+                  <Web3Button
+                    contractAddress={MARKETPLACE_ADDRESS}
+                    action={async () => {
+                      await handleSubmitDirect(handleSubmissionDirect)();
+                    }}
+                    onError={(error) => {
+                      toast(`Listed Failed! Reason: ${error.cause}`, {
+                        icon: "❌",
+                        style: toastStyle,
+                        position: "bottom-center",
+                      });
+                    }}
+                  >
+                    Create Direct Listing
+                  </Web3Button>
+                </>
+              }
+            </div>
+
+            {/* Auction listing fields */}
+            <div
+              className={`${
+                tab === "auction"
+                  ? styles.activeTabContent
+                  : profileStyles.tabContent
+              }`}
+              style={{ flexDirection: "column" }}
+            >
+              <h4 className={styles.formSectionTitle}>Duration </h4>
+
+              {/* Input field for auction start date */}
+              <legend className={styles.legend}> Auction Starts on </legend>
+              <input
+                className={styles.input}
+                type="datetime-local"
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
+                {...registerAuction("startDate")}
+                aria-label="Auction Start Date"
+              />
+
+              {/* Input field for auction end date */}
+              <legend className={styles.legend}> Auction Ends on </legend>
+              <input
+                className={styles.input}
+                type="datetime-local"
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
+                {...registerAuction("endDate")}
+                aria-label="Auction End Date"
+              />
+              <h4 className={styles.formSectionTitle}>Price </h4>
+
+              {/* Input field for minimum bid price */}
+              <legend className={styles.legend}>
+                {" "}
+                Allow bids starting from{" "}
+              </legend>
+              <input
+                className={styles.input}
+                step={0.000001}
+                type="number"
+                {...registerAuction("floorPrice")}
+              />
+
+              {/* Input field for buyout price */}
+              <legend className={styles.legend}> Buyout price </legend>
+              <input
+                className={styles.input}
+                type="number"
+                step={0.000001}
+                {...registerAuction("buyoutPrice")}
+              />
+
+              <Web3Button
+                contractAddress={MARKETPLACE_ADDRESS}
+                action={async () =>
+                  await handleSubmitAuction(handleSubmissionAuction)()
                 }
-              </div>
-
-              {/* Auction listing fields */}
-              <div
-                className={`${
-                  tab === "auction"
-                    ? styles.activeTabContent
-                    : profileStyles.tabContent
-                }`}
-                style={{ flexDirection: "column" }}
+                onError={(error) => {
+                  toast(`Listed Failed! Reason: ${error.cause}`, {
+                    icon: "❌",
+                    style: toastStyle,
+                    position: "bottom-center",
+                  });
+                }}
               >
-                <h4 className={styles.formSectionTitle}>Duration </h4>
-
-                {/* Input field for auction start date */}
-                <legend className={styles.legend}> Auction Starts on </legend>
-                <input
-                  className={styles.input}
-                  type="datetime-local"
-                  min={new Date(
-                    Date.now() - new Date().getTimezoneOffset() * 60000
-                  )
-                    .toISOString()
-                    .slice(0, -8)}
-                  {...registerAuction("startDate")}
-                  aria-label="Auction Start Date"
-                />
-
-                {/* Input field for auction end date */}
-                <legend className={styles.legend}> Auction Ends on </legend>
-                <input
-                  className={styles.input}
-                  type="datetime-local"
-                  min={new Date(
-                    Date.now() - new Date().getTimezoneOffset() * 60000
-                  )
-                    .toISOString()
-                    .slice(0, -8)}
-                  {...registerAuction("endDate")}
-                  aria-label="Auction End Date"
-                />
-                <h4 className={styles.formSectionTitle}>Price </h4>
-
-                {/* Input field for minimum bid price */}
-                <legend className={styles.legend}>
-                  {" "}
-                  Allow bids starting from{" "}
-                </legend>
-                <input
-                  className={styles.input}
-                  step={0.000001}
-                  type="number"
-                  {...registerAuction("floorPrice")}
-                />
-
-                {/* Input field for buyout price */}
-                <legend className={styles.legend}> Buyout price </legend>
-                <input
-                  className={styles.input}
-                  type="number"
-                  step={0.000001}
-                  {...registerAuction("buyoutPrice")}
-                />
-
-                <Web3Button
-                  contractAddress={MARKETPLACE_ADDRESS}
-                  action={async () =>
-                    await handleSubmitAuction(handleSubmissionAuction)()
-                  }
-                  onError={(error) => {
-                    toast(`Listed Failed! Reason: ${error.cause}`, {
-                      icon: "❌",
-                      style: toastStyle,
-                      position: "bottom-center",
-                    });
-                  }}
-                >
-                  Create Auction Listing
-                </Web3Button>
-              </div>
-            </>
+                Create Auction Listing
+              </Web3Button>
+            </div>
           </>
-        )}
+        </>
       </div>
     </>
   );

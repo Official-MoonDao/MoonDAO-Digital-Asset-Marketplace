@@ -79,9 +79,7 @@ export function ClaimFeeRewards() {
 
   useEffect(() => {
     if (address && validChain && FeeDistributor) {
-      (async () => {
-        await getRewardsForSigner();
-      })();
+      getRewardsForSigner();
     }
   }, [address, validChain, FeeDistributor]);
 
@@ -89,7 +87,7 @@ export function ClaimFeeRewards() {
     <div className="z-10 flex flex-col w-full" ref={dialogRef}>
       <p>Fee Rewards:</p>
       <div className="flex gap-2">
-        {Number(feeRewards).toFixed(5)}
+        {Number(feeRewards).toFixed(7)}
         <Image src={"/favicon.ico"} width={25} height={25} alt="" />
         <p>MOONEY</p>
       </div>

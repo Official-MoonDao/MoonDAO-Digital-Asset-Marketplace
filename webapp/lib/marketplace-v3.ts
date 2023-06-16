@@ -359,35 +359,61 @@ export function useUserAssets(
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, Goerli);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
+          const now = Date.now() / 1000;
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
             ownedAssets = await contract.erc1155.getOwned(walletAddress);
-            //get listing count for each asset
-          } else {
-            ownedAssets = await contract.erc721.getOwned(walletAddress);
-            const hasListing = await ownedAssets.some(
-              async (asset: any) =>
-                (await profileListings.find(
+            //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
+            ownedAssets = ownedAssets.map((asset: any) => {
+              const quantity =
+                asset.quantityOwned -
+                (profileListings.filter(
                   (listing: any) =>
                     listing.assetContract === collection &&
                     listing.tokenId === asset.metadata.id
-                )) ||
-                (await profileAuctions.some(
+                ).length +
+                  profileAuctions.filter(
+                    (auction: any) =>
+                      auction.assetContract === collection &&
+                      auction.tokenId === asset.metadata.id
+                  ).length);
+
+              //Only add the asset to the array if the quanity is greater than 0
+              if (quantity <= 0) return null;
+              return {
+                ...asset,
+                collection,
+                quantityOwned: quantity,
+              };
+            });
+          } else {
+            ownedAssets = await contract.erc721.getOwned(walletAddress);
+            ownedAssets = ownedAssets.filter(
+              (asset: any) =>
+                !profileListings.find(
+                  (listing: any) =>
+                    listing.assetContract === collection &&
+                    listing.tokenId === asset.metadata.id
+                ) &&
+                !profileAuctions.find(
                   (auction: any) =>
                     auction.assetContract === collection &&
                     auction.tokenId === asset.metadata.id
-                ))
+                )
             );
-            if (hasListing) return;
           }
+
+          const collectionName = await contract.call("name");
 
           ownedAssets = ownedAssets.map((asset: any) => ({
             ...asset,
             collection,
+            collectionName,
           }));
 
           ownedAssets.length > 0 &&
             setAssets((prev: any) => [...prev, ...ownedAssets]);
+          console.log(assets);
         });
       });
     }
@@ -397,10 +423,15 @@ export function useUserAssets(
 
 export function useClaimableAuction(
   winningBid: number,
-  buyoutBidAmount: number
+  buyoutBidAmount: number,
+  endTimestamp: string | number
 ) {
   const claimable = useMemo(() => {
-    return winningBid >= +buyoutBidAmount / MOONEY_DECIMALS;
+    const now = Date.now() / 1000;
+    return (
+      winningBid >= +buyoutBidAmount / MOONEY_DECIMALS ||
+      (winningBid > 0 && +endTimestamp < now)
+    );
   }, [winningBid, buyoutBidAmount]);
   return claimable;
 }
@@ -486,23 +517,25 @@ export function useAssetStats(
 export function useCollectionStats(
   validListings: DirectListing[],
   validAuctions: AuctionListing[],
-  contractAddress: string
+  collectionContract: any
 ) {
   const [collectionListings, setCollectionListings] = useState<any>([]);
   const [collectionAuctions, setCollectionAuctions] = useState<any>([]);
 
   const [stats, setStats] = useState<CollectionStats>({
     floorPrice: 0,
-    volume: 0,
-    change: 0,
+    listed: 0,
+    supply: 0,
   });
-
+  //Get nfts for a specific collection
   useEffect(() => {
+    if (!collectionContract) return;
     if (validListings) {
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
-          (l: DirectListing) => l.assetContract === contractAddress
+          (l: DirectListing) =>
+            l.assetContract === collectionContract.getAddress()
         );
       setCollectionListings(filteredListings);
     }
@@ -510,19 +543,32 @@ export function useCollectionStats(
       const filteredAuctions =
         validAuctions[0] &&
         validAuctions?.filter(
-          (a: AuctionListing) => a.assetContract === contractAddress
+          (a: AuctionListing) =>
+            a.assetContract === collectionContract.getAddress()
         );
       setCollectionAuctions(filteredAuctions);
     }
-  }, [validListings, validAuctions, contractAddress]);
+  }, [validListings, validAuctions, collectionContract]);
 
+  //Get stats
   useEffect(() => {
-    if (collectionListings && collectionAuctions) {
+    if (collectionContract && collectionListings && collectionAuctions) {
       const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
-      setStats((prev: CollectionStats) => ({
-        ...prev,
-        floorPrice: +floorPrice / MOONEY_DECIMALS,
-      }));
+      const listed = collectionListings.length + collectionAuctions.length;
+      let supply: any;
+      (async () => {
+        const extensions = getAllDetectedFeatureNames(collectionContract?.abi);
+        if (extensions[0] !== "ERC1155") {
+          supply = await collectionContract.erc721.totalCount();
+        } else {
+          supply = await collectionContract.erc1155.totalCount();
+        }
+        setStats({
+          floorPrice: +floorPrice / MOONEY_DECIMALS,
+          listed,
+          supply: supply?.toNumber() || 0,
+        });
+      })();
     }
   }, [collectionListings, collectionAuctions]);
   return stats;
@@ -572,6 +618,10 @@ export function useSearch(
   }
 
   useEffect(() => {
+    uniqueAssets();
+  }, [validListings, validAuctions]);
+
+  useEffect(() => {
     if (!text || text?.trim() === "" || text.length < 2) return;
     //update unique assets
     uniqueAssets();
@@ -598,10 +648,6 @@ export function useSearch(
         setSearchResults((prev: any) => [...prev, nft]);
     });
   }, [text]);
-
-  useEffect(() => {
-    uniqueAssets();
-  }, [validListings, validAuctions]);
 
   return searchResults;
 }

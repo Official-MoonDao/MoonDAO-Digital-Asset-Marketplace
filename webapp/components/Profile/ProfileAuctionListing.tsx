@@ -13,6 +13,8 @@ import { AuctionListing } from "../../lib/utils";
 import { useEffect, useState } from "react";
 import ClaimAuctionPayout from "./ClaimAuctionPayout";
 import { useClaimableAuction } from "../../lib/marketplace-v3";
+import CancelAuction from "./CancelListing";
+import CancelListing from "./CancelListing";
 
 interface ProfileAuctionListingProps {
   listing: AuctionListing;
@@ -36,7 +38,7 @@ export default function ProfileAuctionListing({
     "marketplace-v3"
   );
 
-  const claimable = useClaimableAuction(winningBid, +buyOut);
+  const claimable = useClaimableAuction(winningBid, +buyOut, end);
 
   useEffect(() => {
     if (marketplace) {
@@ -50,14 +52,16 @@ export default function ProfileAuctionListing({
   }, [marketplace]);
 
   if (listing.status === "3" || listing.status === "2") return <></>;
-  if (listing.status === "1" && +end * 1000 < Date.now() && !claimable)
-    return <></>;
   return (
     <div className="flex justify-center items-left my-2 p-4 py-8 rounded-2xl bg-[#d1d1d150]">
       <div className="flex flex-col gap-2">
         <div>
           {"Status : "}
-          {+end * 1000 > Date.now() ? "Active ✔" : "Sold ✖"}
+          {+end * 1000 > Date.now()
+            ? "Active ✔"
+            : claimable
+            ? "Sold ✖"
+            : "Expired"}
         </div>
         <h4 className="font-bold">{nft?.metadata?.name}</h4>
         {nft && (
@@ -93,15 +97,26 @@ export default function ProfileAuctionListing({
             ).toLocaleTimeString()}`}</p>
           </div>
         </div>
-        {address && address === listing.seller && (
-          <ClaimAuctionPayout
-            claimable={claimable}
-            auctionId={+listing.auctionId}
-          />
-        )}
+        {/* Auctions that have ended and have a payout */}
         {claimable && (
-          <p className="w-full text-center text-[75%]">{`(Payout: ${winningBid} MOONEY)`}</p>
+          <>
+            {address && address === listing.seller && (
+              <ClaimAuctionPayout
+                claimable={claimable}
+                auctionId={+listing.auctionId}
+              />
+            )}
+
+            <p className="w-full text-center text-[75%]">{`(Payout: ${winningBid} MOONEY)`}</p>
+          </>
         )}
+        {/* Expired Auctions /w No bids */}
+        {address &&
+          address === listing.seller &&
+          +end * 1000 < Date.now() &&
+          !claimable && (
+            <CancelListing type="auction" listingId={+listing.auctionId} />
+          )}
       </div>
     </div>
   );
