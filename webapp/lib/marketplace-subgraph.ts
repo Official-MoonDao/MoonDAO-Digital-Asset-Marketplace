@@ -98,7 +98,7 @@ function filterExpiring(
     : !validAuctions[0]
     ? validListings
     : [...validListings, ...validAuctions];
-  return allListings.sort((a: any, b: any) => b.endTimestamp - a.endTimestamp);
+  return allListings.sort((a: any, b: any) => a.endTimestamp - b.endTimestamp);
 }
 
 //////HOOKS////////////////////////////////////////////
@@ -137,7 +137,13 @@ export function useFilter(
 
   useEffect(() => {
     if (type === "all") {
-      setFilteredAssets([...validListings, ...validAuctions]);
+      setFilteredAssets(
+        validAuctions[0] && validListings[0]
+          ? [...validListings, ...validAuctions]
+          : validAuctions[0]
+          ? validAuctions
+          : validListings
+      );
     }
     if (type === "trending") {
       queryTrending(validListings, validAuctions).then(

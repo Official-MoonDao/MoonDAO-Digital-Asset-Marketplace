@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import Skybox from "./Skybox";
+import GeneratedSkybox from "./GeneratedSkybox";
 import { useEffect, useState } from "react";
 import CustomOrbitControls from "./CustomOrbitControls";
 
@@ -18,7 +18,7 @@ export default function Scene({ generations }: any) {
           distance={distance}
           setDistance={(d: number) => setDistance(d)}
         />
-        <Skybox generation={generations[currGeneration]} />
+        <GeneratedSkybox generation={generations[currGeneration]} />
       </Canvas>
       {enablePagination && generations.length > 1 && (
         <div className="absolute bottom-16 left-[10%] right-0 flex items-center justify-center w-1/2 gap-[25%]">

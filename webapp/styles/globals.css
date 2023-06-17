@@ -57,9 +57,9 @@ footer {
   background: #555;
 }
 
-.connect-button{
-  background: #D7594F !important;
-  font-family: 'Roboto Mono', monospace, sans-serif !important;
+.connect-button {
+  background: #d7594f !important;
+  font-family: "Roboto Mono", monospace, sans-serif !important;
   padding: 10px 10px 10px 10px !important;
   border-radius: 0% !important;
 }
