@@ -139,7 +139,7 @@ export default function SaleInfo({
       endTimestamp: endDate,
     };
     const txResult = await marketplace.call("createAuction", auction);
-    router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
+    await router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
       style: toastStyle,
@@ -164,7 +164,7 @@ export default function SaleInfo({
       reserved: false,
     };
     const txResult = await marketplace.call("createListing", listing);
-    router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
+    await router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
       style: toastStyle,

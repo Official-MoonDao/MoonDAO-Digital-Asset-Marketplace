@@ -348,11 +348,7 @@ export function useUserAssets(
     );
 
   useEffect(() => {
-    if (
-      marketplace &&
-      signer &&
-      (profileListings?.[0] || profileAuctions?.[0])
-    ) {
+    if (marketplace && signer) {
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
           setAssets([]);
@@ -390,12 +386,12 @@ export function useUserAssets(
             ownedAssets = await contract.erc721.getOwned(walletAddress);
             ownedAssets = ownedAssets.filter(
               (asset: any) =>
-                !profileListings.find(
+                !profileListings?.find(
                   (listing: any) =>
                     listing.assetContract === collection &&
                     listing.tokenId === asset.metadata.id
                 ) &&
-                !profileAuctions.find(
+                !profileAuctions?.find(
                   (auction: any) =>
                     auction.assetContract === collection &&
                     auction.tokenId === asset.metadata.id
@@ -416,7 +412,7 @@ export function useUserAssets(
         });
       });
     }
-  }, [marketplace, signer, profileListings, profileAuctions]);
+  }, [marketplace, signer]);
   return assets;
 }
 
