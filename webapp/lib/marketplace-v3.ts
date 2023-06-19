@@ -348,11 +348,7 @@ export function useUserAssets(
     );
 
   useEffect(() => {
-    if (
-      marketplace &&
-      signer &&
-      (profileListings?.[0] || profileAuctions?.[0])
-    ) {
+    if (marketplace && signer) {
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
           setAssets([]);
@@ -416,7 +412,7 @@ export function useUserAssets(
         });
       });
     }
-  }, [marketplace, signer, profileListings, profileAuctions]);
+  }, [marketplace, signer]);
   return assets;
 }
 
