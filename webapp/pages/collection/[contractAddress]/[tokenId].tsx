@@ -1,15 +1,5 @@
-import {
-  MediaRenderer,
-  ThirdwebNftMedia,
-  useAddress,
-  useContract,
-  useContractEvents,
-  useMetadata,
-  useNFT,
-  Web3Button,
-} from "@thirdweb-dev/react";
+import { MediaRenderer, ThirdwebNftMedia, useAddress, useContract, useContractEvents, useMetadata, useNFT, Web3Button } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
-import Container from "../../../components/Container/Container";
 import { GetServerSideProps } from "next";
 import { NFT } from "@thirdweb-dev/sdk";
 import Link from "next/link";
@@ -17,18 +7,9 @@ import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../../util/toastConfig";
-import {
-  getAllValidAuctions,
-  getAllValidListings,
-  getAllValidOffers,
-  useListingsAndAuctionsForTokenId,
-} from "../../../lib/marketplace-v3";
+import { getAllValidAuctions, getAllValidListings, getAllValidOffers, useListingsAndAuctionsForTokenId } from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
-import {
-  ETHERSCAN_URL,
-  MARKETPLACE_ADDRESS,
-  MOONEY_DECIMALS,
-} from "../../../const/config";
+import { ETHERSCAN_URL, MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../../const/config";
 import { DirectListing, AuctionListing, BigConvert } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
 import { useRouter } from "next/router";
@@ -43,10 +24,7 @@ type TokenPageProps = {
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
-export default function TokenPage({
-  contractAddress,
-  tokenId,
-}: TokenPageProps) {
+export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) {
   const router = useRouter();
   const address = useAddress();
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -54,16 +32,9 @@ export default function TokenPage({
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
-  const { contract: marketplace, isLoading: loadingContract }: any =
-    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+  const { contract: marketplace, isLoading: loadingContract }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
-  const { listings: directListing, auctions: auctionListing } =
-    useListingsAndAuctionsForTokenId(
-      validListings,
-      validAuctions,
-      tokenId,
-      contractAddress
-    );
+  const { listings: directListing, auctions: auctionListing } = useListingsAndAuctionsForTokenId(validListings, validAuctions, tokenId, contractAddress);
   const [currListing, setCurrListing]: any = useState({
     type: "",
     listing: {} as DirectListing | AuctionListing,
@@ -79,25 +50,21 @@ export default function TokenPage({
   //NFT data
   const { data: nft }: any = useNFT(nftCollection, tokenId);
   // Load historical transfer events: TODO - more event types like sale
-  const { data: transferEvents, isLoading: loadingTransferEvents } =
-    useContractEvents(nftCollection, "Transfer", {
-      queryFilter: {
-        filters: {
-          tokenId: tokenId,
-        },
-        order: "desc",
+  const { data: transferEvents, isLoading: loadingTransferEvents } = useContractEvents(nftCollection, "Transfer", {
+    queryFilter: {
+      filters: {
+        tokenId: tokenId,
       },
-    });
+      order: "desc",
+    },
+  });
   async function createBidOrOffer() {
     let txResult;
     if (!currListing) return;
 
     try {
       if (currListing.type === "auction") {
-        txResult = await marketplace?.englishAuctions.makeBid(
-          currListing.listing.auctionId,
-          bidValue
-        );
+        txResult = await marketplace?.englishAuctions.makeBid(currListing.listing.auctionId, bidValue);
       } else {
         throw new Error("No valid auction listing found for this NFT");
       }
@@ -114,18 +81,10 @@ export default function TokenPage({
     let txResult;
     try {
       if (currListing.type === "direct") {
-        txResult = await marketplace.directListings.buyFromListing(
-          currListing.listing.listingId,
-          1,
-          address
-        );
+        txResult = await marketplace.directListings.buyFromListing(currListing.listing.listingId, 1, address);
       } else {
-        txResult = await marketplace.englishAuctions.buyoutAuction(
-          currListing.listing.auctionId
-        );
-        await marketplace.englishAuctions.executeSale(
-          currListing.listing.auctionId
-        );
+        txResult = await marketplace.englishAuctions.buyoutAuction(currListing.listing.auctionId);
+        await marketplace.englishAuctions.executeSale(currListing.listing.auctionId);
       }
       setTimeout(() => {
         router.reload();
@@ -153,9 +112,7 @@ export default function TokenPage({
   ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListing[0] || auctionListing[0]) {
-      const listing = directListing[0]
-        ? { type: "direct", listing: directListing[0] }
-        : { type: "auction", listing: auctionListing[0] };
+      const listing = directListing[0] ? { type: "direct", listing: directListing[0] } : { type: "auction", listing: auctionListing[0] };
       setCurrListing(listing);
     }
   }, [nft, directListing, auctionListing]);
@@ -165,9 +122,7 @@ export default function TokenPage({
     //set winning bid if auction
     if (!loadingContract && currListing.type === "auction") {
       (async () => {
-        const winningBid = await marketplace?.englishAuctions?.getWinningBid(
-          currListing.listing.auctionId
-        );
+        const winningBid = await marketplace?.englishAuctions?.getWinningBid(currListing.listing.auctionId);
         setWinningBid(winningBid);
       })();
     }
@@ -181,78 +136,68 @@ export default function TokenPage({
   return (
     <>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <Container maxWidth="lg" className="">
-        <div className={styles.container}>
-          <div className={styles.metadataContainer}>
-            <ThirdwebNftMedia
-              metadata={nft?.metadata}
-              className={styles.image}
-            />
+      <article className="w-full ml-auto mr-auto px-4 mt-24 max-w-[1200px]">
+        <div className="w-full flex flex-col gap-8 mt-32 tablet:flex-row pb-32 tablet:pb-0">
+          <div className="flex flex-col flex-1 w-full mt-8 tablet:mt-0">
+            <ThirdwebNftMedia metadata={nft?.metadata} className="!w-full !h-full bg-white bg-opacity-[0.04] rounded-2xl" />
 
-            {/*Description, traits*/}
-            <div className={styles.descriptionContainer}>
-              <h3 className={styles.descriptionTitle}>Description</h3>
-              <p className={styles.description}>{nft.metadata.description}</p>
+            {/*Description*/}
+            <div className="px-4">
+              <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">Description</h3>
 
-              <h3 className={styles.descriptionTitle}>Traits</h3>
+              <p className="font-medium text-base leading-[25px] opacity-80">{nft.metadata.description}</p>
 
-              <div className={styles.traitsContainer}>
-                {Object.entries(nft?.metadata?.attributes || {}).map(
-                  ([key, value]: any) => (
-                    <div className={styles.traitContainer} key={key}>
-                      <p className={styles.traitName}>{value.trait_type}</p>
-                      <p className={styles.traitValue}>
-                        {value.value?.toString() || ""}
-                      </p>
-                    </div>
-                  )
-                )}
+              {/*Traits*/}
+              <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">Traits</h3>
+
+              <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20">
+                {Object.entries(nft?.metadata?.attributes || {}).map(([key, value]: any) => (
+                  <div className="flex flex-col grow gap-1 py-2 px-3 min-w-[128px] min-h-[32px]" key={key}>
+                    <p className="m-0 text-white opacity-60">{value.trait_type}</p>
+                    <p className="font-semibold m-0 text-white opacity-90">{value.value?.toString() || ""}</p>
+                  </div>
+                ))}
               </div>
+
               {/*History*/}
               {currListing?.listing && nft.type === "ERC721" && (
                 <>
-                  <h3 className={styles.descriptionTitle}>History</h3>
-                  <div className={styles.traitsContainer}>
+                  <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">History</h3>
+                  <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20">
                     {!loadingTransferEvents &&
                       transferEvents?.map((event, index) => (
                         <div
                           key={event.transaction.transactionHash}
-                          className={styles.eventsContainer}
+                          className="flex justify-between items-center grow gap-1 py-2 px-3 min-w-[128px] rounded-2xl min-h-[32px]"
                         >
-                          <div className={styles.eventContainer}>
-                            <p className={styles.traitName}>Event</p>
-                            <p className={styles.traitValue}>
+                          <div className="flex flex-col gap-1">
+                            <p className="m-0 text-white opacity-60">Event</p>
+                            <p className="font-semibold m-0 text-white opacity-90">
                               {
                                 // if last event in array, then it's a mint
-                                index === transferEvents.length - 1
-                                  ? "Mint"
-                                  : "Transfer"
+                                index === transferEvents.length - 1 ? "Mint" : "Transfer"
                               }
                             </p>
                           </div>
 
-                          <div className={styles.eventContainer}>
-                            <p className={styles.traitName}>From</p>
-                            <p className={styles.traitValue}>
+                          <div className="flex flex-col gap-1">
+                            <p className="m-0 text-white opacity-60">From</p>
+                            <p className="font-semibold m-0 text-white opacity-90">
                               {event.data.from?.slice(0, 4)}...
                               {event.data.from?.slice(-2)}
                             </p>
                           </div>
 
-                          <div className={styles.eventContainer}>
-                            <p className={styles.traitName}>To</p>
-                            <p className={styles.traitValue}>
+                          <div className="flex flex-col gap-1">
+                            <p className="m-0 text-white opacity-60">To</p>
+                            <p className="font-semibold m-0 text-white opacity-90">
                               {event.data.to?.slice(0, 4)}...
                               {event.data.to?.slice(-2)}
                             </p>
                           </div>
 
-                          <div className={styles.eventContainer}>
-                            <Link
-                              className={styles.txHashArrow}
-                              href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`}
-                              target="_blank"
-                            >
+                          <div className="flex flex-col gap-1">
+                            <Link className="w-[34px] h-[34px] p-2 transition-all duration-150 hover:scale-[1.35]" href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`} target="_blank">
                               ↗
                             </Link>
                           </div>
@@ -265,42 +210,36 @@ export default function TokenPage({
           </div>
 
           {/*Collection title, image and description*/}
-          <div className={styles.listingContainer}>
+          <div className="relative w-full max-w-full top-0 tablet:flex-shrink tablet:sticky tablet:min-w-[370px] tablet:max-w-[450px] tablet:mt-4 tablet:mr-4">
             {contractMetadata && (
-              <div className={styles.contractMetadataContainer}>
+              <div className="flex items-center mb-2">
                 <Link href={`/collection/${contractAddress}`}>
-                  <MediaRenderer
-                    src={contractMetadata.image}
-                    className={styles.collectionImage}
-                  />
-                  <p className={`${styles.collectionName}`}>
-                    {contractMetadata.name}
-                  </p>
+                  <MediaRenderer src={contractMetadata.image} className="!w-[36px] !h-[36px] rounded-lg mr-4 ml-3 mb-2" />
+                  <p className="truncate w-full mx-4 mt-[5px] opacity-50">{contractMetadata.name}</p>
                 </Link>
               </div>
             )}
-            <h1 className={styles.title}>{nft.metadata.name}</h1>
-            <div className={styles.tokenIdContainer}>
-              <p className={styles.tokenId}>Token ID #{nft.metadata.id}</p>
+            <h1 className="font-GoodTimes font-medium text-[32px] break-words mb-2 mx-4 text-moon-white">{nft.metadata.name}</h1>
+            <div className="inline-block">
+              <p className="font-medium truncate mx-4 mt-4 text-[20px] py-1 px-[10px] rounded-sm bg-moon-secondary bg-opacity-40">
+                Token ID #{nft.metadata.id}
+              </p>
             </div>
 
             {currListing?.listing && nft.type === "ERC721" && (
-              <Link
-                href={`/profile/${currListing?.listing.listingCreator}`}
-                className={styles.nftOwnerContainer}
-              >
+              <Link href={`/profile/${currListing?.listing.listingCreator}`} className={styles.nftOwnerContainer}>
                 {/* Random linear gradient circle shape */}
                 <div
-                  className={styles.nftOwnerImage}
+                  className="mt-4 w-[48px] h-[48px] rounded-[50%] opacity-90 border-2 border-white border-opacity-20"
                   style={{
                     background: `linear-gradient(90deg, ${randomColor1}, ${randomColor2})`,
                   }}
                 />
                 {/*Nft owner info*/}
-                <div className={styles.nftOwnerInfo}>
+                <div className="m-0 p-0 ml-[6px] flex flex-col h-full mt-4">
                   <div>
-                    <p className={styles.label}>Seller</p>
-                    <p className={styles.nftOwnerAddress}>
+                    <p className="text-white opacity-60 mt-1 p-[2px]">Seller</p>
+                    <p className="font-semibold m-0 text-white text-opacity-90">
                       {currListing?.listing?.seller?.slice(0, 8)}...
                       {currListing?.listing?.seller?.slice(-4)}
                     </p>
@@ -309,11 +248,11 @@ export default function TokenPage({
               </Link>
             )}
 
-            <div className={styles.pricingContainer}>
+            <div className="flex flex-col w-full relative grow bg-transparent rounded-2xl overflow-hidden mt-8 mb-6">
               {/* Pricing information */}
-              <div className={styles.pricingInfo}>
-                <p className={styles.label}>Price</p>
-                <div className={styles.pricingValue}>
+              <div className="p-4 pl-5 rounded-xl bg-white bg-opacity-[0.13] w-full m-0 mb-3">
+                <p className="text-white opacity-60 mt-1 p-[2px]">Price</p>
+                <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
                   {!currListing ? (
                     <Skeleton width="120" height="24" />
                   ) : (
@@ -323,11 +262,9 @@ export default function TokenPage({
                           {+currListing.listing.pricePerToken / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
-                      ) : currListing.listing &&
-                        currListing.type === "auction" ? (
+                      ) : currListing.listing && currListing.type === "auction" ? (
                         <>
-                          {+currListing.listing.buyoutBidAmount /
-                            MOONEY_DECIMALS}
+                          {+currListing.listing.buyoutBidAmount / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -340,49 +277,30 @@ export default function TokenPage({
                 {auctionListing[0] && nft.type === "ERC721" && (
                   <div>
                     {!auctionListing ? (
-                      <Skeleton width="120" height="24" />
+                      <Skeleton width="120" height="44" />
                     ) : (
                       <>
                         {auctionListing && auctionListing[0] && (
                           <>
-                            <p
-                              className={styles.label}
-                              style={{ marginTop: 12 }}
-                            >
+                            <p className="text-white opacity-60 mt-1 p-[2px]" style={{ marginTop: 12 }}>
                               Bids starting from
                             </p>
 
-                            <div className={styles.pricingValue}>
-                              {+auctionListing[0].minimumBidAmount /
-                                MOONEY_DECIMALS}
+                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                              {+auctionListing[0].minimumBidAmount / MOONEY_DECIMALS}
                               {" " + "MOONEY"}
                             </div>
-                            <p
-                              className={styles.label}
-                              style={{ marginTop: 12 }}
-                            >
+                            <p className="text-white opacity-60 mt-1 p-[2px]" style={{ marginTop: 12 }}>
                               {"Winning Bid"}
                             </p>
-                            <div className={styles.pricingValue}>
-                              {winningBid
-                                ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS +
-                                  " MOONEY"
-                                : "No bids yet"}
-                            </div>
-                            <p
-                              className={styles.label}
-                              style={{ marginTop: 12 }}
-                            >
+                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">{winningBid ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS + " MOONEY" : "No bids yet"}</div>
+                            <p className="text-white opacity-60 mt-1 p-[2px]" style={{ marginTop: 12 }}>
                               {"Expiration"}
                             </p>
-                            <div className={styles.pricingValue}>
-                              {new Date(
-                                +auctionListing[0].endTimestamp * 1000
-                              ).toLocaleDateString() +
+                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                              {new Date(+auctionListing[0].endTimestamp * 1000).toLocaleDateString() +
                                 " @ " +
-                                new Date(
-                                  +auctionListing[0].endTimestamp * 1000
-                                ).toLocaleTimeString()}
+                                new Date(+auctionListing[0].endTimestamp * 1000).toLocaleTimeString()}
                             </div>
                           </>
                         )}
@@ -393,53 +311,40 @@ export default function TokenPage({
               </div>
             </div>
 
+            {/*Direct listings and auction, hidden if there isn't either via conditional*/}
             {nft.type !== "ERC721" && (
-              <div className="flex flex-col p-2 divide-y divide-[grey] border-2 border-[grey] rounded-lg mb-4">
-                <div>
-                  <p className={styles.label}>Direct Listings :</p>
+              <div className={` ${!directListing[0] && !auctionListing[0] && "hidden"} flex flex-col px-3 py-2 border border-[grey] mb-4`}>
+                {directListing[0] && (
                   <div>
+                    <p className="opacity-60 mt-1 p-[2px]">Direct Listings :</p>
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
-                        <div
-                          className={`flex flex-col p-2 ${
-                            currListing.listing.listingId === l.listingId &&
-                            "bg-moon-gold"
-                          }`}
-                          key={`erc-1155-direct-listing-${i}`}
-                        >
-                          <Listing
-                            type="direct"
-                            listing={l}
-                            setCurrListing={setCurrListing}
-                          />
+                        <div className={`flex flex-col p-2 ${currListing.listing.listingId === l.listingId && ""}`} key={`erc-1155-direct-listing-${i}`}>
+                          <Listing type="direct" listing={l} setCurrListing={setCurrListing} />
                         </div>
                       ))}
                   </div>
-                </div>
+                )}
 
-                <div>
-                  <p className={styles.label}>Auction Listings :</p>
-                  <div>
+                {auctionListing[0] && (
+                  <div className={`${directListing[0] && "mt-2"}`}>
+                    <p className="opacity-60 mt-1 p-[2px]">Auction Listings :</p>
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
-                        <div
-                          className={`flex flex-col p-2 ${
-                            currListing.listing.auctionId === a.auctionId &&
-                            "bg-moon-gold"
-                          }`}
-                          key={`erc-1155-auction-listing-${i}`}
-                        >
-                          <Listing
-                            type="auction"
-                            listing={a}
-                            setCurrListing={setCurrListing}
-                          />
-                        </div>
+                        <>
+                          <div
+                            className={`flex flex-col px-2 mt-2 ${currListing.listing.auctionId === a.auctionId && ""}`}
+                            key={`erc-1155-auction-listing-${i}`}
+                          >
+                            <Listing type="auction" listing={a} setCurrListing={setCurrListing} />
+                          </div>
+                        </>
                       ))}
                   </div>
-                </div>
+                )}
               </div>
             )}
+
             {directListing[0] || auctionListing[0] ? (
               <>
                 {!currListing.listing.seller ? (
@@ -454,7 +359,7 @@ export default function TokenPage({
                         <Web3Button
                           contractAddress={MARKETPLACE_ADDRESS}
                           action={async () => await buyListing()}
-                          className={`${styles.btn} connect-button`}
+                          className={`connect-button`}
                           onSuccess={() => {
                             toast(`Purchase success!`, {
                               icon: "✅",
@@ -475,19 +380,16 @@ export default function TokenPage({
 
                         {currListing.type === "auction" && (
                           <>
-                            <div
-                              className={`${styles.listingTimeContainer} ${styles.or}`}
-                            >
-                              <p className={styles.listingTime}>or</p>
+                            <div className="flex items-center justify-center m-0 my-4">
+                              <p className="text-sm leading-6 text-white text-opacity-60 m-0">or</p>
                             </div>
                             <input
-                              className={styles.input}
+                              className="block border border-white w-[98%] py-3 px-4 bg-black bg-opacity-70 border-opacity-60 rounded-lg mb-4 ml-[2px]"
                               placeholder={
                                 currListing.type === "auction" && winningBid > 0
                                   ? winningBid
                                   : currListing.listing
-                                  ? +currListing.listing.minimumBidAmount /
-                                    MOONEY_DECIMALS
+                                  ? +currListing.listing.minimumBidAmount / MOONEY_DECIMALS
                                   : 0
                               }
                               type="number"
@@ -516,7 +418,7 @@ export default function TokenPage({
             )}
           </div>
         </div>
-      </Container>
+      </article>
     </>
   );
 }

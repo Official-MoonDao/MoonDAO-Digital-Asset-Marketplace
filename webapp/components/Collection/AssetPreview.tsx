@@ -20,7 +20,7 @@ export default function AssetPreview({
     tokenId
   );
 
-  if (isLoading) return <Skeleton width="335px" height="162px" />;
+  if (isLoading) return <Skeleton width="335px" height="282px" />;
   if (error || !nft) return <div>NFT not found!</div>;
 
   return (
