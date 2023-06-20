@@ -17,18 +17,6 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
   if (!listingId) return <></>;
 
   return (
-<<<<<<< HEAD
-    <div className={"flex flex-col mt-1"} onClick={() => setCurrListing({ type, listing })}>
-      <div className="flex w-full gap-2 justify-between items-center  min-h-[52px]">
-        {/*Seller*/}
-        <div>
-          <p className="truncate w-full text-sm leading-5 font-medium text-white text-opacity-60">Seller</p>
-          <p className="mt-1">{sellerAddress.slice(0, 6) + "..." + sellerAddress.slice(-4)}</p>
-        </div>
-        {/*Price*/}
-        <div className="text-right tracking-wide">
-          <p className="truncate w-full text-sm leading-5 font-medium text-moon-gold text-opacity-80">{"Price (MOONEY)"}</p>
-=======
     <div
       className={"flex flex-col mt-1"}
       onClick={() => setCurrListing({ type, listing })}
@@ -54,7 +42,6 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
           <p className="truncate w-full text-sm leading-5 font-medium text-moon-gold text-opacity-80">
             {"Price (MOONEY)"}
           </p>
->>>>>>> a59e0ce2da6c93aed7de3a577b82ed6528633da6
           <p className="mt-1">{+buyOut / MOONEY_DECIMALS}</p>
         </div>
       </div>
@@ -63,18 +50,6 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
         {/*Bid*/}
         {type === "auction" ? (
           <div className="">
-<<<<<<< HEAD
-            <p className="truncate w-full text-sm text-moon-gold leading-5 font-medium text-opacity-80">{"Min Bid"}</p>
-            <p>{+minBid / MOONEY_DECIMALS}</p>
-          </div>
-        ) : (
-          <div>{/*Important empty div as forces expiration to stick to left even if not auction*/}</div>
-        )}
-        {/*Expiration*/}
-        <div className="text-right">
-          <p className="truncate w-full text-sm leading-5 font-medium text-white text-opacity-60">{"Expiration"}</p>
-          <p className="mt-1">{new Date(+end * 1000).toLocaleDateString() + " @ " + new Date(+end * 1000).toLocaleTimeString()}</p>
-=======
             <p className="truncate w-full text-sm text-moon-gold leading-5 font-medium text-opacity-80">
               {"Min Bid"}
             </p>
@@ -95,7 +70,6 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
               " @ " +
               new Date(+end * 1000).toLocaleTimeString()}
           </p>
->>>>>>> a59e0ce2da6c93aed7de3a577b82ed6528633da6
         </div>
       </div>
     </div>
