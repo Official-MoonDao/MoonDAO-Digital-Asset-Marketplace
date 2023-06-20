@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import styles from "../../styles/Sale.module.css";
@@ -7,6 +7,7 @@ import {
   useContract,
   useContractWrite,
   useCreateAuctionListing,
+  useNFTBalance,
   Web3Button,
 } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
@@ -18,6 +19,7 @@ import {
   VMOONEY_ADDRESS,
 } from "../../const/config";
 import { useListingsAndAuctionsForTokenIdAndWallet } from "../../lib/marketplace-v3";
+import Skeleton from "../Skeleton/Skeleton";
 
 type Props = {
   nft: any;
@@ -61,6 +63,20 @@ export default function SaleInfo({
   // Manage form submission state using tabs and conditional rendering
   const [tab, setTab] = useState<"direct" | "auction">("direct");
 
+  //Balance for ERC1155
+  const { data: userBalance } = useNFTBalance(
+    nftCollection,
+    walletAddress,
+    nft?.metadata?.id
+  );
+
+  //Check if user has balance for quanity
+  function checkBalance(quantity: string | number) {
+    const hasBalance = userBalance && userBalance.toNumber() >= +quantity;
+    !hasBalance && toast.error("Insufficient balance");
+    return hasBalance;
+  }
+
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
     try {
@@ -100,7 +116,7 @@ export default function SaleInfo({
         nftContractAddress: contractAddress,
         tokenId: nft.metadata.id,
         startDate: new Date(),
-        quantity: "0",
+        quantity: "1",
         endDate: new Date(),
         floorPrice: "0",
         buyoutPrice: "0",
@@ -113,7 +129,7 @@ export default function SaleInfo({
       defaultValues: {
         nftContractAddress: contractAddress,
         tokenId: nft.metadata.id,
-        quantity: "0",
+        quantity: "1",
         startDate: new Date(),
         endDate: new Date(),
         price: "0",
@@ -122,6 +138,8 @@ export default function SaleInfo({
 
   //handle direct listing
   async function handleSubmissionAuction(data: AuctionFormData) {
+    if (!checkBalance(data.quantity)) return;
+
     await checkAndProvideApproval();
     const startDate: any = new Date(data.startDate).valueOf() / 1000;
     const endDate: any = new Date(data.endDate).valueOf() / 1000;
@@ -130,7 +148,7 @@ export default function SaleInfo({
       assetContract: data.nftContractAddress,
       tokenId: data.tokenId,
       currency: MOONEY_ADDRESS,
-      quantity: "1",
+      quantity: nft.type === "ERC1155" ? data.quantity : "1",
       minimumBidAmount: String(+data.floorPrice * MOONEY_DECIMALS),
       buyoutBidAmount: String(+data.buyoutPrice * MOONEY_DECIMALS),
       timeBufferInSeconds: "900", //15 minutes
@@ -150,6 +168,8 @@ export default function SaleInfo({
 
   //handle auction listing
   async function handleSubmissionDirect(data: DirectFormData) {
+    console.log(data.quantity);
+    if (!checkBalance(data.quantity)) return;
     await checkAndProvideApproval();
     const startDate: any = new Date(data.startDate).valueOf() / 1000;
     const endDate: any = new Date(data.endDate).valueOf() / 1000;
@@ -157,7 +177,7 @@ export default function SaleInfo({
       assetContract: contractAddress,
       tokenId: data.tokenId,
       currency: MOONEY_ADDRESS,
-      quantity: "1",
+      quantity: nft.type === "ERC1155" ? data.quantity : "1",
       pricePerToken: String(+data.price * MOONEY_DECIMALS),
       startTimestamp: startDate,
       endTimestamp: endDate,
@@ -205,6 +225,25 @@ export default function SaleInfo({
               }`}
               style={{ flexDirection: "column" }}
             >
+              {/* Input field for ERC1155 quantity */}
+              {nft.type === "ERC1155" && (
+                <>
+                  <legend className={styles.legend}> Quantity </legend>
+                  <div className="flex items-center">
+                    <input
+                      className={styles.inputSmall}
+                      type="number"
+                      min={1}
+                      {...registerDirect("quantity")}
+                    />
+                    <h3
+                      className={`relative right-[-5%] bottom-2 text-2xl ${
+                        !userBalance && "animate-pulse"
+                      }`}
+                    >{`/ ${userBalance || "/ ..."}`}</h3>
+                  </div>
+                </>
+              )}
               <h4 className={styles.formSectionTitle}>Duration </h4>
               {/* Input field for auction start date */}
               <legend className={styles.legend}> Listing Starts on </legend>
@@ -271,6 +310,26 @@ export default function SaleInfo({
               }`}
               style={{ flexDirection: "column" }}
             >
+              {/* Input field for quantity */}
+              {nft.type === "ERC1155" && (
+                <>
+                  <legend className={styles.legend}> Quantity </legend>
+                  <div className="flex items-center">
+                    <input
+                      className={styles.inputSmall}
+                      type="number"
+                      min={1}
+                      {...registerAuction("quantity")}
+                    />
+                    <h3
+                      className={`relative right-[-5%] bottom-2 text-2xl ${
+                        !userBalance && "animate-pulse"
+                      }`}
+                    >{`/ ${userBalance || "/ ..."}`}</h3>
+                  </div>
+                </>
+              )}
+
               <h4 className={styles.formSectionTitle}>Duration </h4>
 
               {/* Input field for auction start date */}

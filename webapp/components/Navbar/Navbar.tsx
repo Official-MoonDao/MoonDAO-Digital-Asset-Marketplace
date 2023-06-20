@@ -83,7 +83,7 @@ export function Navbar() {
               <li>
                 <ConnectWallet className="connect-button" />
               </li>
-              <li>{address && <ClaimFeeRewards />}</li>
+              {/* <li>{address && <ClaimFeeRewards />}</li> */}
             </ul>
           </div>
         </div>
@@ -120,9 +120,9 @@ export function Navbar() {
                 />
               </Link>
               {/*<ClaimFeeRewards />*/}
-              <div className="absolute right-[2%] w-[250px]">
+              {/* <div className="absolute right-[2%] w-[250px]">
                 <ClaimFeeRewards />
-              </div>
+              </div> */}
             </div>
           )}
         </div>

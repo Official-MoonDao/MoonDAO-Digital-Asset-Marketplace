@@ -10,6 +10,7 @@ import {
   useUserAssets,
 } from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
+import SubmitCollection from "../components/SubmitCollection";
 
 export default function Sell() {
   const router = useRouter();
@@ -19,8 +20,8 @@ export default function Sell() {
   const { contract: marketplace, isLoading: loadingContract }: any =
     useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
-  const [validListings, setValidListings] = useState([]);
-  const [validAuctions, setValidAuctions] = useState([]);
+  const [validListings, setValidListings] = useState<any>();
+  const [validAuctions, setValidAuctions] = useState<any>();
 
   const userAssets = useUserAssets(
     marketplace,
@@ -30,7 +31,7 @@ export default function Sell() {
   );
 
   useEffect(() => {
-    if (marketplace) {
+    if (marketplace && !validListings && !validAuctions) {
       getAllValidListings(marketplace).then((listings: any) => {
         setValidListings(listings);
       });
@@ -60,6 +61,7 @@ export default function Sell() {
 
   return (
     <Container maxWidth="lg" className="">
+      {!selectedNft?.metadata?.id && <SubmitCollection />}
       <h1>Sell NFTs</h1>
       {!selectedNft?.metadata?.id ? (
         <>
