@@ -31,36 +31,29 @@ export default function Sell() {
     }
   }, [marketplace]);
 
-  if (!address) {
+  if (!address || !userAssets[0]) {
     return (
       <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full md:pl-36 xl:pl-44 2xl:pl-52 pb-60 xl:pb-72 2xl:pb-96">
-         <div className="flex flex-col items-center md:items-start w-full">
-         <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">
-          Sell NFTs
-          <span className="ml-2 lg:ml-4">
-            <VerticalStar />
-          </span>
+        <div className="flex flex-col items-center md:items-start w-full px-5">
+          <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">
+            Sell NFTs
+            <span className="ml-2 lg:ml-4">
+              <VerticalStar />
+            </span>
           </h2>
-        <p className="mt-10 lg:mt-12 opacity-80 text-lg text-red-400">{!address ?  `Please connect your wallet` : !userAssets && `You do not own any NFTs on ${NETWORK.name}`   }</p>
-         </div>
+          <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400">
+            {!address ? `Please connect your wallet to sell NFTs` : !userAssets[0] && `You do not own any NFTs on the ${NETWORK.name} network.`}
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (!userAssets) {
-    return (
-      <Container maxWidth="lg" className="">
-        <h1>Sell NFTs</h1>
-        <p>{`You do not own any NFTs on ${NETWORK.name}`}</p>
-      </Container>
-    );
-  }
-
   return (
-    <Container maxWidth="lg" className="">
-      <h1>Sell NFTs</h1>
+    <>
       {!selectedNft?.metadata?.id ? (
         <>
+          <h1>Sell NFTs</h1>
           <p>Select which NFT you&rsquo;d like to sell below.</p>
           <div className="flex flex-wrap gap-[5%] mt-[5%]">
             {userAssets[0]?.metadata?.id &&
@@ -77,35 +70,42 @@ export default function Sell() {
                   )
               )}
           </div>
-          {!selectedNft?.metadata?.id && <SubmitCollection />}
+
+          {!selectedNft?.metadata?.id && (
+            <div className="mt-32">
+              <SubmitCollection />
+            </div>
+          )}
         </>
       ) : (
-        <div className={tokenPageStyles.container} style={{ marginTop: 0 }}>
-          <div className={tokenPageStyles.metadataContainer}>
-            <div className={tokenPageStyles.imageContainer}>
-              <ThirdwebNftMedia metadata={selectedNft.metadata} className={tokenPageStyles.image} />
-              <button
-                onClick={() => {
-                  setSelectedNft(undefined);
-                }}
-                className={tokenPageStyles.crossButton}
-              >
-                X
-              </button>
+        <Container maxWidth="lg" className="">
+          <div className={tokenPageStyles.container} style={{ marginTop: 0 }}>
+            <div className={tokenPageStyles.metadataContainer}>
+              <div className={tokenPageStyles.imageContainer}>
+                <ThirdwebNftMedia metadata={selectedNft.metadata} className={tokenPageStyles.image} />
+                <button
+                  onClick={() => {
+                    setSelectedNft(undefined);
+                  }}
+                  className={tokenPageStyles.crossButton}
+                >
+                  X
+                </button>
+              </div>
+            </div>
+
+            <div className={tokenPageStyles.listingContainer}>
+              <p>You&rsquo;re about to list the following item for sale.</p>
+              <h1 className={tokenPageStyles.title}>{selectedNft.metadata.name}</h1>
+              <p className={tokenPageStyles.collectionName}>Token ID #{selectedNft.metadata.token_id}</p>
+
+              <div className={tokenPageStyles.pricingContainer}>
+                <SaleInfo nft={selectedNft} contractAddress={selectedNft.collection} router={router} walletAddress={address} />
+              </div>
             </div>
           </div>
-
-          <div className={tokenPageStyles.listingContainer}>
-            <p>You&rsquo;re about to list the following item for sale.</p>
-            <h1 className={tokenPageStyles.title}>{selectedNft.metadata.name}</h1>
-            <p className={tokenPageStyles.collectionName}>Token ID #{selectedNft.metadata.token_id}</p>
-
-            <div className={tokenPageStyles.pricingContainer}>
-              <SaleInfo nft={selectedNft} contractAddress={selectedNft.collection} router={router} walletAddress={address} />
-            </div>
-          </div>
-        </div>
+        </Container>
       )}
-    </Container>
+    </>
   );
 }

@@ -18,7 +18,7 @@ The MoonDAO Digital Asset Marketplace is where people can buy or list digital as
    
 ### Selling Assets
 1. Permissions
-   1. Only specific collections can be listed on the marketplace, ensure that you own assets from an accepted collection or contact a member of MoonDAO to learn how your collection can be added to the marketplace
+   1. Only specific collections can be listed on the marketplace, click the 'submit a collection' button [HERE](https://moondao-marketplace-test.netlify.com/sell) to submit your nft collection.  It will be reviewed and you will be notified in a MoonDAO channel by a MoonDAO steward.
 2. ERC-721 & ERC-1155
    1. List a single ERC-721 or multiple ERC-1155, if you choose to list multiple ERC-1155s they will be bundled together
 3. Direct Listings

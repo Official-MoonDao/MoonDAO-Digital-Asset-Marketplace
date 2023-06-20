@@ -7,7 +7,7 @@ import {
   serializable,
 } from "./utils";
 import { initSDK } from "./thirdweb";
-import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../const/config";
+import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS, NETWORK } from "../const/config";
 import {
   SmartContract,
   ThirdwebSDK,
@@ -17,9 +17,12 @@ import {
   useContract,
   useContractRead,
   useNFTs,
+  useNetwork,
+  useNetworkMismatch,
   useSigner,
 } from "@thirdweb-dev/react";
 import { Goerli } from "@thirdweb-dev/chains";
+import { toast } from "react-hot-toast";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -339,6 +342,7 @@ export function useUserAssets(
   const [assets, setAssets] = useState<any>([]);
 
   const signer: any = useSigner();
+  const networkMismatch = useNetworkMismatch();
 
   const { listings: profileListings, auctions: profileAuctions } =
     useListingsAndAuctionsForWallet(
@@ -352,10 +356,11 @@ export function useUserAssets(
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
           setAssets([]);
-          const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, Goerli);
+          if (networkMismatch) return;
+          const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
-          const now = Date.now() / 1000;
+   
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
             ownedAssets = await contract.erc1155.getOwned(walletAddress);
