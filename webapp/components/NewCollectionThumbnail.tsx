@@ -6,14 +6,8 @@ import Skeleton from "./Skeleton/Skeleton";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function NewCollectionThumbnail({
-  collection,
-  validListings,
-  validAuctions,
-}: any) {
-  const { contract: collectionContract } = useContract(
-    collection?.assetContract
-  );
+export default function NewCollectionThumbnail({ collection, validListings, validAuctions }: any) {
+  const { contract: collectionContract } = useContract(collection?.assetContract);
   const { data: metadata } = useMetadata(collectionContract);
 
   const { floorPrice } = useCollectionStats(

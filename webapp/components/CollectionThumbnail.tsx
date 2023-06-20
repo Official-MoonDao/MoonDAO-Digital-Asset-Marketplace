@@ -20,7 +20,7 @@ export default function CollectionThumbnail({
     collectionContract
   );
 
-  if (!metadata) return <Skeleton width="335px" height="162px" />;
+  if (!metadata) return <Skeleton width="335px" height="262px"/>;
   return (
     <Link href={`/collection/${collection.assetContract}`}>
       {/*Collection link goes on top*/}
