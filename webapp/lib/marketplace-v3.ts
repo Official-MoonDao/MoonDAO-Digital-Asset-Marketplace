@@ -360,7 +360,6 @@ export function useUserAssets(
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
-   
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
             ownedAssets = await contract.erc1155.getOwned(walletAddress);
