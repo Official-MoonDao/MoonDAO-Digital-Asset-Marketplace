@@ -103,18 +103,24 @@ export function serializable(data: any, totalOffers: any = "") {
 //////HOOKS////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
-export function useClickOutside(ref: any, _enabled: boolean) {
-  const [enabled, setEnabled] = useState(false);
+export function useClickOutside(
+  ref: any,
+  enabled: boolean,
+  setEnabled: Function
+) {
   function handleClickOutside(e: Event) {
+    console.log(e);
     ref.current && !ref.current.contains(e.target) && setEnabled(false);
     document.removeEventListener("click", handleClickOutside);
   }
   useEffect(() => {
-    if (_enabled) {
-      setEnabled(true);
-      document.addEventListener("click", handleClickOutside);
+    if (enabled) {
+      setTimeout(
+        () => document.addEventListener("click", handleClickOutside),
+        500
+      );
     }
-  }, [_enabled]);
+  }, [enabled]);
 
   return enabled;
 }

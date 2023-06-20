@@ -10,7 +10,7 @@ import {
   useUserAssets,
 } from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
-import { AuctionListing, DirectListing } from "../lib/utils";
+import SubmitCollection from "../components/SubmitCollection";
 
 export default function Sell() {
   const router = useRouter();
@@ -61,6 +61,7 @@ export default function Sell() {
 
   return (
     <Container maxWidth="lg" className="">
+      {!selectedNft?.metadata?.id && <SubmitCollection />}
       <h1>Sell NFTs</h1>
       {!selectedNft?.metadata?.id ? (
         <>
