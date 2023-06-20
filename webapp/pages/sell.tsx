@@ -44,8 +44,9 @@ export default function Sell() {
   if (!address) {
     return (
       <Container maxWidth="lg" className="">
+        <SubmitCollection />
         <h1>Sell NFTs</h1>
-        <p>{`Please connect your wallet`}</p>
+        <p>{`Please connect your wallet to sell nfts`}</p>
       </Container>
     );
   }
