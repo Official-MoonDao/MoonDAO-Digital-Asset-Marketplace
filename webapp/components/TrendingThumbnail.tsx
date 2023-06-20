@@ -3,6 +3,7 @@ import LogoSmall from "../assets/LogoSmall";
 import Skeleton from "./Skeleton/Skeleton";
 import { useAssetStats } from "../lib/marketplace-v3";
 import { NFT } from "@thirdweb-dev/sdk";
+import Link from "next/link";
 export default function TrendingThumbnail({
   asset,
   validListings,
@@ -47,9 +48,9 @@ export default function TrendingThumbnail({
         <div className="mt-5  pr-6 flex flex-col items-end">
           <p className="font-bold text-lg">#{nft.metadata.id}</p>
           <button className="mt-[50px] text-xs border-[0.5px] px-[10px] py-[6px] rounded-xl hover:bg-slate-900">
-            <a href={`/collection/${asset.assetContract}/${asset.tokenId}`}>
+            <Link href={`/collection/${asset.assetContract}/${asset.tokenId}`}>
               Details
-            </a>
+            </Link>
           </button>
         </div>
       </div>

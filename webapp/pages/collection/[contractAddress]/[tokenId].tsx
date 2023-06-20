@@ -1,4 +1,13 @@
-import { MediaRenderer, ThirdwebNftMedia, useAddress, useContract, useContractEvents, useMetadata, useNFT, Web3Button } from "@thirdweb-dev/react";
+import {
+  MediaRenderer,
+  ThirdwebNftMedia,
+  useAddress,
+  useContract,
+  useContractEvents,
+  useMetadata,
+  useNFT,
+  Web3Button,
+} from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { NFT } from "@thirdweb-dev/sdk";
@@ -7,9 +16,18 @@ import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../../util/toastConfig";
-import { getAllValidAuctions, getAllValidListings, getAllValidOffers, useListingsAndAuctionsForTokenId } from "../../../lib/marketplace-v3";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  getAllValidOffers,
+  useListingsAndAuctionsForTokenId,
+} from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
-import { ETHERSCAN_URL, MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../../const/config";
+import {
+  ETHERSCAN_URL,
+  MARKETPLACE_ADDRESS,
+  MOONEY_DECIMALS,
+} from "../../../const/config";
 import { DirectListing, AuctionListing, BigConvert } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
 import { useRouter } from "next/router";
@@ -24,7 +42,10 @@ type TokenPageProps = {
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
-export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) {
+export default function TokenPage({
+  contractAddress,
+  tokenId,
+}: TokenPageProps) {
   const router = useRouter();
   const address = useAddress();
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -32,9 +53,16 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
-  const { contract: marketplace, isLoading: loadingContract }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+  const { contract: marketplace, isLoading: loadingContract }: any =
+    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
-  const { listings: directListing, auctions: auctionListing } = useListingsAndAuctionsForTokenId(validListings, validAuctions, tokenId, contractAddress);
+  const { listings: directListing, auctions: auctionListing } =
+    useListingsAndAuctionsForTokenId(
+      validListings,
+      validAuctions,
+      tokenId,
+      contractAddress
+    );
   const [currListing, setCurrListing]: any = useState({
     type: "",
     listing: {} as DirectListing | AuctionListing,
@@ -50,21 +78,25 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
   //NFT data
   const { data: nft }: any = useNFT(nftCollection, tokenId);
   // Load historical transfer events: TODO - more event types like sale
-  const { data: transferEvents, isLoading: loadingTransferEvents } = useContractEvents(nftCollection, "Transfer", {
-    queryFilter: {
-      filters: {
-        tokenId: tokenId,
+  const { data: transferEvents, isLoading: loadingTransferEvents } =
+    useContractEvents(nftCollection, "Transfer", {
+      queryFilter: {
+        filters: {
+          tokenId: tokenId,
+        },
+        order: "desc",
       },
-      order: "desc",
-    },
-  });
+    });
   async function createBidOrOffer() {
     let txResult;
     if (!currListing) return;
 
     try {
       if (currListing.type === "auction") {
-        txResult = await marketplace?.englishAuctions.makeBid(currListing.listing.auctionId, bidValue);
+        txResult = await marketplace?.englishAuctions.makeBid(
+          currListing.listing.auctionId,
+          bidValue
+        );
       } else {
         throw new Error("No valid auction listing found for this NFT");
       }
@@ -81,10 +113,18 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
     let txResult;
     try {
       if (currListing.type === "direct") {
-        txResult = await marketplace.directListings.buyFromListing(currListing.listing.listingId, 1, address);
+        txResult = await marketplace.directListings.buyFromListing(
+          currListing.listing.listingId,
+          1,
+          address
+        );
       } else {
-        txResult = await marketplace.englishAuctions.buyoutAuction(currListing.listing.auctionId);
-        await marketplace.englishAuctions.executeSale(currListing.listing.auctionId);
+        txResult = await marketplace.englishAuctions.buyoutAuction(
+          currListing.listing.auctionId
+        );
+        await marketplace.englishAuctions.executeSale(
+          currListing.listing.auctionId
+        );
       }
       setTimeout(() => {
         router.reload();
@@ -112,7 +152,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
   ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListing[0] || auctionListing[0]) {
-      const listing = directListing[0] ? { type: "direct", listing: directListing[0] } : { type: "auction", listing: auctionListing[0] };
+      const listing = directListing[0]
+        ? { type: "direct", listing: directListing[0] }
+        : { type: "auction", listing: auctionListing[0] };
       setCurrListing(listing);
     }
   }, [nft, directListing, auctionListing]);
@@ -122,7 +164,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
     //set winning bid if auction
     if (!loadingContract && currListing.type === "auction") {
       (async () => {
-        const winningBid = await marketplace?.englishAuctions?.getWinningBid(currListing.listing.auctionId);
+        const winningBid = await marketplace?.englishAuctions?.getWinningBid(
+          currListing.listing.auctionId
+        );
         setWinningBid(winningBid);
       })();
     }
@@ -139,30 +183,50 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
       <article className="w-full ml-auto mr-auto px-4 mt-24 max-w-[1200px]">
         <div className="w-full flex flex-col gap-8 mt-32 tablet:flex-row pb-32 tablet:pb-0">
           <div className="flex flex-col flex-1 w-full mt-8 tablet:mt-0">
-            <ThirdwebNftMedia metadata={nft?.metadata} className="!w-full !h-full bg-white bg-opacity-[0.04] rounded-2xl" />
+            <ThirdwebNftMedia
+              metadata={nft?.metadata}
+              className="!w-full !h-full bg-white bg-opacity-[0.04] rounded-2xl"
+            />
 
             {/*Description*/}
             <div className="px-4">
-              <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">Description</h3>
+              <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">
+                Description
+              </h3>
 
-              <p className="font-medium text-base leading-[25px] opacity-80">{nft.metadata.description}</p>
+              <p className="font-medium text-base leading-[25px] opacity-80">
+                {nft.metadata.description}
+              </p>
 
               {/*Traits*/}
-              <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">Traits</h3>
+              <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">
+                Traits
+              </h3>
 
               <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20">
-                {Object.entries(nft?.metadata?.attributes || {}).map(([key, value]: any) => (
-                  <div className="flex flex-col grow gap-1 py-2 px-3 min-w-[128px] min-h-[32px]" key={key}>
-                    <p className="m-0 text-white opacity-60">{value.trait_type}</p>
-                    <p className="font-semibold m-0 text-white opacity-90">{value.value?.toString() || ""}</p>
-                  </div>
-                ))}
+                {Object.entries(nft?.metadata?.attributes || {}).map(
+                  ([key, value]: any) => (
+                    <div
+                      className="flex flex-col grow gap-1 py-2 px-3 min-w-[128px] min-h-[32px]"
+                      key={key}
+                    >
+                      <p className="m-0 text-white opacity-60">
+                        {value.trait_type}
+                      </p>
+                      <p className="font-semibold m-0 text-white opacity-90">
+                        {value.value?.toString() || ""}
+                      </p>
+                    </div>
+                  )
+                )}
               </div>
 
               {/*History*/}
               {currListing?.listing && nft.type === "ERC721" && (
                 <>
-                  <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">History</h3>
+                  <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">
+                    History
+                  </h3>
                   <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20">
                     {!loadingTransferEvents &&
                       transferEvents?.map((event, index) => (
@@ -175,7 +239,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                             <p className="font-semibold m-0 text-white opacity-90">
                               {
                                 // if last event in array, then it's a mint
-                                index === transferEvents.length - 1 ? "Mint" : "Transfer"
+                                index === transferEvents.length - 1
+                                  ? "Mint"
+                                  : "Transfer"
                               }
                             </p>
                           </div>
@@ -197,7 +263,11 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                           </div>
 
                           <div className="flex flex-col gap-1">
-                            <Link className="w-[34px] h-[34px] p-2 transition-all duration-150 hover:scale-[1.35]" href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`} target="_blank">
+                            <Link
+                              className="w-[34px] h-[34px] p-2 transition-all duration-150 hover:scale-[1.35]"
+                              href={`${ETHERSCAN_URL}/tx/${event.transaction.transactionHash}`}
+                              target="_blank"
+                            >
                               ↗
                             </Link>
                           </div>
@@ -214,12 +284,19 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
             {contractMetadata && (
               <div className="flex items-center mb-2">
                 <Link href={`/collection/${contractAddress}`}>
-                  <MediaRenderer src={contractMetadata.image} className="!w-[36px] !h-[36px] rounded-lg mr-4 ml-3 mb-2" />
-                  <p className="truncate w-full mx-4 mt-[5px] opacity-50">{contractMetadata.name}</p>
+                  <MediaRenderer
+                    src={contractMetadata.image}
+                    className="!w-[36px] !h-[36px] rounded-lg mr-4 ml-3 mb-2"
+                  />
+                  <p className="truncate w-full mx-4 mt-[5px] opacity-50">
+                    {contractMetadata.name}
+                  </p>
                 </Link>
               </div>
             )}
-            <h1 className="font-GoodTimes font-medium text-[32px] break-words mb-2 mx-4 text-moon-white">{nft.metadata.name}</h1>
+            <h1 className="font-GoodTimes font-medium text-[32px] break-words mb-2 mx-4 text-moon-white">
+              {nft.metadata.name}
+            </h1>
             <div className="inline-block">
               <p className="font-medium truncate mx-4 mt-4 text-[20px] py-1 px-[10px] rounded-sm bg-moon-secondary bg-opacity-40">
                 Token ID #{nft.metadata.id}
@@ -227,7 +304,10 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
             </div>
 
             {currListing?.listing && nft.type === "ERC721" && (
-              <Link href={`/profile/${currListing?.listing.listingCreator}`} className={styles.nftOwnerContainer}>
+              <Link
+                href={`/profile/${currListing?.listing.listingCreator}`}
+                className={styles.nftOwnerContainer}
+              >
                 {/* Random linear gradient circle shape */}
                 <div
                   className="mt-4 w-[48px] h-[48px] rounded-[50%] opacity-90 border-2 border-white border-opacity-20"
@@ -249,8 +329,19 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
             )}
 
             <div className="flex flex-col w-full relative grow bg-transparent rounded-2xl overflow-hidden mt-8 mb-6">
-              {/* Pricing information */}
               <div className="p-4 pl-5 rounded-xl bg-white bg-opacity-[0.13] w-full m-0 mb-3">
+                {/* Quantity for ERC1155 */}
+                {currListing?.listing && nft.type === "ERC1155" && (
+                  <>
+                    <p className="text-white opacity-60 mt-1 p-[2px]">
+                      Quantity
+                    </p>
+                    <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                      {currListing.listing.quantity}
+                    </div>
+                  </>
+                )}
+                {/* Pricing information */}
                 <p className="text-white opacity-60 mt-1 p-[2px]">Price</p>
                 <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
                   {!currListing ? (
@@ -262,9 +353,11 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                           {+currListing.listing.pricePerToken / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
-                      ) : currListing.listing && currListing.type === "auction" ? (
+                      ) : currListing.listing &&
+                        currListing.type === "auction" ? (
                         <>
-                          {+currListing.listing.buyoutBidAmount / MOONEY_DECIMALS}
+                          {+currListing.listing.buyoutBidAmount /
+                            MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -282,25 +375,44 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                       <>
                         {auctionListing && auctionListing[0] && (
                           <>
-                            <p className="text-white opacity-60 mt-1 p-[2px]" style={{ marginTop: 12 }}>
+                            <p
+                              className="text-white opacity-60 mt-1 p-[2px]"
+                              style={{ marginTop: 12 }}
+                            >
                               Bids starting from
                             </p>
 
                             <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                              {+auctionListing[0].minimumBidAmount / MOONEY_DECIMALS}
+                              {+auctionListing[0].minimumBidAmount /
+                                MOONEY_DECIMALS}
                               {" " + "MOONEY"}
                             </div>
-                            <p className="text-white opacity-60 mt-1 p-[2px]" style={{ marginTop: 12 }}>
+                            <p
+                              className="text-white opacity-60 mt-1 p-[2px]"
+                              style={{ marginTop: 12 }}
+                            >
                               {"Winning Bid"}
                             </p>
-                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">{winningBid ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS + " MOONEY" : "No bids yet"}</div>
-                            <p className="text-white opacity-60 mt-1 p-[2px]" style={{ marginTop: 12 }}>
+                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                              {winningBid
+                                ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS +
+                                  " MOONEY"
+                                : "No bids yet"}
+                            </div>
+                            <p
+                              className="text-white opacity-60 mt-1 p-[2px]"
+                              style={{ marginTop: 12 }}
+                            >
                               {"Expiration"}
                             </p>
                             <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                              {new Date(+auctionListing[0].endTimestamp * 1000).toLocaleDateString() +
+                              {new Date(
+                                +auctionListing[0].endTimestamp * 1000
+                              ).toLocaleDateString() +
                                 " @ " +
-                                new Date(+auctionListing[0].endTimestamp * 1000).toLocaleTimeString()}
+                                new Date(
+                                  +auctionListing[0].endTimestamp * 1000
+                                ).toLocaleTimeString()}
                             </div>
                           </>
                         )}
@@ -313,14 +425,30 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
 
             {/*Direct listings and auction, hidden if there isn't either via conditional*/}
             {nft.type !== "ERC721" && (
-              <div className={` ${!directListing[0] && !auctionListing[0] && "hidden"} flex flex-col px-3 py-2 border border-[grey] mb-4`}>
+              <div
+                className={` ${
+                  !directListing[0] && !auctionListing[0] && "hidden"
+                } flex flex-col px-3 py-2 border-2 border-[#ffffff1d] mb-4 max-h-[500px] overflow-y-scroll`}
+              >
                 {directListing[0] && (
                   <div>
-                    <p className="opacity-60 mt-1 p-[2px]">Direct Listings :</p>
+                    <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black">
+                      Direct Listings :
+                    </p>
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
-                        <div className={`flex flex-col p-2 ${currListing.listing.listingId === l.listingId && ""}`} key={`erc-1155-direct-listing-${i}`}>
-                          <Listing type="direct" listing={l} setCurrListing={setCurrListing} />
+                        <div
+                          className={`flex flex-col px-2 mt-2 ${
+                            currListing.listing.listingId === l.listingId &&
+                            "bg-[#ffffff1d]"
+                          }`}
+                          key={`erc-1155-direct-listing-${i}`}
+                        >
+                          <Listing
+                            type="direct"
+                            listing={l}
+                            setCurrListing={setCurrListing}
+                          />
                         </div>
                       ))}
                   </div>
@@ -328,15 +456,24 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
 
                 {auctionListing[0] && (
                   <div className={`${directListing[0] && "mt-2"}`}>
-                    <p className="opacity-60 mt-1 p-[2px]">Auction Listings :</p>
+                    <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black">
+                      Auction Listings :
+                    </p>
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
                         <>
                           <div
-                            className={`flex flex-col px-2 mt-2 ${currListing.listing.auctionId === a.auctionId && ""}`}
+                            className={`flex flex-col px-2 mt-2 ${
+                              currListing.listing.auctionId === a.auctionId &&
+                              "bg-[#ffffff1d]"
+                            }`}
                             key={`erc-1155-auction-listing-${i}`}
                           >
-                            <Listing type="auction" listing={a} setCurrListing={setCurrListing} />
+                            <Listing
+                              type="auction"
+                              listing={a}
+                              setCurrListing={setCurrListing}
+                            />
                           </div>
                         </>
                       ))}
@@ -381,7 +518,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                         {currListing.type === "auction" && (
                           <>
                             <div className="flex items-center justify-center m-0 my-4">
-                              <p className="text-sm leading-6 text-white text-opacity-60 m-0">or</p>
+                              <p className="text-sm leading-6 text-white text-opacity-60 m-0">
+                                or
+                              </p>
                             </div>
                             <input
                               className="block border border-white w-[98%] py-3 px-4 bg-black bg-opacity-70 border-opacity-60 rounded-lg mb-4 ml-[2px]"
@@ -389,7 +528,8 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                                 currListing.type === "auction" && winningBid > 0
                                   ? winningBid
                                   : currListing.listing
-                                  ? +currListing.listing.minimumBidAmount / MOONEY_DECIMALS
+                                  ? +currListing.listing.minimumBidAmount /
+                                    MOONEY_DECIMALS
                                   : 0
                               }
                               type="number"
