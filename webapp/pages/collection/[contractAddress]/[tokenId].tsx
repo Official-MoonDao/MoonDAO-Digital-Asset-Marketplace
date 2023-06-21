@@ -438,6 +438,7 @@ export default function TokenPage({
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
                         <div
+                          key={`erc-1155-direct-listing-container-${i}`}
                           className={`flex flex-col mt-2 md:px-2 ${
                             currListing.listing.listingId === l.listingId &&
                             "bg-[#ffffff1d]"
@@ -462,6 +463,7 @@ export default function TokenPage({
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
                         <div
+                          key={`erc-1155-auction-listing-container-${i}`}
                           className={`flex flex-col mt-2 md:px-2 ${
                             currListing.listing.auctionId === a.auctionId &&
                             "bg-[#ffffff1d]"
