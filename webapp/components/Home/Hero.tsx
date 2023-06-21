@@ -81,11 +81,11 @@ export default function Hero() {
           <span className="lg:mt-4 lg:inline-block">MARKETPLACE</span>
         </h1>
         <p className="mt-6 2xl:mt-[26px] lg:mt-7 text-moon-orange text-lg md:text-base lg:text-lg max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
-          Whether you're an artist seeking to showcase your unique creations or
+          {`Whether you're an artist seeking to showcase your unique creations or
           a collector in search of one-of-a-kind digital artifacts, the MoonDAO
           Marketplace offers a seamless and secure environment for buying and
           selling NFTs for MOONEY. Join our thriving community today and embark
-          on a journey into the endless possibilities of the digital universe
+          on a journey into the endless possibilities of the digital universe`}
         </p>
 
         <ArrowButton
