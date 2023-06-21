@@ -36,8 +36,8 @@ export function MulticallQue({ address }: any) {
           Multicall
         </Web3Button>
         <p className="text-[75%] w-1/2">
-          To list multiple assets at once, click 'add to que' instead of create
-          listing. Click the multicall button when your que is ready.
+          {`To list multiple assets at once, click 'add to que' instead of create
+          listing. Click the multicall button when your que is ready.`}
         </p>
       </div>
       {enabled && (
