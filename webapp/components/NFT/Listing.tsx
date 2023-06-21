@@ -7,15 +7,10 @@ interface ListingProps {
   setCurrListing: Function;
 }
 
-export default function Listing({
-  type = "direct",
-  listing,
-  setCurrListing,
-}: ListingProps) {
+export default function Listing({ type = "direct", listing, setCurrListing }: ListingProps) {
   const listingId = type === "direct" ? listing?.listingId : listing?.auctionId;
   const sellerAddress = listing.seller;
-  const buyOut =
-    type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
+  const buyOut = type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
   const minBid = type === "direct" ? 0 : listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
