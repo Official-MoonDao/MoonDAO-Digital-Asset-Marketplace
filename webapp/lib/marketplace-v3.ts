@@ -23,6 +23,7 @@ import {
 } from "@thirdweb-dev/react";
 import { Goerli } from "@thirdweb-dev/chains";
 import { toast } from "react-hot-toast";
+import { AnyMapping } from "three";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -147,6 +148,42 @@ export async function multiCancelListings(
     }
     const multicallTx = await marketplace.callStatic.multicall(encodedData);
     return multicallTx;
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export async function multiCreateListings(
+  marketplace: any,
+  queuedListings: any,
+  queuedAuctions: any
+) {
+  try {
+    const encodedData = [];
+    if (queuedListings.length > 0) {
+      encodedData.push(
+        ...queuedListings.map((listing: any) =>
+          marketplace.interface.encodeFunctionData("createListing", [
+            ...listing,
+          ])
+        )
+      );
+    }
+
+    if (queuedAuctions.length > 0) {
+      encodedData.push(
+        ...queuedAuctions.map((auction: any) =>
+          marketplace.interface.encodeFunctionData("createAuction", [
+            ...auction,
+          ])
+        )
+      );
+    }
+
+    if (encodedData.length > 0) {
+      const multicallTx = await marketplace.callStatic.multicall(encodedData);
+      return multicallTx;
+    } else throw new Error("No data to encode");
   } catch (err) {
     console.log(err);
   }

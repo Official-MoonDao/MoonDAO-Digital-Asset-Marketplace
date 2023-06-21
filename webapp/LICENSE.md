@@ -186,6 +186,7 @@ APPENDIX: How to apply the Apache License to your work.
       same "printed page" as the copyright notice for easier
       identification within third-party archives.
 
+Copyright 2023 MoonDAO and individual contributors
 Copyright 2021 Non-Fungible Labs, Inc
 
 Licensed under the Apache License, Version 2.0 (the "License");

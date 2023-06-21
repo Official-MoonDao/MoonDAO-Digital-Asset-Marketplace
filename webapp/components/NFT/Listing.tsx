@@ -7,10 +7,15 @@ interface ListingProps {
   setCurrListing: Function;
 }
 
-export default function Listing({ type = "direct", listing, setCurrListing }: ListingProps) {
+export default function Listing({
+  type = "direct",
+  listing,
+  setCurrListing,
+}: ListingProps) {
   const listingId = type === "direct" ? listing?.listingId : listing?.auctionId;
   const sellerAddress = listing.seller;
-  const buyOut = type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
+  const buyOut =
+    type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
   const minBid = type === "direct" ? 0 : listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
@@ -40,7 +45,8 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
         </div>
         <div className="text-right tracking-wide">
           <p className="truncate w-full text-sm leading-5 font-medium text-moon-gold text-opacity-80">
-            {"Price (MOONEY)"}
+            {"Price"}
+            <span className="text-[50%]">(MOONEY)</span>
           </p>
           <p className="mt-1">{+buyOut / MOONEY_DECIMALS}</p>
         </div>

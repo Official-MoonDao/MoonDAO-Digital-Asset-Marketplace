@@ -100,6 +100,23 @@ export function serializable(data: any, totalOffers: any = "") {
   return JSON.parse(JSON.stringify(formatted));
 }
 
+interface multicallQue {
+  queuedListings: [];
+  queuedAuctions: [];
+}
+
+export function getLocalQue(address: string) {
+  if (!address) return;
+  const storedQue = localStorage.getItem(`multicallQue-${address}`);
+  if (storedQue) {
+    return JSON.parse(storedQue);
+  } else return {};
+}
+
+export function storeLocalQue(que: multicallQue, address: string) {
+  localStorage.setItem(`multicallQue-${address}`, JSON.stringify(que));
+}
+
 //////HOOKS////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
@@ -123,4 +140,12 @@ export function useClickOutside(
   }, [enabled]);
 
   return enabled;
+}
+
+export function useLocalQue(address: string) {
+  const [localQue, setLocalQue] = useState(getLocalQue(address));
+  useEffect(() => {
+    storeLocalQue(localQue, address);
+  }, [localQue, address]);
+  return [localQue, setLocalQue];
 }

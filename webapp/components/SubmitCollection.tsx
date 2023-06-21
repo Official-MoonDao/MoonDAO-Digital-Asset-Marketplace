@@ -9,8 +9,8 @@ export default function SubmitCollection() {
 
   return (
     <div
-      className={`w-full  ${
-        enabled ? "h-[400px]" : "h-[200px]"
+      className={`w-full flex justify-center ${
+        enabled ? "md:h-[500px]" : "h-[200px]"
       } ease-in-ease-out duration-500`}
       ref={submitRef}
     >
@@ -29,14 +29,14 @@ export default function SubmitCollection() {
           </button>
         </div>
       ) : (
-        <div className="animate-fade-in w-full flex flex-col justify-center items-center rounded-lg">
+        <div className="animate-fade-in w-3/4 flex flex-col justify-center items-center rounded-lg light">
           <iframe
-            className="rounded-sm"
+            className="rounded-lg"
             allowTransparency={true}
-            width={"80%"}
-            height={"350px"}
+            width={"100%"}
+            height={"550px"}
             src={
-              "https://circles-v1-production.vercel.app/r/ad645285-65ef-4aec-b314-d8d0659cccd8/embed?mode=light"
+              "https://circles-v1-production.vercel.app/r/ad645285-65ef-4aec-b314-d8d0659cccd8/embed?mode=dark"
             }
           />
         </div>

@@ -1,4 +1,13 @@
-import { MediaRenderer, ThirdwebNftMedia, useAddress, useContract, useContractEvents, useMetadata, useNFT, Web3Button } from "@thirdweb-dev/react";
+import {
+  MediaRenderer,
+  ThirdwebNftMedia,
+  useAddress,
+  useContract,
+  useContractEvents,
+  useMetadata,
+  useNFT,
+  Web3Button,
+} from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import { NFT } from "@thirdweb-dev/sdk";
@@ -7,9 +16,18 @@ import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../../util/toastConfig";
-import { getAllValidAuctions, getAllValidListings, getAllValidOffers, useListingsAndAuctionsForTokenId } from "../../../lib/marketplace-v3";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  getAllValidOffers,
+  useListingsAndAuctionsForTokenId,
+} from "../../../lib/marketplace-v3";
 import { initSDK } from "../../../lib/thirdweb";
-import { ETHERSCAN_URL, MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../../const/config";
+import {
+  ETHERSCAN_URL,
+  MARKETPLACE_ADDRESS,
+  MOONEY_DECIMALS,
+} from "../../../const/config";
 import { DirectListing, AuctionListing, BigConvert } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
 import { useRouter } from "next/router";
@@ -24,7 +42,10 @@ type TokenPageProps = {
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
-export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) {
+export default function TokenPage({
+  contractAddress,
+  tokenId,
+}: TokenPageProps) {
   const router = useRouter();
   const address = useAddress();
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -32,9 +53,16 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
-  const { contract: marketplace, isLoading: loadingContract }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+  const { contract: marketplace, isLoading: loadingContract }: any =
+    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
-  const { listings: directListing, auctions: auctionListing } = useListingsAndAuctionsForTokenId(validListings, validAuctions, tokenId, contractAddress);
+  const { listings: directListing, auctions: auctionListing } =
+    useListingsAndAuctionsForTokenId(
+      validListings,
+      validAuctions,
+      tokenId,
+      contractAddress
+    );
   const [currListing, setCurrListing]: any = useState({
     type: "",
     listing: {} as DirectListing | AuctionListing,
@@ -50,21 +78,25 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
   //NFT data
   const { data: nft }: any = useNFT(nftCollection, tokenId);
   // Load historical transfer events: TODO - more event types like sale
-  const { data: transferEvents, isLoading: loadingTransferEvents } = useContractEvents(nftCollection, "Transfer", {
-    queryFilter: {
-      filters: {
-        tokenId: tokenId,
+  const { data: transferEvents, isLoading: loadingTransferEvents } =
+    useContractEvents(nftCollection, "Transfer", {
+      queryFilter: {
+        filters: {
+          tokenId: tokenId,
+        },
+        order: "desc",
       },
-      order: "desc",
-    },
-  });
+    });
   async function createBidOrOffer() {
     let txResult;
     if (!currListing) return;
 
     try {
       if (currListing.type === "auction") {
-        txResult = await marketplace?.englishAuctions.makeBid(currListing.listing.auctionId, bidValue);
+        txResult = await marketplace?.englishAuctions.makeBid(
+          currListing.listing.auctionId,
+          bidValue
+        );
       } else {
         throw new Error("No valid auction listing found for this NFT");
       }
@@ -81,10 +113,18 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
     let txResult;
     try {
       if (currListing.type === "direct") {
-        txResult = await marketplace.directListings.buyFromListing(currListing.listing.listingId, 1, address);
+        txResult = await marketplace.directListings.buyFromListing(
+          currListing.listing.listingId,
+          1,
+          address
+        );
       } else {
-        txResult = await marketplace.englishAuctions.buyoutAuction(currListing.listing.auctionId);
-        await marketplace.englishAuctions.executeSale(currListing.listing.auctionId);
+        txResult = await marketplace.englishAuctions.buyoutAuction(
+          currListing.listing.auctionId
+        );
+        await marketplace.englishAuctions.executeSale(
+          currListing.listing.auctionId
+        );
       }
       setTimeout(() => {
         router.reload();
@@ -112,7 +152,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
   ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListing[0] || auctionListing[0]) {
-      const listing = directListing[0] ? { type: "direct", listing: directListing[0] } : { type: "auction", listing: auctionListing[0] };
+      const listing = directListing[0]
+        ? { type: "direct", listing: directListing[0] }
+        : { type: "auction", listing: auctionListing[0] };
       setCurrListing(listing);
     }
   }, [nft, directListing, auctionListing]);
@@ -122,7 +164,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
     //set winning bid if auction
     if (!loadingContract && currListing.type === "auction") {
       (async () => {
-        const winningBid = await marketplace?.englishAuctions?.getWinningBid(currListing.listing.auctionId);
+        const winningBid = await marketplace?.englishAuctions?.getWinningBid(
+          currListing.listing.auctionId
+        );
         setWinningBid(winningBid);
       })();
     }
@@ -195,7 +239,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                             <p className="font-semibold m-0 text-white opacity-90">
                               {
                                 // if last event in array, then it's a mint
-                                index === transferEvents.length - 1 ? "Mint" : "Transfer"
+                                index === transferEvents.length - 1
+                                  ? "Mint"
+                                  : "Transfer"
                               }
                             </p>
                           </div>
@@ -258,7 +304,10 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
             </div>
 
             {currListing?.listing && nft.type === "ERC721" && (
-              <Link href={`/profile/${currListing?.listing.listingCreator}`} className={styles.nftOwnerContainer}>
+              <Link
+                href={`/profile/${currListing?.listing.listingCreator}`}
+                className={styles.nftOwnerContainer}
+              >
                 {/* Random linear gradient circle shape */}
                 <div
                   className="mt-4 w-[48px] h-[48px] rounded-[50%] opacity-90 border-2 border-white border-opacity-20"
@@ -304,9 +353,11 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                           {+currListing.listing.pricePerToken / MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
-                      ) : currListing.listing && currListing.type === "auction" ? (
+                      ) : currListing.listing &&
+                        currListing.type === "auction" ? (
                         <>
-                          {+currListing.listing.buyoutBidAmount / MOONEY_DECIMALS}
+                          {+currListing.listing.buyoutBidAmount /
+                            MOONEY_DECIMALS}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -359,7 +410,9 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                                 +auctionListing[0].endTimestamp * 1000
                               ).toLocaleDateString() +
                                 " @ " +
-                                new Date(+auctionListing[0].endTimestamp * 1000).toLocaleTimeString()}
+                                new Date(
+                                  +auctionListing[0].endTimestamp * 1000
+                                ).toLocaleTimeString()}
                             </div>
                           </>
                         )}
@@ -385,13 +438,13 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
                         <div
-                          className={`flex flex-col px-2 mt-2 ${
+                          className={`flex flex-col mt-2 md:px-2 ${
                             currListing.listing.listingId === l.listingId &&
                             "bg-[#ffffff1d]"
                           }`}
-                          key={`erc-1155-direct-listing-${i}`}
                         >
                           <Listing
+                            key={`erc-1155-direct-listing-${i}`}
                             type="direct"
                             listing={l}
                             setCurrListing={setCurrListing}
@@ -408,21 +461,19 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                     </p>
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
-                        <>
-                          <div
-                            className={`flex flex-col px-2 mt-2 ${
-                              currListing.listing.auctionId === a.auctionId &&
-                              "bg-[#ffffff1d]"
-                            }`}
+                        <div
+                          className={`flex flex-col mt-2 md:px-2 ${
+                            currListing.listing.auctionId === a.auctionId &&
+                            "bg-[#ffffff1d]"
+                          }`}
+                        >
+                          <Listing
                             key={`erc-1155-auction-listing-${i}`}
-                          >
-                            <Listing
-                              type="auction"
-                              listing={a}
-                              setCurrListing={setCurrListing}
-                            />
-                          </div>
-                        </>
+                            type="auction"
+                            listing={a}
+                            setCurrListing={setCurrListing}
+                          />
+                        </div>
                       ))}
                   </div>
                 )}
@@ -462,7 +513,7 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                           Buy at asking price
                         </Web3Button>
 
-                        {currListing.type === "auction" && (
+                        {address && currListing.type === "auction" && (
                           <>
                             <div className="flex items-center justify-center m-0 my-4">
                               <p className="text-sm leading-6 text-white text-opacity-60 m-0">
@@ -475,7 +526,8 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                                 currListing.type === "auction" && winningBid > 0
                                   ? winningBid
                                   : currListing.listing
-                                  ? +currListing.listing.minimumBidAmount / MOONEY_DECIMALS
+                                  ? +currListing.listing.minimumBidAmount /
+                                    MOONEY_DECIMALS
                                   : 0
                               }
                               type="number"
