@@ -40,7 +40,8 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
         </div>
         <div className="text-right tracking-wide">
           <p className="truncate w-full text-sm leading-5 font-medium text-moon-gold text-opacity-80">
-            {"Price (MOONEY)"}
+            {"Price"}
+            <span className="text-[50%]">(MOONEY)</span>
           </p>
           <p className="mt-1">{+buyOut / MOONEY_DECIMALS}</p>
         </div>

@@ -385,13 +385,13 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                     {directListing[0] &&
                       directListing.map((l: any, i: number) => (
                         <div
-                          className={`flex flex-col px-2 mt-2 ${
+                          className={`flex flex-col mt-2 md:px-2 ${
                             currListing.listing.listingId === l.listingId &&
                             "bg-[#ffffff1d]"
                           }`}
-                          key={`erc-1155-direct-listing-${i}`}
                         >
                           <Listing
+                            key={`erc-1155-direct-listing-${i}`}
                             type="direct"
                             listing={l}
                             setCurrListing={setCurrListing}
@@ -408,21 +408,19 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                     </p>
                     {auctionListing[0] &&
                       auctionListing.map((a: any, i: number) => (
-                        <>
-                          <div
-                            className={`flex flex-col px-2 mt-2 ${
-                              currListing.listing.auctionId === a.auctionId &&
-                              "bg-[#ffffff1d]"
-                            }`}
+                        <div
+                          className={`flex flex-col mt-2 md:px-2 ${
+                            currListing.listing.auctionId === a.auctionId &&
+                            "bg-[#ffffff1d]"
+                          }`}
+                        >
+                          <Listing
                             key={`erc-1155-auction-listing-${i}`}
-                          >
-                            <Listing
-                              type="auction"
-                              listing={a}
-                              setCurrListing={setCurrListing}
-                            />
-                          </div>
-                        </>
+                            type="auction"
+                            listing={a}
+                            setCurrListing={setCurrListing}
+                          />
+                        </div>
                       ))}
                   </div>
                 )}
@@ -462,7 +460,7 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                           Buy at asking price
                         </Web3Button>
 
-                        {currListing.type === "auction" && (
+                        {address && currListing.type === "auction" && (
                           <>
                             <div className="flex items-center justify-center m-0 my-4">
                               <p className="text-sm leading-6 text-white text-opacity-60 m-0">
