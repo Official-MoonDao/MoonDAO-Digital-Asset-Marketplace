@@ -92,7 +92,7 @@ export default function Sell() {
                           </p>
                         )}
                         <div className="bg-gradient-to-br shadow transition-all duration-300 shadow-white from-black via-gray-900 to-black -mt-2 z-50 relative rounded-xl py-3 pl-4 pr-3 w-[290px]">
-                          <p className="text-sm opacity-70">
+                          <p className="text-sm opacity-70 truncate">
                             {nft.collectionName}
                           </p>
                           <p className="mt-4 font-GoodTimes tracking-wide truncate">
