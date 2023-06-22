@@ -399,6 +399,7 @@ export function useUserAssets(
   useEffect(() => {
     if (marketplace && signer && profileListings && profileAuctions) {
       marketplace.roles.get("asset").then(async (res: any) => {
+        setAssets([]);
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
@@ -492,21 +493,11 @@ function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
   //get floor price for validListings
   const listingFloor =
     listings && listings[0]
-      ? listings.reduce((acc: any, listing: any) => {
-          if (!acc) return listing.pricePerToken;
-          if (listing.pricePerToken < acc) return listing.pricePerToken;
-          return acc;
-        }).pricePerToken
-      : 0;
-
-  //get floor price for validAuctions
+      ? Math.min(...listings.map((listing) => +listing.pricePerToken))
+      : 0; //get floor price for validAuctions
   const auctionFloor =
     auctions && auctions[0]
-      ? auctions.reduce((acc: any, auction: any) => {
-          if (!acc) return auction.buyoutBidAmount;
-          if (auction.buyout < acc) return auction.buyoutBidAmount;
-          return acc;
-        }).buyoutBidAmount
+      ? Math.min(...auctions.map((auction) => +auction.buyoutBidAmount))
       : 0;
 
   //true floor price for asset
@@ -610,9 +601,15 @@ export function useCollectionStats(
     if (collectionContract && (collectionListings || collectionAuctions)) {
       const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
       const listed =
-        collectionListings?.length && collectionAuctions?.length
-          ? collectionListings?.length + collectionAuctions?.length
-          : collectionListings?.length || collectionAuctions?.length;
+        collectionListings.reduce(
+          (arr: number, l: any) => arr + Number(l.quantity),
+          0
+        ) +
+        collectionAuctions.reduce(
+          (arr: number, a: any) => arr + Number(a.quantity),
+          0
+        );
+
       let supply: any;
       (async () => {
         const extensions = getAllDetectedFeatureNames(collectionContract?.abi);
