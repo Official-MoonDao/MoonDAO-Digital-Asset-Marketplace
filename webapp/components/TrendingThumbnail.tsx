@@ -24,8 +24,8 @@ export default function TrendingThumbnail({
   return (
     <article className="relative group overflow-hidden">
       {/*Stamps to cut corners*/}
-      <div className="bg-main-background h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -left-8 -top-3"></div>
-      <div className="bg-main-background h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div>
+      <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -left-8 -top-3"></div>
+      <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div>
       {/*Image container to create zoom effect*/}
       <div className="w-[335px] h-[275px] overflow-hidden">
         <img
