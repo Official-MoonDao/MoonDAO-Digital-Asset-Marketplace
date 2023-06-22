@@ -1,9 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useContract, useContractWrite, useCreateAuctionListing, useNFTBalance, Web3Button } from "@thirdweb-dev/react";
+import {
+  useContract,
+  useContractWrite,
+  useCreateAuctionListing,
+  useNFTBalance,
+  Web3Button,
+} from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../util/toastConfig";
-import { MARKETPLACE_ADDRESS, MOONEY_ADDRESS, MOONEY_DECIMALS, VMOONEY_ADDRESS } from "../../const/config";
+import {
+  MARKETPLACE_ADDRESS,
+  MOONEY_ADDRESS,
+  MOONEY_DECIMALS,
+  VMOONEY_ADDRESS,
+} from "../../const/config";
 import { useListingsAndAuctionsForTokenIdAndWallet } from "../../lib/marketplace-v3";
 import Skeleton from "../Skeleton/Skeleton";
 
@@ -33,20 +44,25 @@ type DirectFormData = {
   endDate: Date;
 };
 
-export default function SaleInfo({ nft, contractAddress, router, walletAddress }: Props) {
-  const { contract: marketplace }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+export default function SaleInfo({
+  nft,
+  contractAddress,
+  router,
+  walletAddress,
+}: Props) {
+  const { contract: marketplace }: any = useContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
 
   const { contract: nftCollection } = useContract(contractAddress);
 
   // Manage form submission state using tabs and conditional rendering
   const [tab, setTab] = useState<"direct" | "auction">("direct");
 
-  //Balance for ERC1155
-  const { data: userBalance } = useNFTBalance(nftCollection, walletAddress, nft?.metadata?.id);
-
   //Check if user has balance for quanity
   function checkBalance(quantity: string | number) {
-    const hasBalance = userBalance && userBalance.toNumber() >= +quantity;
+    const hasBalance = nft && nft.quantityOwned >= +quantity;
     !hasBalance && toast.error("Insufficient balance");
     return hasBalance;
   }
@@ -54,11 +70,19 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
     try {
-      const hasApproval = await nftCollection?.call("isApprovedForAll", walletAddress || nft.owner, MARKETPLACE_ADDRESS);
+      const hasApproval = await nftCollection?.call(
+        "isApprovedForAll",
+        walletAddress || nft.owner,
+        MARKETPLACE_ADDRESS
+      );
 
       // If it is, provide approval
       if (!hasApproval) {
-        const txResult = await nftCollection?.call("setApprovalForAll", MARKETPLACE_ADDRESS, true);
+        const txResult = await nftCollection?.call(
+          "setApprovalForAll",
+          MARKETPLACE_ADDRESS,
+          true
+        );
 
         if (txResult) {
           toast.success("Marketplace approval granted", {
@@ -76,29 +100,31 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
   }
 
   // Manage form values using react-hook-form library: Auction form
-  const { register: registerAuction, handleSubmit: handleSubmitAuction } = useForm<AuctionFormData>({
-    defaultValues: {
-      nftContractAddress: contractAddress,
-      tokenId: nft.metadata.id,
-      startDate: new Date(),
-      quantity: "1",
-      endDate: new Date(),
-      floorPrice: "0",
-      buyoutPrice: "0",
-    },
-  });
+  const { register: registerAuction, handleSubmit: handleSubmitAuction } =
+    useForm<AuctionFormData>({
+      defaultValues: {
+        nftContractAddress: contractAddress,
+        tokenId: nft.metadata.id,
+        startDate: new Date(),
+        quantity: "1",
+        endDate: new Date(),
+        floorPrice: "0",
+        buyoutPrice: "0",
+      },
+    });
 
   // Manage form values using react-hook-form library: Direct form
-  const { register: registerDirect, handleSubmit: handleSubmitDirect } = useForm<DirectFormData>({
-    defaultValues: {
-      nftContractAddress: contractAddress,
-      tokenId: nft.metadata.id,
-      quantity: "1",
-      startDate: new Date(),
-      endDate: new Date(),
-      price: "0",
-    },
-  });
+  const { register: registerDirect, handleSubmit: handleSubmitDirect } =
+    useForm<DirectFormData>({
+      defaultValues: {
+        nftContractAddress: contractAddress,
+        tokenId: nft.metadata.id,
+        quantity: "1",
+        startDate: new Date(),
+        endDate: new Date(),
+        price: "0",
+      },
+    });
 
   //handle direct listing
   async function handleSubmissionAuction(data: AuctionFormData) {
@@ -164,7 +190,9 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
         <div className="w-full flex justify-start border-b-[1px] border-white border-opacity-60 mt-4 mb-4">
           <h3
             className={`p-4 text-base font-semibold text-white text-opacity-60 cursor-pointer transition-all duration-100 hover:text-opacity-80 ${
-              tab === "direct" ? "text-opacity-100 border-b-2 border-moon-white" : ""
+              tab === "direct"
+                ? "text-opacity-100 border-b-2 border-moon-white"
+                : ""
             }`}
             onClick={() => setTab("direct")}
           >
@@ -172,7 +200,9 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
           </h3>
           <h3
             className={`p-4 text-base font-semibold text-white text-opacity-60 cursor-pointer transition-all duration-100 hover:text-opacity-80 ${
-              tab === "auction" ? "text-opacity-100 border-b-2 border-moon-white" : ""
+              tab === "auction"
+                ? "text-opacity-100 border-b-2 border-moon-white"
+                : ""
             }`}
             onClick={() => setTab("auction")}
           >
@@ -182,11 +212,20 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
         <>
           <>
             {/* Direct listing fields */}
-            <div className={`flex flex-col ${tab === "direct" ? "opacity-100" : "hidden opacity-0 h-0 transition-all duration-100"}`}>
+            <div
+              className={`flex flex-col ${
+                tab === "direct"
+                  ? "opacity-100"
+                  : "hidden opacity-0 h-0 transition-all duration-100"
+              }`}
+            >
               {/* Input field for ERC1155 quantity */}
               {nft.type === "ERC1155" && (
                 <>
-                  <legend className="text-white text-opacity-80 m-0 mb-2"> Quantity </legend>
+                  <legend className="text-white text-opacity-80 m-0 mb-2">
+                    {" "}
+                    Quantity{" "}
+                  </legend>
                   <div className="flex items-center">
                     <input
                       className="block w-[25%] py-3 ml-[2px] px-4 mb-4 bg-transparent border-none text-base rounded-lg ring-1 ring-moon-white ring-opacity-50"
@@ -194,33 +233,57 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
                       min={1}
                       {...registerDirect("quantity")}
                     />
-                    <h3 className={`relative right-[-5%] bottom-2 text-2xl ${!userBalance && "animate-pulse"}`}>{`/ ${userBalance || "/ ..."}`}</h3>
+                    <h3
+                      className={`relative right-[-5%] bottom-2 text-2xl ${
+                        !nft && "animate-pulse"
+                      }`}
+                    >{`/ ${nft.quantityOwned || "/ ..."}`}</h3>
                   </div>
+                  <p className="text-[80%] italic opacity-60">
+                    *list multiple assets as a bundle*
+                  </p>
                 </>
               )}
               <h4 className="mt-6 mb-3">Duration </h4>
               {/* Input field for auction start date */}
-              <legend className="text-white text-opacity-80 m-0 mb-2"> Listing Starts on </legend>
+              <legend className="text-white text-opacity-80 m-0 mb-2">
+                {" "}
+                Listing Starts on{" "}
+              </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
                 {...registerDirect("startDate")}
                 aria-label="Auction Start Date"
               />
               {/* Input field for auction end date */}
-              <legend className="text-white text-opacity-80 m-0 mb-2"> Listing Ends on </legend>
+              <legend className="text-white text-opacity-80 m-0 mb-2">
+                {" "}
+                Listing Ends on{" "}
+              </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
                 {...registerDirect("endDate")}
                 aria-label="Auction End Date"
               />
               {
                 <>
                   <h4 className="mt-6 mb-3">Price </h4>
-                  <legend className="text-white text-opacity-80 m-0 mb-2"> Price per token</legend>
+                  <legend className="text-white text-opacity-80 m-0 mb-2">
+                    {" "}
+                    {"Price for asset or bundle"}
+                  </legend>
                   <input
                     className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                     type="number"
@@ -250,13 +313,20 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
 
             {/* Auction listing fields */}
             <div
-              className={`${tab === "auction" ? "flex flex-col opacity-100" : "hidden opacity-0 h-0 transition-all duration-100"}`}
+              className={`${
+                tab === "auction"
+                  ? "flex flex-col opacity-100"
+                  : "hidden opacity-0 h-0 transition-all duration-100"
+              }`}
               style={{ flexDirection: "column" }}
             >
               {/* Input field for quantity */}
               {nft.type === "ERC1155" && (
                 <>
-                  <legend className="text-white text-opacity-80 m-0 mb-2"> Quantity </legend>
+                  <legend className="text-white text-opacity-80 m-0 mb-2">
+                    {" "}
+                    Quantity{" "}
+                  </legend>
                   <div className="flex items-center">
                     <input
                       className="block w-[25%] py-3 ml-[2px] px-4 mb-4 bg-transparent border-none text-base rounded-lg ring-1 ring-moon-white ring-opacity-50"
@@ -264,36 +334,60 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
                       min={1}
                       {...registerAuction("quantity")}
                     />
-                    <h3 className={`relative right-[-5%] bottom-2 text-2xl ${!userBalance && "animate-pulse"}`}>{`/ ${userBalance || "/ ..."}`}</h3>
+                    <h3
+                      className={`relative right-[-5%] bottom-2 text-2xl ${
+                        !nft && "animate-pulse"
+                      }`}
+                    >{`/ ${nft.quantityOwned || "/ ..."}`}</h3>
                   </div>
+                  <p className="text-[80%] italic opacity-60">
+                    *list multiple assets as a bundle*
+                  </p>
                 </>
               )}
 
               <h4 className="mt-6 mb-3">Duration </h4>
 
               {/* Input field for auction start date */}
-              <legend className="text-white text-opacity-80 m-0 mb-2"> Auction Starts on </legend>
+              <legend className="text-white text-opacity-80 m-0 mb-2">
+                {" "}
+                Auction Starts on{" "}
+              </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
                 {...registerAuction("startDate")}
                 aria-label="Auction Start Date"
               />
 
               {/* Input field for auction end date */}
-              <legend className="text-white text-opacity-80 m-0 mb-2"> Auction Ends on </legend>
+              <legend className="text-white text-opacity-80 m-0 mb-2">
+                {" "}
+                Auction Ends on{" "}
+              </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
+                min={new Date(
+                  Date.now() - new Date().getTimezoneOffset() * 60000
+                )
+                  .toISOString()
+                  .slice(0, -8)}
                 {...registerAuction("endDate")}
                 aria-label="Auction End Date"
               />
               <h4 className="mt-6 mb-3">Price </h4>
 
               {/* Input field for minimum bid price */}
-              <legend className="text-white text-opacity-80 m-0 mb-2"> Allow bids starting from </legend>
+              <legend className="text-white text-opacity-80 m-0 mb-2">
+                {" "}
+                Allow bids starting from{" "}
+              </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 step={0.000001}
@@ -302,7 +396,10 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
               />
 
               {/* Input field for buyout price */}
-              <legend className="text-white text-opacity-80 m-0 mb-2"> Buyout price </legend>
+              <legend className="text-white text-opacity-80 m-0 mb-2">
+                {" "}
+                Buyout price{" "}
+              </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="number"
@@ -313,7 +410,9 @@ export default function SaleInfo({ nft, contractAddress, router, walletAddress }
               <Web3Button
                 className="connect-button"
                 contractAddress={MARKETPLACE_ADDRESS}
-                action={async () => await handleSubmitAuction(handleSubmissionAuction)()}
+                action={async () =>
+                  await handleSubmitAuction(handleSubmissionAuction)()
+                }
                 onError={(error) => {
                   toast(`Listed Failed! Reason: ${error.cause}`, {
                     icon: "❌",

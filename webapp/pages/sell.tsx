@@ -2,22 +2,32 @@ import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { useRouter } from "next/router";
-import { getAllValidAuctions, getAllValidListings, useUserAssets } from "../lib/marketplace-v3";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  useUserAssets,
+} from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 import SubmitCollection from "../components/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
-import { MulticallQue } from "../components/Multicall/MulticallQue";
+
 export default function Sell() {
   const router = useRouter();
   const address: any = useAddress();
   const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
 
-  const { contract: marketplace, isLoading: loadingContract }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+  const { contract: marketplace, isLoading: loadingContract }: any =
+    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
   const [validListings, setValidListings] = useState<any>();
   const [validAuctions, setValidAuctions] = useState<any>();
 
-  const userAssets = useUserAssets(marketplace, validListings, validAuctions, address);
+  const userAssets = useUserAssets(
+    marketplace,
+    validListings,
+    validAuctions,
+    address
+  );
 
   useEffect(() => {
     if (marketplace && !validListings && !validAuctions) {
@@ -65,11 +75,6 @@ export default function Sell() {
             <p className="text-center mt-10 lg:mt-12 text-lg md:text-left text-white opacity-80">
               Select which NFT you want to sell below
             </p>
-
-            {/* Multicall (create multiple listings) */}
-            <div>
-              <MulticallQue address={address} />
-            </div>
 
             {/*Asset grid */}
             <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
@@ -143,7 +148,7 @@ export default function Sell() {
               </h1>
               {/*Id not displaying here*/}
               <p className="inline-block font-medium truncate mx-4 mt-4 text-[20px] py-1 px-[10px] rounded-sm bg-moon-secondary bg-opacity-40">
-                Token ID #{selectedNft.metadata.token_id}
+                Token ID #{selectedNft.metadata.id}
               </p>
 
               <div className="flex flex-col w-full grow relative bg-transparent rounded-2xl overflow-hidden mt-8 mb-6">
