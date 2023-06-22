@@ -127,6 +127,8 @@ export default function Buy({
                 <CollectionPreview
                   key={`collection-preview-${i}`}
                   collection={collection}
+                  validListings={validListings}
+                  validAuctions={validAuctions}
                 />
               ))}
             </>

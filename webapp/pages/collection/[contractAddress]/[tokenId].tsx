@@ -168,6 +168,7 @@ export default function TokenPage({
           currListing.listing.auctionId
         );
         setWinningBid(winningBid);
+        console.log(winningBid);
       })();
     }
     //check if connected wallet is owner of asset
@@ -180,8 +181,8 @@ export default function TokenPage({
   return (
     <>
       <Toaster position="bottom-center" reverseOrder={false} />
-      <article className="w-full ml-auto mr-auto px-4 mt-24 max-w-[1200px]">
-        <div className="w-full flex flex-col gap-8 mt-32 tablet:flex-row pb-32 tablet:pb-0">
+      <article className="w-full ml-auto mr-auto px-4 md:mt-24 max-w-[1200px]">
+        <div className="w-full flex flex-col gap-8 mt-4 md:mt-32 tablet:flex-row pb-32 tablet:pb-0">
           <div className="flex flex-col flex-1 w-full mt-8 tablet:mt-0">
             <ThirdwebNftMedia
               metadata={nft?.metadata}
@@ -367,55 +368,56 @@ export default function TokenPage({
                   )}
                 </div>
 
-                {auctionListing[0] && nft.type === "ERC721" && (
+                {currListing && (
                   <div>
-                    {!auctionListing ? (
+                    {!currListing.listing ? (
                       <Skeleton width="120" height="44" />
                     ) : (
                       <>
-                        {auctionListing && auctionListing[0] && (
-                          <>
-                            <p
-                              className="text-white opacity-60 mt-1 p-[2px]"
-                              style={{ marginTop: 12 }}
-                            >
-                              Bids starting from
-                            </p>
+                        {currListing.type === "auction" &&
+                          currListing.listing && (
+                            <>
+                              <p
+                                className="text-white opacity-60 mt-1 p-[2px]"
+                                style={{ marginTop: 12 }}
+                              >
+                                Bids starting from
+                              </p>
 
-                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                              {+auctionListing[0].minimumBidAmount /
-                                MOONEY_DECIMALS}
-                              {" " + "MOONEY"}
-                            </div>
-                            <p
-                              className="text-white opacity-60 mt-1 p-[2px]"
-                              style={{ marginTop: 12 }}
-                            >
-                              {"Winning Bid"}
-                            </p>
-                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                              {winningBid
-                                ? +BigConvert(winningBid[2]) / MOONEY_DECIMALS +
-                                  " MOONEY"
-                                : "No bids yet"}
-                            </div>
-                            <p
-                              className="text-white opacity-60 mt-1 p-[2px]"
-                              style={{ marginTop: 12 }}
-                            >
-                              {"Expiration"}
-                            </p>
-                            <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                              {new Date(
-                                +auctionListing[0].endTimestamp * 1000
-                              ).toLocaleDateString() +
-                                " @ " +
-                                new Date(
-                                  +auctionListing[0].endTimestamp * 1000
-                                ).toLocaleTimeString()}
-                            </div>
-                          </>
-                        )}
+                              <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                                {+currListing.listing.minimumBidAmount /
+                                  MOONEY_DECIMALS}
+                                {" " + "MOONEY"}
+                              </div>
+                              <p
+                                className="text-white opacity-60 mt-1 p-[2px]"
+                                style={{ marginTop: 12 }}
+                              >
+                                {"Winning Bid"}
+                              </p>
+                              <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                                {winningBid
+                                  ? winningBid.bidAmount / MOONEY_DECIMALS +
+                                    " MOONEY"
+                                  : "No bids yet"}
+                              </div>
+                              <p
+                                className="text-white opacity-60 mt-1 p-[2px]"
+                                style={{ marginTop: 12 }}
+                              >
+                                {"Expiration"}
+                              </p>
+                              <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                                {new Date(
+                                  +currListing.listing.endTimestamp * 1000
+                                ).toLocaleDateString() +
+                                  " @ " +
+                                  new Date(
+                                    +currListing.listing.endTimestamp * 1000
+                                  ).toLocaleTimeString()}
+                              </div>
+                            </>
+                          )}
                       </>
                     )}
                   </div>
@@ -428,56 +430,64 @@ export default function TokenPage({
               <div
                 className={` ${
                   !directListing[0] && !auctionListing[0] && "hidden"
-                } flex flex-col px-3 py-2 border-2 border-[#ffffff1d] mb-4 max-h-[500px] overflow-y-scroll`}
+                } flex flex-col gap-2 px-3 py-2 mb-4`}
               >
                 {directListing[0] && (
-                  <div>
-                    <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black">
+                  <>
+                    <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black rounded-sm">
                       Direct Listings :
                     </p>
-                    {directListing[0] &&
-                      directListing.map((l: any, i: number) => (
-                        <div
-                          key={`erc-1155-direct-listing-container-${i}`}
-                          className={`flex flex-col mt-2 md:px-2 ${
-                            currListing.listing.listingId === l.listingId &&
-                            "bg-[#ffffff1d]"
-                          }`}
-                        >
-                          <Listing
-                            key={`erc-1155-direct-listing-${i}`}
-                            type="direct"
-                            listing={l}
-                            setCurrListing={setCurrListing}
-                          />
-                        </div>
-                      ))}
-                  </div>
+                    <div className="max-h-[250px] overflow-y-scroll divide-y-2 divide-moon-gold divide-opacity-30">
+                      {directListing[0] &&
+                        directListing.map((l: any, i: number) => (
+                          <div
+                            key={`erc-1155-direct-listing-container-${i}`}
+                            className={`flex flex-col mt-1 md:px-2 rounded-sm ${
+                              currListing.listing.listingId === l.listingId &&
+                              "bg-[#ffffff1d]"
+                            }`}
+                          >
+                            <Listing
+                              key={`erc-1155-direct-listing-${i}`}
+                              type="direct"
+                              listing={l}
+                              setCurrListing={setCurrListing}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  </>
                 )}
 
                 {auctionListing[0] && (
-                  <div className={`${directListing[0] && "mt-2"}`}>
-                    <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black">
+                  <>
+                    <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black rounded-sm">
                       Auction Listings :
                     </p>
-                    {auctionListing[0] &&
-                      auctionListing.map((a: any, i: number) => (
-                        <div
-                          key={`erc-1155-auction-listing-container-${i}`}
-                          className={`flex flex-col mt-2 md:px-2 ${
-                            currListing.listing.auctionId === a.auctionId &&
-                            "bg-[#ffffff1d]"
-                          }`}
-                        >
-                          <Listing
-                            key={`erc-1155-auction-listing-${i}`}
-                            type="auction"
-                            listing={a}
-                            setCurrListing={setCurrListing}
-                          />
-                        </div>
-                      ))}
-                  </div>
+                    <div
+                      className={
+                        "max-h-[250px] overflow-y-scroll divide-y-2 divide-moon-gold divide-opacity-25"
+                      }
+                    >
+                      {auctionListing[0] &&
+                        auctionListing.map((a: any, i: number) => (
+                          <div
+                            key={`erc-1155-auction-listing-container-${i}`}
+                            className={`flex flex-col mt-1 md:px-2 rounded-sm ${
+                              currListing.listing.auctionId === a.auctionId &&
+                              "bg-[#ffffff1d]"
+                            }`}
+                          >
+                            <Listing
+                              key={`erc-1155-auction-listing-${i}`}
+                              type="auction"
+                              listing={a}
+                              setCurrListing={setCurrListing}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  </>
                 )}
               </div>
             )}

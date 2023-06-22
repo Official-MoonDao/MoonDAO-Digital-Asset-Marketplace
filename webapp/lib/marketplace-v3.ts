@@ -399,6 +399,7 @@ export function useUserAssets(
   useEffect(() => {
     if (marketplace && signer && profileListings && profileAuctions) {
       marketplace.roles.get("asset").then(async (res: any) => {
+        setAssets([]);
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
@@ -499,6 +500,7 @@ function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
         }).pricePerToken
       : 0;
 
+  listings.map((l) => console.log(l));
   //get floor price for validAuctions
   const auctionFloor =
     auctions && auctions[0]
@@ -610,9 +612,15 @@ export function useCollectionStats(
     if (collectionContract && (collectionListings || collectionAuctions)) {
       const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
       const listed =
-        collectionListings?.length && collectionAuctions?.length
-          ? collectionListings?.length + collectionAuctions?.length
-          : collectionListings?.length || collectionAuctions?.length;
+        collectionListings.reduce(
+          (arr: number, l: any) => arr + Number(l.quantity),
+          0
+        ) +
+        collectionAuctions.reduce(
+          (arr: number, a: any) => arr + Number(a.quantity),
+          0
+        );
+
       let supply: any;
       (async () => {
         const extensions = getAllDetectedFeatureNames(collectionContract?.abi);

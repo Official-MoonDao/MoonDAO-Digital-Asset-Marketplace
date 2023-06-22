@@ -23,7 +23,7 @@ export default function Listing({
 
   return (
     <div
-      className={"flex flex-col mt-1"}
+      className={"flex flex-col mt-1 p-2"}
       onClick={() => setCurrListing({ type, listing })}
     >
       <div className="flex w-full gap-2 justify-between items-center  min-h-[52px]">

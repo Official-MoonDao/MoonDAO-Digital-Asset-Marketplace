@@ -48,13 +48,13 @@ footer {
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #2e2e2eb9;
+  background: #ffffff1d;
   border-radius: 30px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #ffffff3b;
 }
 
 .connect-button {
