@@ -2,11 +2,7 @@ import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import SaleInfo from "../components/SaleInfo/SaleInfo";
 import { useRouter } from "next/router";
-import {
-  getAllValidAuctions,
-  getAllValidListings,
-  useUserAssets,
-} from "../lib/marketplace-v3";
+import { getAllValidAuctions, getAllValidListings, useUserAssets } from "../lib/marketplace-v3";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 import SubmitCollection from "../components/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
@@ -16,18 +12,12 @@ export default function Sell() {
   const address: any = useAddress();
   const [selectedNft, setSelectedNft]: any = useState({ metadata: {} });
 
-  const { contract: marketplace, isLoading: loadingContract }: any =
-    useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+  const { contract: marketplace, isLoading: loadingContract }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
   const [validListings, setValidListings] = useState<any>();
   const [validAuctions, setValidAuctions] = useState<any>();
 
-  const userAssets = useUserAssets(
-    marketplace,
-    validListings,
-    validAuctions,
-    address
-  );
+  const userAssets = useUserAssets(marketplace, validListings, validAuctions, address);
 
   useEffect(() => {
     if (marketplace && !validListings && !validAuctions) {
@@ -102,7 +92,7 @@ export default function Sell() {
                           </p>
                         )}
                         <div className="bg-gradient-to-br shadow transition-all duration-300 shadow-white from-black via-gray-900 to-black -mt-2 z-50 relative rounded-xl py-3 pl-4 pr-3 w-[290px]">
-                          <p className="text-sm opacity-70">
+                          <p className="text-sm opacity-70 truncate">
                             {nft.collectionName}
                           </p>
                           <p className="mt-4 font-GoodTimes tracking-wide truncate">
