@@ -15,7 +15,7 @@ export default function TrendingShowcase({
   validAuctions,
 }: TrendingShowcaseProps) {
   return (
-    <div className="mt-14 md:mt-20 flex flex-col w-screen md:w-full items-center py-[10%] md:py-[5%] px-[10%] bg-[#251d2e] object-cover rounded-tl-[12vw] rounded-br-[12vw] lg:rounded-br-[10vw] lg:rounded-tl-[10vw]">
+    <div className="mt-14 md:mt-20 flex flex-col w-screen md:w-full items-center py-[10%] md:py-[5%] md:px-[2%] bg-[#251d2e] object-cover rounded-tl-[12vw] rounded-br-[12vw] lg:rounded-br-[10vw] lg:rounded-tl-[10vw]">
       <SectionHeader title={"Trending Assets"} />
       {/*
       Will show 4 components from Mobile up to LG screens, where it transforms into a grid

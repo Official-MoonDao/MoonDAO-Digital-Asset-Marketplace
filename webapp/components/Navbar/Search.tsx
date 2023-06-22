@@ -51,12 +51,14 @@ export default function Search() {
           onClick={() => setEnabled(true)}
           onChange={(e) => {
             const value = e.target.value.toLowerCase();
+            if (!isSearching) setIsSearching(true);
             if (value.trim() !== "") {
-              if (!isSearching) setIsSearching(true);
               setTimeout(() => {
                 if (searchRef.current.value.toLowerCase() === value) {
                   setText(value);
-                  setIsSearching(false);
+                  setTimeout(() => {
+                    setIsSearching(false);
+                  }, 50);
                 }
               }, 500);
             }
@@ -65,7 +67,7 @@ export default function Search() {
         />
         {/*Search result container*/}
         {enabled && searchResults && searchResults[0] && (
-          <div className="bg-[#1e1b4b] border-[0.6px] rounded-b-lg border-white border-opacity-50 border-t-0 gap-4 flex flex-col items-start truncate absolute w-[240px] md:w-[260px] lg:w-[300px] xl:w-[390px] 2xl:w-[441px]">
+          <div className="bg-[#1e1b4b] border-[0.6px] rounded-b-lg border-white border-opacity-50 border-t-0 gap-4 flex flex-col items-start truncate absolute max-h-[400px] w-[240px] md:w-[260px] lg:w-[300px] xl:w-[390px] 2xl:w-[441px]">
             {isSearching ? (
               <Skeleton height="10px" />
             ) : (
@@ -75,7 +77,7 @@ export default function Search() {
                   key={"search-result-" + i}
                 >
                   <Link
-                   className="flex items-center"
+                    className="flex items-center"
                     href={`/collection/${nft.collection}/${nft.metadata.id}`}
                   >
                     <ThirdwebNftMedia

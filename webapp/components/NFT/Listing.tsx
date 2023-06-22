@@ -7,10 +7,15 @@ interface ListingProps {
   setCurrListing: Function;
 }
 
-export default function Listing({ type = "direct", listing, setCurrListing }: ListingProps) {
+export default function Listing({
+  type = "direct",
+  listing,
+  setCurrListing,
+}: ListingProps) {
   const listingId = type === "direct" ? listing?.listingId : listing?.auctionId;
   const sellerAddress = listing.seller;
-  const buyOut = type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
+  const buyOut =
+    type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
   const minBid = type === "direct" ? 0 : listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
@@ -21,7 +26,7 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
       className={"flex flex-col mt-1 p-2"}
       onClick={() => setCurrListing({ type, listing })}
     >
-      <div className="flex w-full gap-2 justify-between items-center  min-h-[52px]">
+      <div className="flex w-full gap-2 justify-between items-center min-h-[52px]">
         {/*Seller*/}
         <div>
           <p className="truncate w-full text-sm leading-5 font-medium text-white text-opacity-60">
@@ -43,7 +48,7 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
             {"Price"}
             <span className="text-[50%]">(MOONEY)</span>
           </p>
-          <p className="mt-1">{+buyOut / MOONEY_DECIMALS}</p>
+          <p className="mt-1">{(+buyOut / MOONEY_DECIMALS).toFixed(1)}</p>
         </div>
       </div>
 
@@ -54,7 +59,7 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
             <p className="truncate w-full text-sm text-moon-gold leading-5 font-medium text-opacity-80">
               {"Min Bid"}
             </p>
-            <p>{+minBid / MOONEY_DECIMALS}</p>
+            <p>{(+minBid / MOONEY_DECIMALS).toFixed(1)}</p>
           </div>
         ) : (
           <div>
