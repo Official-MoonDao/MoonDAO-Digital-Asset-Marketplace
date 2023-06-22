@@ -493,22 +493,11 @@ function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
   //get floor price for validListings
   const listingFloor =
     listings && listings[0]
-      ? listings.reduce((acc: any, listing: any) => {
-          if (!acc) return listing.pricePerToken;
-          if (listing.pricePerToken < acc) return listing.pricePerToken;
-          return acc;
-        }).pricePerToken
-      : 0;
-
-  listings.map((l) => console.log(l));
-  //get floor price for validAuctions
+      ? Math.min(...listings.map((listing) => +listing.pricePerToken))
+      : 0; //get floor price for validAuctions
   const auctionFloor =
     auctions && auctions[0]
-      ? auctions.reduce((acc: any, auction: any) => {
-          if (!acc) return auction.buyoutBidAmount;
-          if (auction.buyout < acc) return auction.buyoutBidAmount;
-          return acc;
-        }).buyoutBidAmount
+      ? Math.min(...auctions.map((auction) => +auction.buyoutBidAmount))
       : 0;
 
   //true floor price for asset
