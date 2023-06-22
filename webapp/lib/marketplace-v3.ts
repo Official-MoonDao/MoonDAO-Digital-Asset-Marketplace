@@ -160,12 +160,11 @@ export async function multiCreateListings(
 ) {
   try {
     const encodedData = [];
+
     if (queuedListings.length > 0) {
       encodedData.push(
         ...queuedListings.map((listing: any) =>
-          marketplace.interface.encodeFunctionData("createListing", [
-            ...listing,
-          ])
+          marketplace.interface.encodeFunctionData("createListing", [listing])
         )
       );
     }
@@ -173,15 +172,24 @@ export async function multiCreateListings(
     if (queuedAuctions.length > 0) {
       encodedData.push(
         ...queuedAuctions.map((auction: any) =>
-          marketplace.interface.encodeFunctionData("createAuction", [
-            ...auction,
-          ])
+          marketplace.interface.encodeFunctionData("createAuction", [auction])
         )
       );
     }
 
+    const totalListingGas = Number(
+      await queuedListings.reduce(
+        async (arr: number, l: any) =>
+          arr + (await marketplace.estimateGas.createListing(l)),
+        0
+      )
+    );
+
     if (encodedData.length > 0) {
-      const multicallTx = await marketplace.callStatic.multicall(encodedData);
+      const multicallTx = await marketplace.multicall(encodedData, {
+        gasLimit: totalListingGas,
+      });
+      console.log(multicallTx);
       return multicallTx;
     } else throw new Error("No data to encode");
   } catch (err) {
@@ -310,7 +318,7 @@ export function useListingsAndAuctionsForWallet(
   const [auctions, setAuctions] = useState<any>([]);
 
   useEffect(() => {
-    if (validListings && validAuctions) {
+    if (validListings && validAuctions && walletAddress) {
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
@@ -389,42 +397,41 @@ export function useUserAssets(
     );
 
   useEffect(() => {
-    if (marketplace && signer) {
+    if (marketplace && signer && profileListings && profileAuctions) {
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
-          setAssets([]);
           if (networkMismatch) return;
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
           const contract: any = await sdk.getContract(collection);
           const extensions = getAllDetectedFeatureNames(contract.abi);
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
-            ownedAssets = await contract.erc1155.getOwned(walletAddress);
+            ownedAssets = await contract.erc1155.getOwned(signer.address);
             //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
-            ownedAssets = ownedAssets.map((asset: any) => {
-              const quantity =
-                asset.quantityOwned -
-                ((profileListings?.filter(
-                  (listing: any) =>
-                    listing.assetContract === collection &&
-                    listing.tokenId === asset.metadata.id
-                ).length || 0) +
-                  profileAuctions?.filter(
-                    (auction: any) =>
-                      auction.assetContract === collection &&
-                      auction.tokenId === asset.metadata.id
-                  ).length || 0);
 
-              //Only add the asset to the array if the quanity is greater than 0
-              if (quantity <= 0) return null;
+            console.log(ownedAssets);
+            ownedAssets = await ownedAssets.map((asset: any) => {
+              const ownedQuantity = asset.quantityOwned;
+
+              //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
+              const listedQuantity = profileListings?.reduce(
+                (arr: number, listing: any) =>
+                  listing.assetContract.toLowerCase() ===
+                    collection.toLowerCase() &&
+                  listing.tokenId === asset.metadata.id
+                    ? arr + Number(listing?.quantity)
+                    : arr,
+                0
+              );
+
               return {
                 ...asset,
                 collection,
-                quantityOwned: quantity,
+                quantityOwned: ownedQuantity - listedQuantity,
               };
             });
           } else {
-            ownedAssets = await contract.erc721.getOwned(walletAddress);
+            ownedAssets = await contract.erc721.getOwned(signer.address);
             ownedAssets = ownedAssets.filter(
               (asset: any) =>
                 !profileListings?.find(
@@ -442,21 +449,27 @@ export function useUserAssets(
 
           const collectionName = await contract.call("name");
 
-          ownedAssets = ownedAssets.map((asset: any) => ({
+          //add collection data to ownedAssets
+          ownedAssets = await ownedAssets.map((asset: any) => ({
             ...asset,
             collection,
             collectionName,
           }));
 
+          //add ownedAssets to assets array and filter out any duplicates (on address change duplicates are created and then filtered out, this is a quick fix)
           ownedAssets.length > 0 &&
-            setAssets((prev: any) => [...prev, ...ownedAssets]);
+            setAssets((prev: any) => [
+              ...prev.filter((a: any) => a.collection !== collection),
+              ...ownedAssets,
+            ]);
         });
       });
     }
-  }, [marketplace, signer]);
+  }, [marketplace, signer, profileListings, profileAuctions]);
   return assets;
 }
 
+//Check if ended auction has a payout
 export function useClaimableAuction(
   winningBid: number,
   buyoutBidAmount: number,
@@ -502,6 +515,7 @@ function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
   return +listingFloor < +auctionFloor ? listingFloor : auctionFloor;
 }
 
+//Get stats for a specific asset
 export function useAssetStats(
   validListings: DirectListing[],
   validAuctions: AuctionListing[],
@@ -552,6 +566,7 @@ export function useAssetStats(
   return stats;
 }
 
+//Get stats for a speicific collection
 export function useCollectionStats(
   validListings: DirectListing[],
   validAuctions: AuctionListing[],

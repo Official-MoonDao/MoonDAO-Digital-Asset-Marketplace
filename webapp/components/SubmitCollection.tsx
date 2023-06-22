@@ -36,7 +36,7 @@ export default function SubmitCollection() {
             width={"100%"}
             height={"550px"}
             src={
-              "https://circles-v1-production.vercel.app/r/ad645285-65ef-4aec-b314-d8d0659cccd8/embed?mode=dark"
+              "https://circles-v1-production.vercel.app/r/ad645285-65ef-4aec-b314-d8d0659cccd8/embed?mode=light"
             }
           />
         </div>

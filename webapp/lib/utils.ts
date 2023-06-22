@@ -1,5 +1,6 @@
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
+import { StringKeyframeTrack } from "three";
 
 export interface DirectListing {
   listingId: string | number;
@@ -33,6 +34,35 @@ export interface AuctionListing {
   tokenType: string | number;
   status: string | number;
   popularity: any;
+}
+
+export interface DirectSubmission {
+  assetContract: string;
+  tokenId: string;
+  currency: string;
+  quantity: string;
+  pricePerToken: string;
+  startTimestamp: string;
+  endTimestamp: string;
+  reserved: boolean;
+}
+
+export interface AuctionSubmission {
+  assetContract: string;
+  tokenId: string;
+  currency: string;
+  quantity: string;
+  minimumBidAmount: string;
+  buyoutBidAmount: string;
+  timeBufferInSeconds: string;
+  bidBufferBps: string;
+  startTimestamp: string;
+  endTimestamp: string;
+}
+
+export interface LocalQue {
+  queuedListings: DirectSubmission[];
+  queuedAuctions: AuctionSubmission[];
 }
 
 export interface AssetStats {
@@ -100,23 +130,6 @@ export function serializable(data: any, totalOffers: any = "") {
   return JSON.parse(JSON.stringify(formatted));
 }
 
-interface multicallQue {
-  queuedListings: [];
-  queuedAuctions: [];
-}
-
-export function getLocalQue(address: string) {
-  if (!address) return;
-  const storedQue = localStorage.getItem(`multicallQue-${address}`);
-  if (storedQue) {
-    return JSON.parse(storedQue);
-  } else return {};
-}
-
-export function storeLocalQue(que: multicallQue, address: string) {
-  localStorage.setItem(`multicallQue-${address}`, JSON.stringify(que));
-}
-
 //////HOOKS////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
@@ -143,9 +156,28 @@ export function useClickOutside(
 }
 
 export function useLocalQue(address: string) {
-  const [localQue, setLocalQue] = useState(getLocalQue(address));
+  const [localQue, setLocalQue] = useState<LocalQue | undefined>(getLocalQue());
+
+  function getLocalQue() {
+    if (!address) return;
+    const storedQue = localStorage.getItem(`multicallQue-${address}`);
+    if (storedQue) {
+      return JSON.parse(storedQue) as LocalQue;
+    }
+  }
+
+  function storeLocalQue() {
+    address &&
+      localStorage.setItem(`multicallQue-${address}`, JSON.stringify(localQue));
+  }
+
   useEffect(() => {
-    storeLocalQue(localQue, address);
-  }, [localQue, address]);
+    if (localQue) storeLocalQue();
+  }, [localQue]);
+
+  useEffect(() => {
+    if (address) setLocalQue(getLocalQue());
+  }, [address]);
+
   return [localQue, setLocalQue];
 }
