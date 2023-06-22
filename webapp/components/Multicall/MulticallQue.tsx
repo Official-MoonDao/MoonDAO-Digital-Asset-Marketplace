@@ -2,17 +2,39 @@
 
 import { NFT } from "@thirdweb-dev/sdk";
 import { useEffect, useRef, useState } from "react";
-import { getLocalQue, useClickOutside, useLocalQue } from "../../lib/utils";
-import { Web3Button } from "@thirdweb-dev/react";
-import { MARKETPLACE_ADDRESS } from "../../const/config";
+import { useClickOutside, useLocalQue } from "../../lib/utils";
+import { Web3Button, useSigner } from "@thirdweb-dev/react";
+import {
+  MARKETPLACE_ADDRESS,
+  MOONEY_ADDRESS,
+  MOONEY_DECIMALS,
+} from "../../const/config";
 import { multiCreateListings } from "../../lib/marketplace-v3";
+import { Contract } from "ethers";
+import MARKETPLACE_ABI from "../../const/abis/MarketplaceV3.json";
 
 export function MulticallQue({ address }: any) {
+  const signer = useSigner();
   const ref: any = useRef();
   const [enabled, setEnabled] = useState<boolean>(false);
   useClickOutside(ref, enabled, setEnabled);
 
-  const [localQue, setLocalQue] = useLocalQue(address);
+  const [localQue, setLocalQue]: any = useLocalQue(address);
+
+  const dummyQueuedListings = [
+    {
+      assetContract: "0xdbb3aaA438e49a93c3E3E213AEbF2F5370993D2d",
+      tokenId: "2",
+      currency: MOONEY_ADDRESS,
+      quantity: "1",
+      pricePerToken: String(5 * MOONEY_DECIMALS),
+      startTimestamp: Math.round(new Date(Date.now()).valueOf() / 1000),
+      endTimestamp: Math.round(
+        new Date(Date.now() + 10000000).valueOf() / 1000
+      ),
+      reserved: false,
+    },
+  ];
 
   return (
     <div ref={ref}>
@@ -20,18 +42,20 @@ export function MulticallQue({ address }: any) {
         <button onClick={() => setEnabled(!enabled)}>Que</button>
         <Web3Button
           contractAddress={MARKETPLACE_ADDRESS}
-          action={async (contract) =>
-            await multiCreateListings(
-              contract,
-              localQue?.queuedListings,
-              localQue?.queuedAuctions
-            )
-          }
-          isDisabled={
-            (!localQue?.queuedListings && !localQue?.queuedAuctions) ||
-            (localQue?.queuedListings?.length === 0 &&
-              localQue?.queuedAuctions?.length === 0)
-          }
+          action={async () => {
+            const marketplace = new Contract(
+              MARKETPLACE_ADDRESS,
+              MARKETPLACE_ABI,
+              signer
+            );
+
+            return await multiCreateListings(
+              marketplace,
+              dummyQueuedListings,
+              []
+            );
+          }}
+          isDisabled={!signer}
         >
           Multicall
         </Web3Button>
@@ -52,7 +76,7 @@ export function MulticallQue({ address }: any) {
           <div>
             {localQue[0] &&
               localQue.map((nft: NFT) => (
-                <div key={nft.metadata.id}>
+                <div key={`queThumbnail-${nft.metadata.id}`}>
                   <p>{nft.metadata.name}</p>
                 </div>
               ))}
