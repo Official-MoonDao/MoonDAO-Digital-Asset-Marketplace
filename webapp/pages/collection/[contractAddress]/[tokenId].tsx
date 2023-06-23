@@ -37,6 +37,7 @@ import Metadata from "../../../components/Metadata";
 type TokenPageProps = {
   contractAddress: string;
   tokenId: string;
+  nft: any;
 };
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
@@ -44,6 +45,7 @@ const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 export default function TokenPage({
   contractAddress,
   tokenId,
+  nft,
 }: TokenPageProps) {
   const router = useRouter();
   const address = useAddress();
@@ -73,9 +75,9 @@ export default function TokenPage({
 
   //NFT Collection & Metadata
   const { contract: nftCollection } = useContract(contractAddress);
-  const { data: contractMetadata } = useMetadata(nftCollection);
-  //NFT data
-  const { data: nft }: any = useNFT(nftCollection, tokenId);
+
+  const { data: collectionMetadata } = useMetadata(nftCollection);
+
   // Load historical transfer events: TODO - more event types like sale
   const { data: transferEvents, isLoading: loadingTransferEvents } =
     useContractEvents(nftCollection, "Transfer", {
@@ -173,14 +175,6 @@ export default function TokenPage({
     //check if connected wallet is owner of asset
     setIsOwner(currListing.listing.seller === address);
   }, [currListing, address, loadingContract]);
-
-  if (!nft && loadingListings)
-    return (
-      <>
-        <Metadata title={"Asset"} />
-        <p>loading</p>
-      </>
-    );
 
   return (
     <>
@@ -291,15 +285,15 @@ export default function TokenPage({
 
           {/*Collection title, image and description*/}
           <div className="relative w-full max-w-full top-0 tablet:flex-shrink tablet:sticky tablet:min-w-[370px] tablet:max-w-[450px] tablet:mt-4 tablet:mr-4">
-            {contractMetadata && (
+            {collectionMetadata && (
               <div className="flex items-center mb-2">
                 <Link href={`/collection/${contractAddress}`}>
                   <MediaRenderer
-                    src={contractMetadata.image}
+                    src={collectionMetadata.image}
                     className="!w-[36px] !h-[36px] rounded-lg mr-4 ml-3 mb-2"
                   />
                   <p className="truncate w-full mx-4 mt-[5px] opacity-50">
-                    {contractMetadata.name}
+                    {collectionMetadata.name}
                   </p>
                 </Link>
               </div>
@@ -597,10 +591,30 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     };
   }
 
+  const collectionContract: any = await sdk.getContract(
+    contractAddress as string
+  );
+  const extensions = getAllDetectedFeatureNames(collectionContract.abi);
+
+  let nft;
+  console.log(extensions);
+  if (extensions[0] === "ERC1155") {
+    nft = await collectionContract.erc1155.get(tokenId);
+  } else {
+    nft = await collectionContract.erc721.get(tokenId);
+  }
+
+  if (!nft) {
+    return {
+      notFound: true,
+    };
+  }
+
   return {
     props: {
       contractAddress,
       tokenId,
+      nft,
     },
   };
 };
