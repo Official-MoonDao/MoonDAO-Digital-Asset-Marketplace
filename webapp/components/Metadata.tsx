@@ -6,13 +6,13 @@ const defaultDescription =
 interface MetadataProps {
   title?: string;
   description?: string;
-  imagePath?: string;
+  image?: string;
 }
 
 export default function Metadata({
   title = "",
   description = defaultDescription,
-  imagePath = "/screenshot.png",
+  image = "/screenshot.png",
 }: MetadataProps) {
   return (
     <Head>
@@ -25,10 +25,10 @@ export default function Metadata({
       <meta name="twitter:site" content="@OfficialMoonDAO" />
       <meta name="twitter:title" content={"MoonDAO Marketplace | " + title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={imagePath} />
+      <meta name="twitter:image" content={image} />
       <meta property="og:title" content={"MoonDAO Marketplace | " + title} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={imagePath} />
+      <meta property="og:image" content={image} />
       <meta
         property="og:url"
         content="https://main--moondao-marketplace-test.netlify.app/"

@@ -15,6 +15,7 @@ import { useContract, useMetadata } from "@thirdweb-dev/react";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 import { initSDK } from "../../../lib/thirdweb";
+import Metadata from "../../../components/Metadata";
 
 interface CollectionPageProps {
   contractAddress: string;
@@ -58,6 +59,11 @@ export default function CollectionPage({
 
   return (
     <main className="px-6 pt-10 md:pt-12 lg:pt-16 flex flex-col items-center w-full">
+      <Metadata
+        title={metadata?.name}
+        description={metadata?.description}
+        image={metadata?.image}
+      />
       {/*Collection title and data*/}
       <div className="flex flex-col items-center md:flex-row md:items-start md:gap-12 lg:gap-16 xl:gap-20">
         <div>
@@ -150,38 +156,5 @@ export async function getServerSideProps({ params }: any) {
   }
   return {
     props: { contractAddress },
-  };
-}
-
-export async function generateMetadata({ params, searchParams }: any) {
-  const contractAddress = params?.contractAddress;
-  const sdk = initSDK();
-  const collectionContract = await sdk.getContract(contractAddress);
-  const metadata = await collectionContract.metadata.get();
-
-  return {
-    title: metadata.name,
-    generator: "MoonDAO",
-    applicationName: "MoonDAO Digital Asset Marketplace",
-    creator: "MoonDAO",
-    openGraph: {
-      title: metadata.name,
-      description: metadata.description,
-      images: [
-        {
-          url: metadata.image,
-          width: 800,
-          height: 600,
-        },
-      ],
-      locale: "en_US",
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: metadata.name,
-      description: metadata.description,
-      images: [metadata.image],
-    },
   };
 }
