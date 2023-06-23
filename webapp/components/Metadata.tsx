@@ -1,12 +1,19 @@
 import Head from "next/head";
 
-export default function Metadata({ title }: any) {
+const defaultDescription =
+  "The MoonDAO Digital Asset Marketplace is where people can buy or list digital assets (NFTs) for Mooney.";
+
+export default function Metadata({
+  title = "",
+  description = defaultDescription,
+  image,
+}: any) {
   return (
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>{title}</title>
+      <title>{"Marketplace | " + title}</title>
       <link rel="icon" href="/favicon.png" />
-      <meta name="description" content="" />
+      <meta name="description" content={description} />
       <meta name="theme-color" content="#125c26" />
       <meta name="twitter:card" content="summary" />
       <meta name="twitter:site" content="@OfficialMoonDAO" />

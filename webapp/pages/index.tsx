@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from "react";
 import { useFilter } from "../lib/marketplace-subgraph";
 import { AuctionListing, DirectListing } from "../lib/utils";
+import Metadata from "../components/Metadata";
 
 interface HomeProps {
   validListings: DirectListing[];
@@ -32,6 +33,7 @@ export default function Home({ validListings, validAuctions }: HomeProps) {
 
   return (
     <main className="flex flex-col items-center px-6 md:px-10">
+      <Metadata title="Home" />
       <Hero />
       <CollectionShowcase
         collections={trendingCollections}

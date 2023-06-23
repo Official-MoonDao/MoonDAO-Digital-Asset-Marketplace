@@ -10,6 +10,7 @@ import {
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 import SubmitCollection from "../components/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
+import Metadata from "../components/Metadata";
 
 export default function Sell() {
   const router = useRouter();
@@ -43,6 +44,7 @@ export default function Sell() {
   if (!address || !userAssets[0]) {
     return (
       <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full md:pl-36 xl:pl-44 2xl:pl-52 pb-60 xl:pb-72 2xl:pb-96">
+        <Metadata title="Sell" />
         <div className="flex flex-col items-center md:items-start w-full px-5">
           <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">
             Sell NFTs

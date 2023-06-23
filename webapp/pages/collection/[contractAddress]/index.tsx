@@ -14,8 +14,15 @@ import { useEffect, useState } from "react";
 import { useContract, useMetadata } from "@thirdweb-dev/react";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
+import Metadata from "../../../components/Metadata";
 
-export default function Collection({ contractAddress }: any) {
+interface CollectionPageProps {
+  contractAddress: string;
+}
+
+export default function CollectionPage({
+  contractAddress,
+}: CollectionPageProps) {
   //Marketplace data
   const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
@@ -33,6 +40,7 @@ export default function Collection({ contractAddress }: any) {
     validAuctions,
     collectionContract
   );
+
   useEffect(() => {
     if (marketplace && collectionContract) {
       getAllValidListings(marketplace).then((listings: DirectListing[]) => {
@@ -46,12 +54,11 @@ export default function Collection({ contractAddress }: any) {
       const extensions = getAllDetectedFeatureNames(collectionContract.abi);
       setCollectionType(extensions[0]);
     }
-  }, [marketplace]);
-
-  console.log(metadata);
+  }, [marketplace, collectionContract]);
 
   return (
     <main className="px-6 pt-10 md:pt-12 lg:pt-16 flex flex-col items-center w-full">
+      <Metadata title={metadata?.name} description={metadata?.description} />
       {/*Collection title and data*/}
       <div className="flex flex-col items-center md:flex-row md:items-start md:gap-12 lg:gap-16 xl:gap-20">
         <div>
@@ -137,6 +144,11 @@ export default function Collection({ contractAddress }: any) {
 
 export async function getServerSideProps({ params }: any) {
   const contractAddress = params?.contractAddress;
+  if (!contractAddress) {
+    return {
+      notFound: true,
+    };
+  }
   return {
     props: { contractAddress },
   };

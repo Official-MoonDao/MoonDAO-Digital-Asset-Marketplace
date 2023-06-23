@@ -11,6 +11,7 @@ import { useFilter } from "../lib/marketplace-subgraph";
 import AssetPreview from "../components/Collection/AssetPreview";
 import { useRouter } from "next/router";
 import CollectionPreview from "../components/Collection/CollectionPreview";
+import Metadata from "../components/Metadata";
 
 interface FilteredListingsPageProps {
   validListings: DirectListing[];
@@ -54,6 +55,7 @@ export default function Buy({
 
   return (
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
+      <Metadata title="Buy" />
       <div className="flex flex-col items-center md:items-start">
         {/*Title*/}
         <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">
