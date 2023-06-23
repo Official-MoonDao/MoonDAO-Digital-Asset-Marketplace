@@ -25,12 +25,14 @@ export default function TrendingShowcase({
         {assets &&
           assets
             .slice(assets.length < 4 ? -assets.length : 0, 4)
-            .map((asset, i) => (
+            .map((asset, i, arr) => (
               <TrendingThumbnail
                 key={"trending-thumbnail-" + i}
                 asset={asset}
                 validListings={validListings}
                 validAuctions={validAuctions}
+                first={i < 1}
+                last={i === arr.length - 1}
               />
             ))}
       </div>
@@ -43,6 +45,8 @@ export default function TrendingShowcase({
               asset={asset}
               validListings={validListings}
               validAuctions={validAuctions}
+              first={i === 0}
+              last={i === assets.length - 1}
             />
           ))}
       </div>
