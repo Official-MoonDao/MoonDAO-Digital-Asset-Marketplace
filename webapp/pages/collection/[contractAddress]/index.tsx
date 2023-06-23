@@ -16,7 +16,6 @@ import Skeleton from "../../../components/Skeleton/Skeleton";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 import { initSDK } from "../../../lib/thirdweb";
 import Metadata from "../../../components/Metadata";
-import { useRouter } from "next/router";
 
 interface CollectionPageProps {
   contractAddress: string; //pre-rendered

@@ -56,11 +56,7 @@ export default function TrendingThumbnail({
           <div className="mt-5  pr-6 flex flex-col items-end">
             <p className="font-bold text-lg">#{nft.metadata.id}</p>
             <button className="mt-[50px] text-xs border-[0.5px] px-[10px] py-[6px] rounded-tl-[10px] rounded-br-[10px] hover:bg-slate-900">
-              <Link
-                href={`/collection/${asset.assetContract}/${asset.tokenId}`}
-              >
-                Details
-              </Link>
+              Details
             </button>
           </div>
         </div>

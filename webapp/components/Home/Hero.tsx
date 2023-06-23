@@ -4,51 +4,56 @@ import ArrowButton from "../ArrowButton";
 import HeroStar from "../../assets/HeroStar";
 import FrameDetail from "../../assets/FrameDetail";
 import VerticalStar from "../../assets/VerticalStar";
-import { set } from "react-hook-form";
+import HeroImage from "./HeroImage";
+import { AuctionListing, DirectListing } from "../../lib/utils";
+import Link from "next/link";
 
 //TODO for the slide selector: Transition between images, automatic change of images after interval.
 
-export default function Hero() {
+export default function Hero({ top4 }: any) {
   // Example data for the Hero slide selector
-  let dummyData = [
-    { img: "hero.jpg", link: "https://blur.io/" },
-    { img: "hero2.png", link: "https://blur.io/" },
-    { img: "hero.jpg", link: "https://blur.io/" },
-    { img: "hero2.png", link: "https://blur.io/" },
-  ];
+  // let dummyData = [
+  //   { img: "hero.jpg", link: "https://blur.io/" },
+  //   { img: "hero2.png", link: "https://blur.io/" },
+  //   { img: "hero.jpg", link: "https://blur.io/" },
+  //   { img: "hero2.png", link: "https://blur.io/" },
+  // ];
 
   // State for the hero, contains link of the collection when clicked and image
   const [currentSlide, setCurrentSlide] = useState<number>(0);
-  const [heroImageArray, setHeroImageArray] = useState(dummyData);
+  const [heroImageArray, setHeroImageArray] = useState<
+    DirectListing[] | AuctionListing[]
+  >([]);
 
-  //Cycle images
-  //Bugs out when you click a button and then let it move on its own
   useEffect(() => {
-    setTimeout(() => {
-      if (currentSlide < heroImageArray.length - 1) {
-        setCurrentSlide(currentSlide + 1);
-      } else {
-        setCurrentSlide(0);
-      }
-    }, 5000);
-  }, [currentSlide]);
+    if (top4[0]) {
+      setHeroImageArray(top4);
+    }
+  }, [top4]);
+
+  useEffect(() => {
+    if (heroImageArray.length > 0) {
+      const interval = setInterval(() => {
+        if (currentSlide === heroImageArray.length - 1) {
+          setCurrentSlide(0);
+        } else {
+          setCurrentSlide(currentSlide + 1);
+        }
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [currentSlide, heroImageArray]);
 
   return (
     <div className="mt-10 flex flex-col items-center pb-12 md:flex-row-reverse md:py-10 lg:pt-12 md:gap-20 xl:gap-28 2xl:gap-40">
       {/*Hero image*/}
       <div className="flex flex-col items-center relative">
         {/*Here goes the link to the collection and the image*/}
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href={heroImageArray[currentSlide].link}
+        <Link
+          href={`/collection/${heroImageArray[currentSlide]?.assetContract}/${heroImageArray[currentSlide]?.tokenId}`}
         >
-          <img
-            className="w-[290px] hover:ring-2 xl:hover:ring-4 ring-moon-orange transition-all duration-300 h-[362px] lg:h-[443.38px] xl:h-[499.58px] 2xl:h-[564px]  object-cover lg:w-[355px] xl:w-[400px] 2xl:w-[536px]  rounded-tl-[99px] rounded-br-[99px]"
-            src={heroImageArray[currentSlide].img}
-            alt="Hero Image"
-          />
-        </a>
+          <HeroImage asset={heroImageArray[currentSlide]} />
+        </Link>
         {/*Buttons to change slides*/}
         <HeroImageSelector
           currentSlide={currentSlide}

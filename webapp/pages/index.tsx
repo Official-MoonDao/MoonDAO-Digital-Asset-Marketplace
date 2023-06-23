@@ -34,7 +34,7 @@ export default function Home({ validListings, validAuctions }: HomeProps) {
   return (
     <main className="flex flex-col items-center px-6 md:px-10">
       <Metadata title="Home" />
-      <Hero />
+      <Hero top4={trendingAssets.slice(0, 4)} />
       <CollectionShowcase
         collections={trendingCollections}
         validListings={validListings}

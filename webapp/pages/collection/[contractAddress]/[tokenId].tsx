@@ -616,7 +616,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const extensions = getAllDetectedFeatureNames(collectionContract.abi);
 
   let nft;
-  console.log(extensions);
   if (extensions[0] === "ERC1155") {
     nft = await collectionContract.erc1155.get(tokenId);
   } else {
