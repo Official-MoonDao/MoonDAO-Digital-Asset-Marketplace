@@ -174,13 +174,18 @@ export default function TokenPage({
     setIsOwner(currListing.listing.seller === address);
   }, [currListing, address, loadingContract]);
 
-  if (!nft && loadingListings) return <>loading</>;
-  if (!loadingListings && !nft) return <>does not exist</>;
+  if (!nft && loadingListings)
+    return (
+      <>
+        <Metadata title={"Asset"} />
+        <p>loading</p>
+      </>
+    );
 
   return (
     <>
       <Metadata
-        title={nft.metadata.name}
+        title={"Asset"}
         description={nft.metadata.description}
         image={nft.metadata.image}
       />
@@ -579,10 +584,14 @@ export default function TokenPage({
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const contractAddress = params?.contractAddress;
-  const tokenId: any = params?.tokenId;
+  const tokenId = params?.tokenId;
+
+  const sdk = initSDK();
+  const marketplace: any = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const acceptedCollections = await marketplace.roles.get("asset");
 
   //if no contract address or token id, return 404
-  if (!contractAddress || !tokenId) {
+  if (!acceptedCollections.includes(contractAddress)) {
     return {
       notFound: true,
     };
