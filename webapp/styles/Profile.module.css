@@ -39,13 +39,13 @@
 }
 
 .tab:hover {
-  color: rgba(255, 255, 255, 0.8);
+  color: #e9e9f9;
 }
 
 .activeTab {
   color: rgba(255, 255, 255, 1);
-  border-bottom: 2px solid #0294fe;
-  color: #0294fe;
+  border-bottom: 2px solid #f9b95c;
+  color: #f9b95c;
 }
 
 .tabContent {
