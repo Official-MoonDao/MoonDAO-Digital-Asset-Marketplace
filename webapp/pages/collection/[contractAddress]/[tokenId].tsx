@@ -30,7 +30,8 @@ import Listing from "../../../components/NFT/Listing";
 import { useRouter } from "next/router";
 
 import styles from "../../../styles/Token.module.css";
-import Metadata from "../../../components/Metadata";
+import { initSDK } from "../../../lib/thirdweb";
+import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 
 type TokenPageProps = {
   contractAddress: string;
@@ -177,10 +178,6 @@ export default function TokenPage({
 
   return (
     <>
-      <Metadata
-        title={nft.metadata.name}
-        description={nft.metadata.description}
-      />
       <Toaster position="bottom-center" reverseOrder={false} />
       <article className="w-full ml-auto mr-auto px-4 md:mt-24 max-w-[1200px]">
         <div className="w-full flex flex-col gap-8 mt-4 md:mt-32 tablet:flex-row pb-32 tablet:pb-0">
@@ -592,3 +589,43 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     },
   };
 };
+
+export async function generateMetadata({ params, searchParams }: any) {
+  const contractAddress = params?.contractAddress;
+  const tokenId: any = params?.tokenId;
+  const sdk = initSDK();
+  const collectionContract: any = await sdk.getContract(contractAddress);
+  const extensions = getAllDetectedFeatureNames(collectionContract.abi);
+  let nft;
+  if (extensions[0] === "ERC1155") {
+    nft = await collectionContract.erc1155.get(tokenId);
+  } else {
+    nft = await collectionContract.erc721.get(tokenId);
+  }
+
+  return {
+    title: nft.metadata.name,
+    generator: "MoonDAO",
+    applicationName: "MoonDAO Digital Asset Marketplace",
+    creator: "MoonDAO",
+    openGraph: {
+      title: nft.metadata.name,
+      description: nft.metadata.description,
+      images: [
+        {
+          url: nft.metadata.image,
+          width: 800,
+          height: 600,
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: nft.metadata.name,
+      description: nft.metadata.description,
+      images: [nft.metadata.image],
+    },
+  };
+}
