@@ -60,8 +60,15 @@ footer {
 .connect-button {
   background: #d7594f !important;
   font-family: "Roboto Mono", monospace, sans-serif !important;
-  padding: 10px 10px 10px 10px !important;
-  border-radius: 0% !important;
+  padding: 10px 12px 10px 12px !important;
+  border-radius: 4px !important;
+  transition: 0.2s !important;
+}
+
+.connect-button:hover {
+  border-top-left-radius: 22px !important;
+  border-bottom-right-radius: 22px !important;
+  transition: 0.5s !important;
 }
 
 /* Animation to slide menus in */
