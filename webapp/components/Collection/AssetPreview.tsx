@@ -4,12 +4,7 @@ import { useRouter } from "next/router";
 import { useAssetStats } from "../../lib/marketplace-v3";
 import Skeleton from "../Skeleton/Skeleton";
 import Image from "next/image";
-export default function AssetPreview({
-  contractAddress,
-  tokenId,
-  validListings,
-  validAuctions,
-}: any) {
+export default function AssetPreview({ contractAddress, tokenId, validListings, validAuctions }: any) {
   const { contract } = useContract(contractAddress);
   const { data: nft, isLoading, error } = useNFT(contract, tokenId);
   const router = useRouter();
@@ -30,11 +25,7 @@ export default function AssetPreview({
       <div className="bg-main-background h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div>
       {/*Image container to create zoom effect*/}
       <div className="w-[335px] h-[275px] overflow-hidden">
-        <button
-          onClick={() =>
-            router.push(`/collection/${contractAddress}/${tokenId}`)
-          }
-        >
+        <button onClick={() => router.push(`/collection/${contractAddress}/${tokenId}`)}>
           <Image
             className="object-cover w-[335px] h-[275px] object-center group-hover:scale-110 transition-all duration-200"
             src={`${nft.metadata.image}`}
@@ -59,9 +50,7 @@ export default function AssetPreview({
         <div className="mt-5 pr-9 flex flex-col items-end">
           <p className="font-bold text-xl">#{nft.metadata.id}</p>
           <button
-            onClick={() =>
-              router.push(`/collection/${contractAddress}/${tokenId}`)
-            }
+            onClick={() => router.push(`/collection/${contractAddress}/${tokenId}`)}
             className="mt-10 border-[0.5px] hover:scale-105 px-[10px] py-[6px] rounded transition-all duration-150 bg-slate-900 hover:bg-indigo-700"
           >
             <a>Buy now</a>

@@ -3,6 +3,7 @@ import LogoSmall from "../assets/LogoSmall";
 import { useCollectionStats } from "../lib/marketplace-v3";
 import Skeleton from "./Skeleton/Skeleton";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function CollectionThumbnail({
   collection,
@@ -23,18 +24,19 @@ export default function CollectionThumbnail({
   if (!metadata) return <Skeleton width="335px" height="262px"/>;
   return (
     <Link href={`/collection/${collection.assetContract}`}>
-      {/*Collection link goes on top*/}
-      <article className="flex items-center lg:hover:bg-gradient-to-br lg:hover:ring-2 ring-white from-main-background via-indigo-900 to-main-background transition-all duration-150 lg:rounded-xl lg:px-3 lg:py-2 xl:py-3 xl:px-4">
+      <article className="flex items-center min-w-[300px] max-w-[345px] lg:w-full lg:max-w-none lg:hover:bg-gradient-to-br lg:hover:ring-2 ring-white from-moon-gold via-moon-secondary to-moon-gold transition-all duration-150 lg:rounded-xl lg:pl-1 lg:pr-4 lg:py-2 xl:py-3">
         <div className="flex items-center gap-2 md:gap-3 lg:gap-6">
           <p className="font-bold text-lg">{metadata.id}</p>
-          <img
+          <Image
+          width={80}
+          height={80}
             src={metadata.image}
             alt={`${metadata.name} collection image`}
-            className="w-20 h-20 rounded-full object-cover"
+            className="rounded-full object-cover"
           />
         </div>
-        <div className="ml-2 md:ml-4 flex flex-col">
-          <h6 className="font-bold lg:text-lg">{metadata.name}</h6>
+        <div className="ml-4 md:ml-5 flex flex-col">
+          <h6 className="font-bold lg:text-lg break-words">{metadata.name}</h6>
           <p className="mt-2 text-sm flex items-center">
             Floor{" "}
             <span className="ml-2 flex items-center gap-1">

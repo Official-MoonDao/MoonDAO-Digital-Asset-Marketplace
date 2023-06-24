@@ -7,7 +7,6 @@ import LogoSmall from "../../assets/LogoSmall";
 import Skeleton from "../Skeleton/Skeleton";
 import { useCollectionStats } from "../../lib/marketplace-v3";
 
-//TODO: figure out a way to show the real FLOOR price of a collection, showing template value right now
 export default function CollectionPreview({
   collection,
   validListings,

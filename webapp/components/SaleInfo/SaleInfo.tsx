@@ -9,12 +9,7 @@ import {
 } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../util/toastConfig";
-import {
-  MARKETPLACE_ADDRESS,
-  MOONEY_ADDRESS,
-  MOONEY_DECIMALS,
-  VMOONEY_ADDRESS,
-} from "../../const/config";
+import { MARKETPLACE_ADDRESS, MOONEY_ADDRESS, MOONEY_DECIMALS, VMOONEY_ADDRESS } from "../../const/config";
 import { useListingsAndAuctionsForTokenIdAndWallet } from "../../lib/marketplace-v3";
 import Skeleton from "../Skeleton/Skeleton";
 
@@ -44,16 +39,8 @@ type DirectFormData = {
   endDate: Date;
 };
 
-export default function SaleInfo({
-  nft,
-  contractAddress,
-  router,
-  walletAddress,
-}: Props) {
-  const { contract: marketplace }: any = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
+export default function SaleInfo({ nft, contractAddress, router, walletAddress }: Props) {
+  const { contract: marketplace }: any = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
   const { contract: nftCollection } = useContract(contractAddress);
 
@@ -70,19 +57,11 @@ export default function SaleInfo({
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
     try {
-      const hasApproval = await nftCollection?.call(
-        "isApprovedForAll",
-        walletAddress || nft.owner,
-        MARKETPLACE_ADDRESS
-      );
+      const hasApproval = await nftCollection?.call("isApprovedForAll", walletAddress || nft.owner, MARKETPLACE_ADDRESS);
 
       // If it is, provide approval
       if (!hasApproval) {
-        const txResult = await nftCollection?.call(
-          "setApprovalForAll",
-          MARKETPLACE_ADDRESS,
-          true
-        );
+        const txResult = await nftCollection?.call("setApprovalForAll", MARKETPLACE_ADDRESS, true);
 
         if (txResult) {
           toast.success("Marketplace approval granted", {
@@ -100,31 +79,29 @@ export default function SaleInfo({
   }
 
   // Manage form values using react-hook-form library: Auction form
-  const { register: registerAuction, handleSubmit: handleSubmitAuction } =
-    useForm<AuctionFormData>({
-      defaultValues: {
-        nftContractAddress: contractAddress,
-        tokenId: nft.metadata.id,
-        startDate: new Date(),
-        quantity: "1",
-        endDate: new Date(),
-        floorPrice: "0",
-        buyoutPrice: "0",
-      },
-    });
+  const { register: registerAuction, handleSubmit: handleSubmitAuction } = useForm<AuctionFormData>({
+    defaultValues: {
+      nftContractAddress: contractAddress,
+      tokenId: nft.metadata.id,
+      startDate: new Date(),
+      quantity: "1",
+      endDate: new Date(),
+      floorPrice: "0",
+      buyoutPrice: "0",
+    },
+  });
 
   // Manage form values using react-hook-form library: Direct form
-  const { register: registerDirect, handleSubmit: handleSubmitDirect } =
-    useForm<DirectFormData>({
-      defaultValues: {
-        nftContractAddress: contractAddress,
-        tokenId: nft.metadata.id,
-        quantity: "1",
-        startDate: new Date(),
-        endDate: new Date(),
-        price: "0",
-      },
-    });
+  const { register: registerDirect, handleSubmit: handleSubmitDirect } = useForm<DirectFormData>({
+    defaultValues: {
+      nftContractAddress: contractAddress,
+      tokenId: nft.metadata.id,
+      quantity: "1",
+      startDate: new Date(),
+      endDate: new Date(),
+      price: "0",
+    },
+  });
 
   //handle direct listing
   async function handleSubmissionAuction(data: AuctionFormData) {
@@ -253,11 +230,7 @@ export default function SaleInfo({
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(
-                  Date.now() - new Date().getTimezoneOffset() * 60000
-                )
-                  .toISOString()
-                  .slice(0, -8)}
+                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
                 {...registerDirect("startDate")}
                 aria-label="Auction Start Date"
               />
@@ -269,11 +242,7 @@ export default function SaleInfo({
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(
-                  Date.now() - new Date().getTimezoneOffset() * 60000
-                )
-                  .toISOString()
-                  .slice(0, -8)}
+                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
                 {...registerDirect("endDate")}
                 aria-label="Auction End Date"
               />
@@ -356,11 +325,7 @@ export default function SaleInfo({
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(
-                  Date.now() - new Date().getTimezoneOffset() * 60000
-                )
-                  .toISOString()
-                  .slice(0, -8)}
+                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
                 {...registerAuction("startDate")}
                 aria-label="Auction Start Date"
               />
@@ -373,11 +338,7 @@ export default function SaleInfo({
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
-                min={new Date(
-                  Date.now() - new Date().getTimezoneOffset() * 60000
-                )
-                  .toISOString()
-                  .slice(0, -8)}
+                min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, -8)}
                 {...registerAuction("endDate")}
                 aria-label="Auction End Date"
               />
@@ -410,9 +371,7 @@ export default function SaleInfo({
               <Web3Button
                 className="connect-button"
                 contractAddress={MARKETPLACE_ADDRESS}
-                action={async () =>
-                  await handleSubmitAuction(handleSubmissionAuction)()
-                }
+                action={async () => await handleSubmitAuction(handleSubmissionAuction)()}
                 onError={(error) => {
                   toast(`Listed Failed! Reason: ${error.cause}`, {
                     icon: "❌",
