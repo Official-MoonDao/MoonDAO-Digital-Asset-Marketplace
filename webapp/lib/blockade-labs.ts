@@ -7,7 +7,6 @@ const sdk = new BlockadeLabsSdk({
 
 // Create a new skybox
 export async function createSkybox(prompt: string, style: any = 9) {
-  console.log(style);
   const generation = await sdk.generateSkybox({
     prompt,
     skybox_style_id: +style,

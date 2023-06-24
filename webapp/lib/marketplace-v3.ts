@@ -7,7 +7,7 @@ import {
   serializable,
 } from "./utils";
 import { initSDK } from "./thirdweb";
-import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS, NETWORK } from "../const/config";
+import { MOONEY_DECIMALS, NETWORK } from "../const/config";
 import {
   SmartContract,
   ThirdwebSDK,
@@ -15,15 +15,9 @@ import {
 } from "@thirdweb-dev/sdk";
 import {
   useContract,
-  useContractRead,
-  useNFTs,
-  useNetwork,
   useNetworkMismatch,
   useSigner,
 } from "@thirdweb-dev/react";
-import { Goerli } from "@thirdweb-dev/chains";
-import { toast } from "react-hot-toast";
-import { AnyMapping } from "three";
 
 /////FUNCTIONS///////////////////
 ////////////////////////////////
@@ -189,7 +183,6 @@ export async function multiCreateListings(
       const multicallTx = await marketplace.multicall(encodedData, {
         gasLimit: totalListingGas,
       });
-      console.log(multicallTx);
       return multicallTx;
     } else throw new Error("No data to encode");
   } catch (err) {
@@ -410,7 +403,6 @@ export function useUserAssets(
             ownedAssets = await contract.erc1155.getOwned(signer.address);
             //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
 
-            console.log(ownedAssets);
             ownedAssets = await ownedAssets.map((asset: any) => {
               const ownedQuantity = asset.quantityOwned;
 
