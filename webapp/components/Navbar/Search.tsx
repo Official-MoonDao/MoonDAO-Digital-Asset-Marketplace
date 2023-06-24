@@ -42,7 +42,7 @@ export default function Search() {
         <input
           type="search"
           className={`peer w-[240px] md:w-[260px] lg:w-[300px] xl:w-[390px] 2xl:w-[441px] focus:ring-1 ring-indigo-500 ring-opacity-50 py-[5px] md:py-[7px] pl-10 md:pl-12 pr-3 md:pr-5 text-sm placeholder:text-sm md:text-base md:placeholder:text-base placeholder:opacity-40 block border-[0.6px] border-white border-opacity-50 bg-transparent`}
-          placeholder="Search Collections"
+          placeholder="Search Assets"
           onBlur={(e) => {
             setTimeout(() => {
               setEnabled(false);
