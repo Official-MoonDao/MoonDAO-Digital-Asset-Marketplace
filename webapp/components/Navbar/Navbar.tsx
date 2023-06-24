@@ -17,7 +17,7 @@ export function Navbar() {
 
   const address = useAddress();
   return (
-    <div className="py-4 pl-4 pr-3 md:bg-white md:bg-opacity-5 lg:py-5 lg:px-[30px]">
+    <div className="py-4 pl-4 pr-3 relative z-50 md:bg-white md:bg-opacity-5 lg:py-5 lg:px-[30px]">
       <NetworkError />
       <nav className="flex items-center justify-between">
         {/*Logo and search */}

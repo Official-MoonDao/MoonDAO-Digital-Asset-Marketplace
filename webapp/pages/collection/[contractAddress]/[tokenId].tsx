@@ -1,30 +1,44 @@
 import { MediaRenderer, ThirdwebNftMedia, useAddress, useContract, useContractEvents, useMetadata, useNFT, Web3Button } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
-import { NFT } from "@thirdweb-dev/sdk";
 import Link from "next/link";
 import randomColor from "../../../util/randomColor";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../../util/toastConfig";
-import { getAllValidAuctions, getAllValidListings, getAllValidOffers, useListingsAndAuctionsForTokenId } from "../../../lib/marketplace-v3";
-import { initSDK } from "../../../lib/thirdweb";
-import { ETHERSCAN_URL, MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../../const/config";
-import { DirectListing, AuctionListing, BigConvert } from "../../../lib/utils";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+  useListingsAndAuctionsForTokenId,
+} from "../../../lib/marketplace-v3";
+import {
+  ETHERSCAN_URL,
+  MARKETPLACE_ADDRESS,
+  MOONEY_DECIMALS,
+} from "../../../const/config";
+import { DirectListing, AuctionListing } from "../../../lib/utils";
 import Listing from "../../../components/NFT/Listing";
 import { useRouter } from "next/router";
 
 import styles from "../../../styles/Token.module.css";
-import { set } from "react-hook-form";
+import styles2 from "../../../styles/Profile.module.css";
+import { initSDK } from "../../../lib/thirdweb";
+import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
+import Metadata from "../../../components/Metadata";
 
 type TokenPageProps = {
   contractAddress: string;
   tokenId: string;
+  nft: any;
 };
 
 const [randomColor1, randomColor2] = [randomColor(), randomColor()];
 
-export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) {
+export default function TokenPage({
+  contractAddress,
+  tokenId,
+  nft,
+}: TokenPageProps) {
   const router = useRouter();
   const address = useAddress();
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -40,15 +54,17 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
     listing: {} as DirectListing | AuctionListing,
   });
 
+  const [tab, setTab] = useState<"listings" | "auctions">("listings");
+
   const [winningBid, setWinningBid] = useState<any>();
 
   const [bidValue, setBidValue] = useState<string>();
 
   //NFT Collection & Metadata
   const { contract: nftCollection } = useContract(contractAddress);
-  const { data: contractMetadata } = useMetadata(nftCollection);
-  //NFT data
-  const { data: nft }: any = useNFT(nftCollection, tokenId);
+
+  const { data: collectionMetadata } = useMetadata(nftCollection);
+
   // Load historical transfer events: TODO - more event types like sale
   const { data: transferEvents, isLoading: loadingTransferEvents } = useContractEvents(nftCollection, "Transfer", {
     queryFilter: {
@@ -131,11 +147,13 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
     setIsOwner(currListing.listing.seller === address);
   }, [currListing, address, loadingContract]);
 
-  if (!nft && loadingListings) return <>loading</>;
-  if (!loadingListings && !nft) return <>does not exist</>;
-
   return (
     <>
+      <Metadata
+        title={"Asset"}
+        description={nft.metadata.description}
+        image={nft.metadata.image}
+      />
       <Toaster position="bottom-center" reverseOrder={false} />
       <article className="w-full ml-auto mr-auto px-4 md:mt-24 max-w-[1200px]">
         <div className="w-full flex flex-col gap-8 mt-4 md:mt-32 tablet:flex-row pb-32 tablet:pb-0">
@@ -236,15 +254,15 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
 
           {/*Collection title, image and description*/}
           <div className="relative w-full max-w-full top-0 tablet:flex-shrink tablet:sticky tablet:min-w-[370px] tablet:max-w-[450px] tablet:mt-4 tablet:mr-4">
-            {contractMetadata && (
+            {collectionMetadata && (
               <div className="flex items-center mb-2">
                 <Link href={`/collection/${contractAddress}`}>
                   <MediaRenderer
-                    src={contractMetadata.image}
+                    src={collectionMetadata.image}
                     className="!w-[36px] !h-[36px] rounded-lg mr-4 ml-3 mb-2"
                   />
                   <p className="truncate w-full mx-4 mt-[5px] opacity-50">
-                    {contractMetadata.name}
+                    {collectionMetadata.name}
                   </p>
                 </Link>
               </div>
@@ -381,7 +399,23 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                   !directListing[0] && !auctionListing[0] && "hidden"
                 } flex flex-col gap-2 px-3 py-2 mb-4`}
               >
-                {directListing[0] && (
+                <div className={"w-full flex justify-evenly p-2"}>
+                  <h3
+                    className={`${styles2.tab} 
+        ${tab === "listings" ? styles2.activeTab : ""}`}
+                    onClick={() => setTab("listings")}
+                  >
+                    Listings
+                  </h3>
+                  <h3
+                    className={`${styles2.tab}
+        ${tab === "auctions" ? styles2.activeTab : ""}`}
+                    onClick={() => setTab("auctions")}
+                  >
+                    Auctions
+                  </h3>
+                </div>
+                {tab === "listings" && directListing[0] && (
                   <>
                     <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black rounded-sm">
                       Direct Listings :
@@ -393,7 +427,7 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                             key={`erc-1155-direct-listing-container-${i}`}
                             className={`flex flex-col mt-1 md:px-2 rounded-sm ${
                               currListing.listing.listingId === l.listingId &&
-                              "bg-[#ffffff1d]"
+                              "bg-[#ffffff30]"
                             }`}
                           >
                             <Listing
@@ -408,7 +442,7 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                   </>
                 )}
 
-                {auctionListing[0] && (
+                {tab === "auctions" && auctionListing[0] && (
                   <>
                     <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black rounded-sm">
                       Auction Listings :
@@ -424,7 +458,7 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
                             key={`erc-1155-auction-listing-container-${i}`}
                             className={`flex flex-col mt-1 md:px-2 rounded-sm ${
                               currListing.listing.auctionId === a.auctionId &&
-                              "bg-[#ffffff1d]"
+                              "bg-[#ffffff30]"
                             }`}
                           >
                             <Listing
@@ -523,10 +557,32 @@ export default function TokenPage({ contractAddress, tokenId }: TokenPageProps) 
 
 export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const contractAddress = params?.contractAddress;
-  const tokenId: any = params?.tokenId;
+  const tokenId = params?.tokenId;
+
+  const sdk = initSDK();
+  const marketplace: any = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const acceptedCollections = await marketplace.roles.get("asset");
 
   //if no contract address or token id, return 404
-  if (!contractAddress || !tokenId) {
+  if (!acceptedCollections.includes(contractAddress)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const collectionContract: any = await sdk.getContract(
+    contractAddress as string
+  );
+  const extensions = getAllDetectedFeatureNames(collectionContract.abi);
+
+  let nft;
+  if (extensions[0] === "ERC1155") {
+    nft = await collectionContract.erc1155.get(tokenId);
+  } else {
+    nft = await collectionContract.erc721.get(tokenId);
+  }
+
+  if (!nft) {
     return {
       notFound: true,
     };
@@ -536,6 +592,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     props: {
       contractAddress,
       tokenId,
+      nft,
     },
   };
 };

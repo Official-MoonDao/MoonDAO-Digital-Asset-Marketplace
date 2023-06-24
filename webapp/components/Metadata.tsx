@@ -1,30 +1,34 @@
 import Head from "next/head";
 
-export default function Metadata({ title }: any) {
+const defaultDescription =
+  "The MoonDAO Digital Asset Marketplace is where people can buy or list digital assets (NFTs) for Mooney.";
+
+interface MetadataProps {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+
+export default function Metadata({
+  title = "",
+  description = defaultDescription,
+  image = "/screenshot.png",
+}: MetadataProps) {
   return (
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>{title}</title>
+      <title>{"Marketplace | " + title}</title>
       <link rel="icon" href="/favicon.png" />
-      <meta name="description" content="" />
-      <meta name="theme-color" content="#125c26" />
+      <meta name="description" content={description} />
+      <meta name="theme-color" content="#090013" />
       <meta name="twitter:card" content="summary" />
       <meta name="twitter:site" content="@OfficialMoonDAO" />
-      <meta name="twitter:title" content="MoonDAO Marketplace" />
-      <meta
-        name="twitter:description"
-        content="The MoonDAO Digital Asset Marketplace is where people can buy or list digital assets (NFTs) for Mooney."
-      />
-      {/* <meta
-        name="twitter:image"
-        content="https://collection-1.thirdweb.dev/og.png"
-      /> */}
-      <meta property="og:title" content="MoonDAO Marketplace" />
-      <meta property="og:description" content="MoonDAO Marketplace" />
-      {/* <meta
-        property="og:image"
-        content="https://collection-1.thirdweb.dev/og.png"
-      /> */}
+      <meta name="twitter:title" content={"MoonDAO Marketplace | " + title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
+      <meta property="og:title" content={"MoonDAO Marketplace | " + title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
       <meta
         property="og:url"
         content="https://main--moondao-marketplace-test.netlify.app/"

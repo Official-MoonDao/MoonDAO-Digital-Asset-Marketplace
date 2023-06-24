@@ -8,7 +8,12 @@ export default function AssetPreview({ contractAddress, tokenId, validListings, 
   const { contract } = useContract(contractAddress);
   const { data: nft, isLoading, error } = useNFT(contract, tokenId);
   const router = useRouter();
-  const { floorPrice, owners, supply } = useAssetStats(validListings, validAuctions, contractAddress, tokenId);
+  const { floorPrice, listed, supply } = useAssetStats(
+    validListings,
+    validAuctions,
+    contractAddress,
+    tokenId
+  );
 
   if (isLoading) return <Skeleton width="335px" height="282px" />;
   if (error || !nft) return <div>NFT not found!</div>;
@@ -37,7 +42,9 @@ export default function AssetPreview({ contractAddress, tokenId, validListings, 
           {/*Price*/}
           <p className="mt-11 text-xl flex items-center gap-3 truncate">
             <LogoSmall size={{ width: 24.54, height: 24.07 }} />
-            {floorPrice && floorPrice.toString().length < 9 ? floorPrice : floorPrice?.toString().slice(0, 7) + "..."}
+            {floorPrice && floorPrice.toString().length < 9
+              ? floorPrice
+              : floorPrice?.toString().slice(0, 7) + "..."}
           </p>
         </div>
         <div className="mt-5 pr-9 flex flex-col items-end">

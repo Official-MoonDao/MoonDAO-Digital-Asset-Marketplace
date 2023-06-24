@@ -11,29 +11,39 @@ import {
 import AssetPreview from "../../../components/Collection/AssetPreview";
 import { AuctionListing, DirectListing } from "../../../lib/utils";
 import { useEffect, useState } from "react";
-import { useContract, useMetadata } from "@thirdweb-dev/react";
+import { useContract } from "@thirdweb-dev/react";
 import Skeleton from "../../../components/Skeleton/Skeleton";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
+import { initSDK } from "../../../lib/thirdweb";
+import Metadata from "../../../components/Metadata";
 
-export default function Collection({ contractAddress }: any) {
+interface CollectionPageProps {
+  contractAddress: string; //pre-rendered
+  collectionMetadata: any; //pre-rendered
+}
+
+export default function CollectionPage({
+  contractAddress,
+  collectionMetadata,
+}: CollectionPageProps) {
   //Marketplace data
   const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
 
-  const assets = useAllAssets(validListings, validAuctions, contractAddress);
-
   //NFT Collection Data
   const [collectionType, setCollectionType] = useState<string>("");
   const { contract: collectionContract }: any = useContract(contractAddress);
-  const { data: metadata } = useMetadata(collectionContract);
 
+  const assets = useAllAssets(validListings, validAuctions, contractAddress);
   const { floorPrice, listed, supply } = useCollectionStats(
     validListings,
     validAuctions,
     collectionContract
   );
+
   useEffect(() => {
+    //get all valid listings and auctions
     if (marketplace && collectionContract) {
       getAllValidListings(marketplace).then((listings: DirectListing[]) => {
         setValidListings(listings);
@@ -46,21 +56,24 @@ export default function Collection({ contractAddress }: any) {
       const extensions = getAllDetectedFeatureNames(collectionContract.abi);
       setCollectionType(extensions[0]);
     }
-  }, [marketplace]);
-
-  console.log(metadata);
+  }, [marketplace, collectionContract]);
 
   return (
     <main className="px-6 pt-10 md:pt-12 lg:pt-16 flex flex-col items-center w-full">
+      <Metadata
+        title={collectionMetadata?.name}
+        description={collectionMetadata?.description}
+        image={collectionMetadata?.image}
+      />
       {/*Collection title and data*/}
       <div className="flex flex-col items-center md:flex-row md:items-start md:gap-12 lg:gap-16 xl:gap-20">
         <div>
-          {metadata ? (
+          {collectionMetadata ? (
             <Image
               width={285}
               height={285}
               className="border-4 p-2 rounded-full object-cover xl:w-[320px] xl:h-[320px]"
-              src={metadata.image}
+              src={collectionMetadata.image}
               alt="Collection thumbnail"
             />
           ) : (
@@ -70,9 +83,9 @@ export default function Collection({ contractAddress }: any) {
         <div className="mt-4 md:mt-0 xl:-mt-4">
           {/*Title */}
           <div className="mt-8 w-[320px] md:w-[420px] xl:w-[520px] ">
-            {metadata ? (
+            {collectionMetadata ? (
               <h2 className="mt-8 font-GoodTimes text-2xl md:text-3xl xl:text-4xl  bg-clip-text text-transparent bg-gradient-to-b from-indigo-100 via-moon-orange to-moon-secondary">
-                {metadata.name}
+                {collectionMetadata.name}
               </h2>
             ) : (
               <Skeleton />
@@ -107,9 +120,9 @@ export default function Collection({ contractAddress }: any) {
             )}
           </div>
           <div className="mt-8 xl:mt-9 max-w-[320px] xl:max-w-[420px]">
-            {metadata ? (
+            {collectionMetadata ? (
               <p className=" xl:text-base xl:leading-loose text-sm font-light leading-relaxed">
-                {metadata?.description}
+                {collectionMetadata?.description}
               </p>
             ) : (
               <Skeleton width="320px" height="50px" />
@@ -137,7 +150,20 @@ export default function Collection({ contractAddress }: any) {
 
 export async function getServerSideProps({ params }: any) {
   const contractAddress = params?.contractAddress;
+  const sdk = initSDK();
+  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const acceptedCollections = await marketplace.roles.get("asset");
+
+  if (!acceptedCollections.includes(contractAddress)) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const collectionContract = await sdk.getContract(contractAddress);
+  const collectionMetadata = await collectionContract.metadata.get();
+
   return {
-    props: { contractAddress },
+    props: { contractAddress, collectionMetadata },
   };
 }

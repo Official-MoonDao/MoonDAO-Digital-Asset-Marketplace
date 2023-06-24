@@ -68,7 +68,7 @@ export interface LocalQue {
 export interface AssetStats {
   floorPrice: string | number | undefined;
   supply: string | number | undefined;
-  owners: string | number | undefined;
+  listed: string | number | undefined;
 }
 
 export interface CollectionStats {

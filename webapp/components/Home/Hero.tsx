@@ -4,56 +4,55 @@ import ArrowButton from "../ArrowButton";
 import HeroStar from "../../assets/HeroStar";
 import FrameDetail from "../../assets/FrameDetail";
 import VerticalStar from "../../assets/VerticalStar";
-import { set } from "react-hook-form";
+import HeroImage from "./HeroImage";
+import { AuctionListing, DirectListing } from "../../lib/utils";
+import Link from "next/link";
 
 //TODO for the slide selector: Transition between images, automatic change of images after interval.
+//TODO adjust blur so it doesnt overlay on top of hero image
 
-export default function Hero() {
+export default function Hero({ top4 }: any) {
   // Example data for the Hero slide selector
-  let dummyData = [
-    { img: "hero.jpg", link: "https://blur.io/" },
-    { img: "hero2.png", link: "https://blur.io/" },
-    { img: "hero.jpg", link: "https://blur.io/" },
-    { img: "hero2.png", link: "https://blur.io/" },
-  ];
+  // let dummyData = [
+  //   { img: "hero.jpg", link: "https://blur.io/" },
+  //   { img: "hero2.png", link: "https://blur.io/" },
+  //   { img: "hero.jpg", link: "https://blur.io/" },
+  //   { img: "hero2.png", link: "https://blur.io/" },
+  // ];
 
   // State for the hero, contains link of the collection when clicked and image
   const [currentSlide, setCurrentSlide] = useState<number>(0);
-  const [heroImageArray, setHeroImageArray] = useState(dummyData);
+  const [heroImageArray, setHeroImageArray] = useState<DirectListing[] | AuctionListing[]>([]);
 
-  //Cycle images
-  //Bugs out when you click a button and then let it move on its own
   useEffect(() => {
-    setTimeout(() => {
-      if (currentSlide < heroImageArray.length - 1) {
-        setCurrentSlide(currentSlide + 1);
-      } else {
-        setCurrentSlide(0);
-      }
-    }, 5000);
-  }, [currentSlide]);
+    if (top4[0]) {
+      setHeroImageArray(top4);
+    }
+  }, [top4]);
+
+  useEffect(() => {
+    if (heroImageArray.length > 0) {
+      const interval = setInterval(() => {
+        if (currentSlide === heroImageArray.length - 1) {
+          setCurrentSlide(0);
+        } else {
+          setCurrentSlide(currentSlide + 1);
+        }
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [currentSlide, heroImageArray]);
 
   return (
     <div className="mt-10 flex flex-col items-center pb-12 md:flex-row-reverse md:py-10 lg:pt-12 md:gap-20 xl:gap-28 2xl:gap-40">
       {/*Hero image*/}
       <div className="flex flex-col items-center relative">
         {/*Here goes the link to the collection and the image*/}
-        <a
-          target="_blank"
-          rel="noreferrer"
-          href={heroImageArray[currentSlide].link}
-        >
-          <img
-            className="w-[290px] hover:ring-2 xl:hover:ring-4 ring-moon-orange transition-all duration-300 h-[362px] lg:h-[443.38px] xl:h-[499.58px] 2xl:h-[564px]  object-cover lg:w-[355px] xl:w-[400px] 2xl:w-[536px]  rounded-tl-[99px] rounded-br-[99px]"
-            src={heroImageArray[currentSlide].img}
-            alt="Hero Image"
-          />
-        </a>
+        <Link href={`/collection/${heroImageArray[currentSlide]?.assetContract}/${heroImageArray[currentSlide]?.tokenId}`}>
+          <HeroImage asset={heroImageArray[currentSlide]} />
+        </Link>
         {/*Buttons to change slides*/}
-        <HeroImageSelector
-          currentSlide={currentSlide}
-          setCurrentSlide={setCurrentSlide}
-        />
+        <HeroImageSelector currentSlide={currentSlide} setCurrentSlide={setCurrentSlide} />
 
         {/*Stars and frame detail*/}
         <span className="hidden lg:block lg:absolute top-80 right-64 xl:top-96 xl:right-72 2xl:hidden">
@@ -74,25 +73,35 @@ export default function Hero() {
       </div>
 
       {/*Title, paragraph and button to see all collections*/}
-      <div className="mt-16 text-center md:text-left flex flex-col items-center md:mt-2 md:items-start lg:mt-10">
-        <h1 className="text-white font-GoodTimes text-[34px] lg:text-5xl xl:text-6xl 2xl:text-7xl lg:tracking-wide">
+      <div className="relative mt-16 text-center z-10 md:text-left flex flex-col items-center md:mt-2 md:items-start lg:mt-10">
+        {/*Blur blob*/}
+        <div
+          className="absolute overflow-hidden hidden lg:block -z-50 lg:left-[calc(-90%-30rem)] xl:left-[calc(-40%-30rem)] lg:top-[calc(50%-30rem)] 2xl:left-[calc(-5%-30rem)] 2xl:top-[calc(50%-30rem)] transform-gpu blur-[85px] "
+          aria-hidden="true"
+        >
+          <div
+            className="relative aspect-[1400/678] rotate-[30deg] bg-gradient-to-tr from-moon-secondary to-orange-600 opacity-[0.15] w-[82.1875rem]"
+            style={{
+              clipPath:
+                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+            }}
+          />
+        </div>
+        {/*Title and paragraph*/}
+        <h1 className="text-white font-GoodTimes text-[34px] md:text-4xl md:tracking-wide md:leading-relaxed lg:text-5xl xl:text-6xl 2xl:text-7xl">
           DIGITAL <br className="md:hidden" />
           ASSET <br />
           <span className="lg:mt-4 lg:inline-block">MARKETPLACE</span>
         </h1>
-        <p className="mt-6 2xl:mt-[26px] lg:mt-7 text-moon-orange text-lg md:text-base lg:text-lg max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
+        <p className="mt-8 md:mt-6 2xl:mt-[26px] lg:mt-7 text-sm leading-6 px-3 md:px-0 text-moon-orange text-md md:text-left lg:text-base xl:text-lg max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
           {`Whether you're an artist seeking to showcase your unique creations or
           a collector in search of one-of-a-kind digital artifacts, the MoonDAO
           Marketplace offers a seamless and secure environment for buying and
           selling NFTs for MOONEY. Join our thriving community today and embark
-          on a journey into the endless possibilities of the digital universe`}
+          on a journey into the endless possibilities of the digital universe.`}
         </p>
 
-        <ArrowButton
-          text={"Explore collections"}
-          position={"mt-12 lg:mt-10 2xl:mt-[50px]"}
-          link={"/buy?assetType=collection"}
-        />
+        <ArrowButton text={"Explore collections"} position={"mt-12 lg:mt-10 2xl:mt-[50px]"} link={"/buy?assetType=collection"} />
       </div>
     </div>
   );

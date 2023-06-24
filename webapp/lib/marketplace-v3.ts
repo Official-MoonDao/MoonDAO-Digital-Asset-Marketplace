@@ -515,7 +515,7 @@ export function useAssetStats(
 ) {
   const [stats, setStats] = useState<AssetStats>({
     floorPrice: 0,
-    owners: 0,
+    listed: 0,
     supply: 0,
   });
 
@@ -537,18 +537,25 @@ export function useAssetStats(
       const extensions = getAllDetectedFeatureNames(contract?.abi);
       (async () => {
         if (extensions[0] !== "ERC1155") {
-          const allOwners = await contract.erc721.getAllOwners();
-          owners = new Set(
-            allOwners.map((o: any) => o.tokenId === tokenId && o.owner)
-          ).size;
           supply = await contract.erc721.totalCount();
         } else {
           supply = await contract.erc1155.totalSupply(tokenId);
         }
+
+        const listed =
+          assetListings.reduce(
+            (arr: number, l: any) => arr + Number(l.quantity),
+            0
+          ) +
+          assetAuctions.reduce(
+            (arr: number, a: any) => arr + Number(a.quantity),
+            0
+          );
+
         setStats({
           floorPrice: floorPrice || 0,
-          owners: owners || 0,
           supply: supply?.toNumber() || 0,
+          listed,
         });
       })();
     }
@@ -704,5 +711,6 @@ export function useSearch(
     });
   }, [text]);
 
-  return searchResults;
+  //limit search to 4 results
+  return searchResults.slice(0, 4);
 }

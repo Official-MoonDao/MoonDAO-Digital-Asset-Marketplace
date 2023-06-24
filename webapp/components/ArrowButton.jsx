@@ -4,7 +4,7 @@ const ArrowButton = ({ text, position, link }) => {
   return (
     <Link href={link}>
       <button
-        className={`${position} font-mono flex text-gray-100 hover:bg-indigo-900 hover:text-white duration-150 items-center gap-2 border-[0.6px] rounded border-white border-opacity-50 py-3 pl-4 pr-3 font-bold`}
+        className={`${position} font-mono flex text-gray-100 hover:bg-moon-secondary hover:text-white duration-150 items-center gap-2 border-[0.6px] hover:border-yellow-400 rounded border-white border-opacity-50 py-3 pl-6 pr-6 font-bold`}
       >
         {text}{" "}
         <svg
