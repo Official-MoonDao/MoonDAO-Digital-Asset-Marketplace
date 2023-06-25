@@ -1,7 +1,7 @@
 import { useContract, useNFT } from "@thirdweb-dev/react";
-import LogoSmall from "../assets/LogoSmall";
-import Skeleton from "./Skeleton/Skeleton";
-import { useAssetStats } from "../lib/marketplace-v3";
+import LogoSmall from "../../../assets/LogoSmall";
+import Skeleton from "../../Layout/Skeleton";
+import { useAssetStats } from "../../../lib/marketplace/hooks";
 import Link from "next/link";
 export default function TrendingThumbnail({
   asset,

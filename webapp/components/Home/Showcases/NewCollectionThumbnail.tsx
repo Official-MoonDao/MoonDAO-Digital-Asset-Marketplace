@@ -1,13 +1,19 @@
 import { useContract, useMetadata } from "@thirdweb-dev/react";
-import LogoSmall from "../assets/LogoSmall";
-import { useCollectionStats } from "../lib/marketplace-v3";
-import randomColor from "../util/randomColor";
-import Skeleton from "./Skeleton/Skeleton";
+import LogoSmall from "../../../assets/LogoSmall";
+import { useCollectionStats } from "../../../lib/marketplace/hooks";
+import randomColor from "../../../util/randomColor";
+import Skeleton from "../../Layout/Skeleton";
 import Link from "next/link";
 import Image from "next/image";
 
-export default function NewCollectionThumbnail({ collection, validListings, validAuctions }: any) {
-  const { contract: collectionContract } = useContract(collection?.assetContract);
+export default function NewCollectionThumbnail({
+  collection,
+  validListings,
+  validAuctions,
+}: any) {
+  const { contract: collectionContract } = useContract(
+    collection?.assetContract
+  );
   const { data: metadata } = useMetadata(collectionContract);
 
   const { floorPrice } = useCollectionStats(

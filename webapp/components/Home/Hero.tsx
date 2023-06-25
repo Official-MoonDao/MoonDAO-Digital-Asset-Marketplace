@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import HeroImageSelector from "./HeroImageSelector";
-import ArrowButton from "../ArrowButton";
+import ArrowButton from "../Layout/ArrowButton";
 import HeroStar from "../../assets/HeroStar";
 import FrameDetail from "../../assets/FrameDetail";
 import VerticalStar from "../../assets/VerticalStar";
@@ -22,7 +22,9 @@ export default function Hero({ top4 }: any) {
 
   // State for the hero, contains link of the collection when clicked and image
   const [currentSlide, setCurrentSlide] = useState<number>(0);
-  const [heroImageArray, setHeroImageArray] = useState<DirectListing[] | AuctionListing[]>([]);
+  const [heroImageArray, setHeroImageArray] = useState<
+    DirectListing[] | AuctionListing[]
+  >([]);
 
   useEffect(() => {
     if (top4[0]) {
@@ -48,11 +50,16 @@ export default function Hero({ top4 }: any) {
       {/*Hero image*/}
       <div className="flex flex-col items-center relative">
         {/*Here goes the link to the collection and the image*/}
-        <Link href={`/collection/${heroImageArray[currentSlide]?.assetContract}/${heroImageArray[currentSlide]?.tokenId}`}>
+        <Link
+          href={`/collection/${heroImageArray[currentSlide]?.assetContract}/${heroImageArray[currentSlide]?.tokenId}`}
+        >
           <HeroImage asset={heroImageArray[currentSlide]} />
         </Link>
         {/*Buttons to change slides*/}
-        <HeroImageSelector currentSlide={currentSlide} setCurrentSlide={setCurrentSlide} />
+        <HeroImageSelector
+          currentSlide={currentSlide}
+          setCurrentSlide={setCurrentSlide}
+        />
 
         {/*Stars and frame detail*/}
         <span className="hidden lg:block lg:absolute top-80 right-64 xl:top-96 xl:right-72 2xl:hidden">
@@ -101,7 +108,11 @@ export default function Hero({ top4 }: any) {
           on a journey into the endless possibilities of the digital universe.`}
         </p>
 
-        <ArrowButton text={"Explore collections"} position={"mt-12 lg:mt-10 2xl:mt-[50px]"} link={"/buy?assetType=collection"} />
+        <ArrowButton
+          text={"Explore collections"}
+          position={"mt-12 lg:mt-10 2xl:mt-[50px]"}
+          link={"/buy?assetType=collection"}
+        />
       </div>
     </div>
   );

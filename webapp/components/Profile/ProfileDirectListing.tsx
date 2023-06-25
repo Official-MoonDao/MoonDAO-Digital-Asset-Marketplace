@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { DirectListing } from "../../lib/utils";
-import { NFT } from "@thirdweb-dev/sdk";
 import styles from "../NFT/NFT.module.css";
 import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
 import { MOONEY_DECIMALS } from "../../const/config";
-import Skeleton from "../Skeleton/Skeleton";
+import Skeleton from "../Layout/Skeleton";
 import CancelListing from "./CancelListing";
 
 interface ProfileDirectListingProps {

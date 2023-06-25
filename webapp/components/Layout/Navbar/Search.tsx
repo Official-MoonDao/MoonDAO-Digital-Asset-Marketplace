@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import Glass from "../../assets/Glass";
+import Glass from "../../../assets/Glass";
+import { useSearch } from "../../../lib/marketplace/hooks";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  useSearch,
-} from "../../lib/marketplace-v3";
+} from "../../../lib/marketplace/marketplace-listings";
 import { ThirdwebNftMedia, useContract } from "@thirdweb-dev/react";
-import { MARKETPLACE_ADDRESS } from "../../const/config";
-import Skeleton from "../Skeleton/Skeleton";
+import { MARKETPLACE_ADDRESS } from "../../../const/config";
+import Skeleton from "../Skeleton";
 import Link from "next/link";
 
 export default function Search() {

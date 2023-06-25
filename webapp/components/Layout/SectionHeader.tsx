@@ -1,10 +1,10 @@
-import VerticalStar from "../assets/VerticalStar";
+import VerticalStar from "../../assets/VerticalStar";
 
-interface Title{
-    title:String
+interface Title {
+  title: String;
 }
 
-const SectionHeader = ({title}:Title) => {
+const SectionHeader = ({ title }: Title) => {
   return (
     <h2 className="font-GoodTimes text-xl tracking-wide flex items-center sm:text-2xl lg:text-[32px]">
       {title}

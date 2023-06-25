@@ -1,6 +1,5 @@
 import {
   ThirdwebNftMedia,
-  Web3Button,
   useAddress,
   useContract,
   useNFT,
@@ -12,8 +11,7 @@ import styles from "../NFT/NFT.module.css";
 import { AuctionListing } from "../../lib/utils";
 import { useEffect, useState } from "react";
 import ClaimAuctionPayout from "./ClaimAuctionPayout";
-import { useClaimableAuction } from "../../lib/marketplace-v3";
-import CancelAuction from "./CancelListing";
+import { useClaimableAuction } from "../../lib/marketplace/hooks";
 import CancelListing from "./CancelListing";
 
 interface ProfileAuctionListingProps {

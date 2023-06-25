@@ -1,23 +1,23 @@
 import type { NextPage } from "next";
 import Hero from "../components/Home/Hero";
-import CollectionShowcase from "../components/Home/CollectionShowcase";
-import TrendingShowcase from "../components/Home/TrendingShowcase";
-import NewShowcase from "../components/Home/NewShowcase";
+import CollectionShowcase from "../components/Home/Showcases/CollectionShowcase";
+import TrendingShowcase from "../components/Home/Showcases/TrendingShowcase";
+import NewShowcase from "../components/Home/Showcases/NewShowcase";
 import { initSDK } from "../lib/thirdweb";
 import { MARKETPLACE_ADDRESS } from "../const/config";
 import {
   getAllValidAuctions,
   getAllValidListings,
-} from "../lib/marketplace-v3";
+} from "../lib/marketplace/marketplace-listings";
 import { useEffect, useState } from "react";
-import { useFilter } from "../lib/marketplace-subgraph";
+import { useFilter } from "../lib/marketplace/marketplace-subgraph";
 import { AuctionListing, DirectListing } from "../lib/utils";
-import Metadata from "../components/Metadata";
+import Metadata from "../components/Layout/Metadata";
 
-interface HomeProps {
+type HomeProps = {
   validListings: DirectListing[];
   validAuctions: AuctionListing[];
-}
+};
 
 export default function Home({ validListings, validAuctions }: HomeProps) {
   const { collections: trendingCollections, assets: trendingAssets } =
@@ -56,7 +56,10 @@ export default function Home({ validListings, validAuctions }: HomeProps) {
 
 export async function getStaticProps() {
   const sdk = initSDK();
-  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const marketplace = await sdk.getContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
   const validListings: DirectListing[] = await getAllValidListings(marketplace);
   const validAuctions: AuctionListing[] = await getAllValidAuctions(
     marketplace

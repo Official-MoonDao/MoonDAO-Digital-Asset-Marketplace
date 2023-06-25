@@ -1,8 +1,11 @@
+import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
 import { StringKeyframeTrack } from "three";
+import { initSDK } from "./thirdweb";
+import { AnyNsRecord } from "dns";
 
-export interface DirectListing {
+export type DirectListing = {
   listingId: string | number;
   seller: string;
   assetContract: string;
@@ -16,9 +19,9 @@ export interface DirectListing {
   tokenType: string | number;
   status: string | number;
   popularity: any;
-}
+};
 
-export interface AuctionListing {
+export type AuctionListing = {
   auctionId: string | number;
   seller: string;
   assetContract: string;
@@ -34,9 +37,14 @@ export interface AuctionListing {
   tokenType: string | number;
   status: string | number;
   popularity: any;
-}
+};
 
-export interface DirectSubmission {
+export type CurrListing = {
+  type: string;
+  listing: any;
+};
+
+export type DirectSubmission = {
   assetContract: string;
   tokenId: string;
   currency: string;
@@ -45,9 +53,9 @@ export interface DirectSubmission {
   startTimestamp: string;
   endTimestamp: string;
   reserved: boolean;
-}
+};
 
-export interface AuctionSubmission {
+export type AuctionSubmission = {
   assetContract: string;
   tokenId: string;
   currency: string;
@@ -58,36 +66,33 @@ export interface AuctionSubmission {
   bidBufferBps: string;
   startTimestamp: string;
   endTimestamp: string;
-}
+};
 
-export interface LocalQue {
+export type LocalQue = {
   queuedListings: DirectSubmission[];
   queuedAuctions: AuctionSubmission[];
-}
+};
 
-export interface AssetStats {
+export type AssetStats = {
   floorPrice: string | number | undefined;
   supply: string | number | undefined;
   listed: string | number | undefined;
-}
+};
 
-export interface CollectionStats {
+export type CollectionStats = {
   floorPrice: string | number;
   listed: string | number;
   supply: string | number;
-}
+};
 
 export function BigConvert(data: any) {
   return !data ? 0 : BigNumber.from(data).toString();
 }
 
-export function serializable(data: any, totalOffers: any = "") {
+export function serializable(data: any) {
   //data = array of listings = [[{listingData1}], [{listingData2}]]
   let formatted;
   if (data.length === 0) return [null];
-  if (totalOffers !== "") {
-    return data;
-  }
 
   if (data[0]["auctionId"]) {
     formatted = data.map(
@@ -133,6 +138,23 @@ export function serializable(data: any, totalOffers: any = "") {
 
 //////HOOKS////////////////////////////////////////////
 ////////////////////////////////////////////////////////
+
+export function useCurrBlockNum() {
+  const [currBlockNum, setCurrBlockNum] = useState<number | undefined>(
+    undefined
+  );
+  const sdk = initSDK();
+  useEffect(() => {
+    sdk &&
+      sdk
+        .getProvider()
+        .getBlockNumber()
+        .then((blockNumber: number) => {
+          setCurrBlockNum(blockNumber);
+        });
+  }, [sdk]);
+  return currBlockNum;
+}
 
 export function useClickOutside(
   ref: any,

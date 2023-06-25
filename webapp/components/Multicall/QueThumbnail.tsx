@@ -1,6 +1,6 @@
 import { useContract, useMetadata, useNFT } from "@thirdweb-dev/react";
 import { DirectSubmission, AuctionSubmission } from "../../lib/utils";
-import Skeleton from "../Skeleton/Skeleton";
+import Skeleton from "../Layout/Skeleton";
 
 export default function QueThumbnail({
   que,

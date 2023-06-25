@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { cacheExchange, createClient, fetchExchange } from "urql";
-import { AuctionListing, DirectListing } from "./utils";
+import { AuctionListing, DirectListing } from "../utils";
 
 ///INIT GRAPH CLIENT//////////////////////////////////
 ///////////////////////////////////////////////////////

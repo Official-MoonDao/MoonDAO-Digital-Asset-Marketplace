@@ -1,21 +1,24 @@
 import { useAddress, useContract } from "@thirdweb-dev/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import Skeleton from "../../components/Skeleton/Skeleton";
+import Skeleton from "../../components/Layout/Skeleton";
 import { MARKETPLACE_ADDRESS } from "../../const/config";
 import { GetServerSideProps } from "next";
+import { useListingsByWallet } from "../../lib/marketplace/hooks";
 import {
   getAllAuctions,
   getAllValidListings,
-  useListingsAndAuctionsForWallet,
-} from "../../lib/marketplace-v3";
+} from "../../lib/marketplace/marketplace-listings";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
 import { AuctionListing, DirectListing } from "../../lib/utils";
 
-export default function ProfilePage({ walletAddress }: any) {
+type ProfilePageProps = {
+  walletAddress: string;
+};
+
+export default function ProfilePage({ walletAddress }: ProfilePageProps) {
   const router = useRouter();
   const address = useAddress();
-  const [userIsOwner, setUserIsOwner] = useState<boolean>(true);
 
   const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,
@@ -25,19 +28,12 @@ export default function ProfilePage({ walletAddress }: any) {
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
 
-  const { listings, auctions } = useListingsAndAuctionsForWallet(
+  const { listings, auctions } = useListingsByWallet(
     validListings,
     validAuctions,
     walletAddress
   );
   const [tab, setTab] = useState<"listings" | "auctions">("listings");
-
-  useEffect(() => {
-    if (address) {
-      if (router.query && router.query.address?.toString() === address)
-        setUserIsOwner(true);
-    }
-  }, [address, router]);
 
   useEffect(() => {
     if (marketplace) {

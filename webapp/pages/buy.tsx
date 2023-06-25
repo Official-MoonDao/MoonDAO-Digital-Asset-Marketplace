@@ -3,25 +3,22 @@ import { MARKETPLACE_ADDRESS } from "../const/config";
 import {
   getAllValidAuctions,
   getAllValidListings,
-} from "../lib/marketplace-v3";
+} from "../lib/marketplace/marketplace-listings";
 import { DirectListing, AuctionListing } from "../lib/utils";
 import { useEffect, useRef, useState } from "react";
 import VerticalStar from "../assets/VerticalStar";
-import { useFilter } from "../lib/marketplace-subgraph";
+import { useFilter } from "../lib/marketplace/marketplace-subgraph";
 import AssetPreview from "../components/Collection/AssetPreview";
 import { useRouter } from "next/router";
 import CollectionPreview from "../components/Collection/CollectionPreview";
-import Metadata from "../components/Metadata";
+import Metadata from "../components/Layout/Metadata";
 
-interface FilteredListingsPageProps {
+type BuyPageProps = {
   validListings: DirectListing[];
   validAuctions: AuctionListing[];
-}
+};
 
-export default function Buy({
-  validListings,
-  validAuctions,
-}: FilteredListingsPageProps) {
+export default function Buy({ validListings, validAuctions }: BuyPageProps) {
   const router = useRouter();
   const filterSelectionRef: any = useRef();
   const [filter, setFilter] = useState<any>({
@@ -159,7 +156,10 @@ export default function Buy({
 
 export async function getStaticProps() {
   const sdk = initSDK();
-  const marketplace = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const marketplace = await sdk.getContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
   const validListings: DirectListing[] = await getAllValidListings(marketplace);
   const validAuctions: AuctionListing[] = await getAllValidAuctions(
     marketplace

@@ -1,6 +1,6 @@
-import ArrowButton from "../ArrowButton";
-import CollectionThumbnail from "../CollectionThumbnail";
-import SectionHeader from "../SectionHeader";
+import ArrowButton from "../../Layout/ArrowButton";
+import CollectionThumbnail from "./CollectionThumbnail";
+import SectionHeader from "../../Layout/SectionHeader";
 
 export default function CollectionShowcase({
   collections,

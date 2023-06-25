@@ -5,8 +5,8 @@ import {
   useNetwork,
   useSigner,
 } from "@thirdweb-dev/react";
-import { FEE_DISTRIBUTOR_ADDRESS } from "../../const/config";
-import FEE_DISTRIBUTOR_ABI from "../../const/abis/FeeDistributor.json";
+import { FEE_DISTRIBUTOR_ADDRESS } from "../../../const/config";
+import FEE_DISTRIBUTOR_ABI from "../../../const/abis/FeeDistributor.json";
 import { Contract, ethers } from "ethers";
 import Image from "next/image";
 import { toast } from "react-hot-toast";

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import randomColor from "../../util/randomColor";
 import LogoSmall from "../../assets/LogoSmall";
-import Skeleton from "../Skeleton/Skeleton";
-import { useCollectionStats } from "../../lib/marketplace-v3";
+import Skeleton from "../Layout/Skeleton";
+import { useCollectionStats } from "../../lib/marketplace/hooks";
 
 export default function CollectionPreview({
   collection,
