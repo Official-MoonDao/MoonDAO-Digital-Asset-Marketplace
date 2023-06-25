@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useContract, Web3Button } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
-import toastStyle from "../../util/toastConfig";
+import toastStyle from "../../lib/utils/toastConfig";
 import {
   MARKETPLACE_ADDRESS,
   MOONEY_ADDRESS,

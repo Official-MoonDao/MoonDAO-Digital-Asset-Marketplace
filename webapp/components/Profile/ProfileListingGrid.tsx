@@ -1,7 +1,10 @@
 import styles from "../../styles/Buy.module.css";
 import ProfileDirectListing from "./ProfileDirectListing";
 import ProfileAuctionListing from "./ProfileAuctionListing";
-import { AuctionListing, DirectListing } from "../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../lib/marketplace/marketplace-utils";
 
 export default function ProfileListingGrid({ listings, type = "direct" }: any) {
   return (

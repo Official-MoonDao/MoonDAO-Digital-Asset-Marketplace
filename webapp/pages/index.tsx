@@ -11,7 +11,10 @@ import {
 } from "../lib/marketplace/marketplace-listings";
 import { useEffect, useState } from "react";
 import { useFilter } from "../lib/marketplace/marketplace-subgraph";
-import { AuctionListing, DirectListing } from "../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../lib/marketplace/marketplace-utils";
 import Metadata from "../components/Layout/Metadata";
 
 type HomeProps = {

@@ -1,4 +1,7 @@
-import { AuctionListing, DirectListing } from "../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../lib/marketplace/marketplace-utils";
 import Listing from "./Listing";
 import styles2 from "../../styles/Profile.module.css";
 type AssetListingsProps = {

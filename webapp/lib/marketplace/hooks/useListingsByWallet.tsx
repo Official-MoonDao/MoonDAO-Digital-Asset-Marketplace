@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AuctionListing, DirectListing } from "../../utils";
+import { AuctionListing, DirectListing } from "../marketplace-utils";
 
 //Get listings and auctions for a specific wallet
 export function useListingsByWallet(

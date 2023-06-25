@@ -8,7 +8,7 @@ import Link from "next/link";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../const/config";
 
 import styles from "../NFT/NFT.module.css";
-import { AuctionListing } from "../../lib/utils";
+import { AuctionListing } from "../../lib/marketplace/marketplace-utils";
 import { useEffect, useState } from "react";
 import ClaimAuctionPayout from "./ClaimAuctionPayout";
 import { useClaimableAuction } from "../../lib/marketplace/hooks";

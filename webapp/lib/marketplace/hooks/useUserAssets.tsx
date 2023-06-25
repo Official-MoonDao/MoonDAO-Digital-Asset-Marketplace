@@ -3,7 +3,7 @@ import {
   ThirdwebSDK,
   getAllDetectedFeatureNames,
 } from "@thirdweb-dev/sdk";
-import { AuctionListing, DirectListing } from "../../utils";
+import { AuctionListing, DirectListing } from "../marketplace-utils";
 import { useEffect, useState } from "react";
 import { useNetworkMismatch, useSigner } from "@thirdweb-dev/react";
 import { NETWORK } from "../../../const/config";

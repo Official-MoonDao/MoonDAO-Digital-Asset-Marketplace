@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DirectListing } from "../../lib/utils";
+import { DirectListing } from "../../lib/marketplace/marketplace-utils";
 import styles from "../NFT/NFT.module.css";
 import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
 import { MOONEY_DECIMALS } from "../../const/config";

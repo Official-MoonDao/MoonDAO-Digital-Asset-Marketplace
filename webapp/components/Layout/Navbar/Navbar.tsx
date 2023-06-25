@@ -7,7 +7,7 @@ import Link from "next/link";
 import NetworkError from "./NetworkError";
 import Search from "./Search";
 import { ClaimFeeRewards } from "./ClaimFeeRewards";
-import { useClickOutside } from "../../../lib/utils";
+import { useClickOutside } from "../../../lib/utils/hooks";
 import { useRouter } from "next/router";
 
 /**

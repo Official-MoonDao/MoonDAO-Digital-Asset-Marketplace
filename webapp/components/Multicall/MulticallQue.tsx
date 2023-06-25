@@ -2,7 +2,8 @@
 
 import { NFT } from "@thirdweb-dev/sdk";
 import { useRef, useState } from "react";
-import { useClickOutside, useLocalQue } from "../../lib/utils";
+import { useLocalQue } from "../../lib/marketplace/hooks";
+import { useClickOutside } from "../../lib/utils/hooks";
 import { Web3Button, useSigner } from "@thirdweb-dev/react";
 import {
   MARKETPLACE_ADDRESS,

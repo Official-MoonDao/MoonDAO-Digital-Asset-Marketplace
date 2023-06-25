@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../const/config";
 import { Web3Button } from "@thirdweb-dev/react";
-import { AuctionListing } from "../../lib/utils";
+import { AuctionListing } from "../../lib/marketplace/marketplace-utils";
 import { useRouter } from "next/router";
 
 interface ClaimAuctionPayoutProps {

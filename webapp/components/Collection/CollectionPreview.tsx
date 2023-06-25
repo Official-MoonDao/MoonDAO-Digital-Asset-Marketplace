@@ -2,7 +2,7 @@ import { useContract, useMetadata } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import randomColor from "../../util/randomColor";
+import randomColor from "../../lib/utils/randomColor";
 import LogoSmall from "../../assets/LogoSmall";
 import Skeleton from "../Layout/Skeleton";
 import { useCollectionStats } from "../../lib/marketplace/hooks";

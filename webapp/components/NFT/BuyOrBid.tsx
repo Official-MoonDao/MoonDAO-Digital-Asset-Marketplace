@@ -1,10 +1,10 @@
 import { Web3Button } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../const/config";
-import toastStyle from "../../util/toastConfig";
+import toastStyle from "../../lib/utils/toastConfig";
 import { toast } from "react-hot-toast";
 import { useMemo, useState } from "react";
 import Skeleton from "../Layout/Skeleton";
-import { CurrListing } from "../../lib/utils";
+import { CurrListing } from "../../lib/marketplace/marketplace-utils";
 import { useRouter } from "next/router";
 import { MarketplaceV3 } from "@thirdweb-dev/sdk";
 

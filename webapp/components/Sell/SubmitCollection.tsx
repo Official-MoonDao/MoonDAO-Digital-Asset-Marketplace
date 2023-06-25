@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useClickOutside } from "../../lib/utils";
+import { useClickOutside } from "../../lib/utils/hooks";
 
 export default function SubmitCollection() {
   const submitRef: any = useRef();

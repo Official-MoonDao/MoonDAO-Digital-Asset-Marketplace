@@ -1,5 +1,5 @@
 import { MarketplaceV3 } from "@thirdweb-dev/sdk";
-import { serializable } from "../utils";
+import { serializable } from "./marketplace-utils";
 
 //Get all auctions including expired & closed auctions from marketplace
 export async function getAllAuctions(marketplace: MarketplaceV3) {

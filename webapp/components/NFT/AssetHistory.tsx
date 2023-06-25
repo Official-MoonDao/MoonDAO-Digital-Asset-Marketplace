@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ETHERSCAN_URL } from "../../const/config";
 import { useContractEvents } from "@thirdweb-dev/react";
 import { SmartContract } from "@thirdweb-dev/sdk";
-import { useCurrBlockNum } from "../../lib/utils";
+import { useCurrBlockNum } from "../../lib/utils/hooks";
 
 interface AssetHistoryProps {
   marketplace: SmartContract | undefined;

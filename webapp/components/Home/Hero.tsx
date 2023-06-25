@@ -5,7 +5,10 @@ import HeroStar from "../../assets/HeroStar";
 import FrameDetail from "../../assets/FrameDetail";
 import VerticalStar from "../../assets/VerticalStar";
 import HeroImage from "./HeroImage";
-import { AuctionListing, DirectListing } from "../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../lib/marketplace/marketplace-utils";
 import Link from "next/link";
 
 //TODO for the slide selector: Transition between images, automatic change of images after interval.

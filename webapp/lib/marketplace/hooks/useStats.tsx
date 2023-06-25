@@ -4,7 +4,7 @@ import {
   AuctionListing,
   CollectionStats,
   DirectListing,
-} from "../../utils";
+} from "../marketplace-utils";
 import { useListingsByTokenId } from "./useListingsByTokenId";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 import { useContract } from "@thirdweb-dev/react";

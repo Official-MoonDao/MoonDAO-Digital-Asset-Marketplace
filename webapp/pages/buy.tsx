@@ -4,7 +4,10 @@ import {
   getAllValidAuctions,
   getAllValidListings,
 } from "../lib/marketplace/marketplace-listings";
-import { DirectListing, AuctionListing } from "../lib/utils";
+import {
+  DirectListing,
+  AuctionListing,
+} from "../lib/marketplace/marketplace-utils";
 import { useEffect, useRef, useState } from "react";
 import VerticalStar from "../assets/VerticalStar";
 import { useFilter } from "../lib/marketplace/marketplace-subgraph";

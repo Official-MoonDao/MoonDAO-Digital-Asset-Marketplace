@@ -1,9 +1,4 @@
-import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { BigNumber } from "ethers";
-import { useEffect, useState } from "react";
-import { StringKeyframeTrack } from "three";
-import { initSDK } from "./thirdweb";
-import { AnyNsRecord } from "dns";
 
 export type DirectListing = {
   listingId: string | number;
@@ -138,68 +133,3 @@ export function serializable(data: any) {
 
 //////HOOKS////////////////////////////////////////////
 ////////////////////////////////////////////////////////
-
-export function useCurrBlockNum() {
-  const [currBlockNum, setCurrBlockNum] = useState<number | undefined>(
-    undefined
-  );
-  const sdk = initSDK();
-  useEffect(() => {
-    sdk &&
-      sdk
-        .getProvider()
-        .getBlockNumber()
-        .then((blockNumber: number) => {
-          setCurrBlockNum(blockNumber);
-        });
-  }, [sdk]);
-  return currBlockNum;
-}
-
-export function useClickOutside(
-  ref: any,
-  enabled: boolean,
-  setEnabled: Function
-) {
-  function handleClickOutside(e: Event) {
-    ref.current && !ref.current.contains(e.target) && setEnabled(false);
-    document.removeEventListener("click", handleClickOutside);
-  }
-  useEffect(() => {
-    if (enabled) {
-      setTimeout(
-        () => document.addEventListener("click", handleClickOutside),
-        500
-      );
-    }
-  }, [enabled]);
-
-  return enabled;
-}
-
-export function useLocalQue(address: string) {
-  const [localQue, setLocalQue] = useState<LocalQue | undefined>(getLocalQue());
-
-  function getLocalQue() {
-    if (!address) return;
-    const storedQue = localStorage.getItem(`multicallQue-${address}`);
-    if (storedQue) {
-      return JSON.parse(storedQue) as LocalQue;
-    }
-  }
-
-  function storeLocalQue() {
-    address &&
-      localStorage.setItem(`multicallQue-${address}`, JSON.stringify(localQue));
-  }
-
-  useEffect(() => {
-    if (localQue) storeLocalQue();
-  }, [localQue]);
-
-  useEffect(() => {
-    if (address) setLocalQue(getLocalQue());
-  }, [address]);
-
-  return [localQue, setLocalQue];
-}

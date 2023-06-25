@@ -8,7 +8,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import randomColor from "../../../util/randomColor";
+import randomColor from "../../../lib/utils/randomColor";
 import Skeleton from "../../../components/Layout/Skeleton";
 import {
   getAllValidAuctions,
@@ -16,7 +16,11 @@ import {
 } from "../../../lib/marketplace/marketplace-listings";
 import { useListingsByTokenId } from "../../../lib/marketplace/hooks";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../../const/config";
-import { DirectListing, AuctionListing, CurrListing } from "../../../lib/utils";
+import {
+  DirectListing,
+  AuctionListing,
+  CurrListing,
+} from "../../../lib/marketplace/marketplace-utils";
 import { useRouter } from "next/router";
 
 import styles from "../../../styles/Token.module.css";

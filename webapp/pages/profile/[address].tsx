@@ -10,7 +10,10 @@ import {
   getAllValidListings,
 } from "../../lib/marketplace/marketplace-listings";
 import ProfileListingGrid from "../../components/Profile/ProfileListingGrid";
-import { AuctionListing, DirectListing } from "../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../lib/marketplace/marketplace-utils";
 
 type ProfilePageProps = {
   walletAddress: string;

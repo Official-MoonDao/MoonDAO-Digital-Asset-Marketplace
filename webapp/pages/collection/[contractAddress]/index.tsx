@@ -9,7 +9,10 @@ import {
   getAllValidListings,
 } from "../../../lib/marketplace/marketplace-listings";
 import AssetPreview from "../../../components/Collection/AssetPreview";
-import { AuctionListing, DirectListing } from "../../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../../lib/marketplace/marketplace-utils";
 import { useEffect, useState } from "react";
 import { useContract } from "@thirdweb-dev/react";
 import Skeleton from "../../../components/Layout/Skeleton";

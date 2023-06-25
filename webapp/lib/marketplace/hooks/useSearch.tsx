@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AuctionListing, DirectListing } from "../../utils";
+import { AuctionListing, DirectListing } from "../marketplace-utils";
 import { initSDK } from "../../thirdweb";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 
