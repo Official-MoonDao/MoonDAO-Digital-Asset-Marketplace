@@ -1,4 +1,5 @@
 import { useContract, useNFT } from "@thirdweb-dev/react";
+import Image from "next/image";
 
 export default function HeroImage({ asset }: any) {
   const { contract } = useContract(asset?.assetContract);
@@ -13,10 +14,12 @@ export default function HeroImage({ asset }: any) {
     );
 
   return (
-    <img
+    <Image
       className="w-[290px] hover:ring xl:hover:ring-4 ring-moon-orange transition-all duration-300 h-[362px] lg:h-[443.38px] xl:h-[499.58px] 2xl:h-[564px]  object-cover lg:w-[355px] xl:w-[400px] 2xl:w-[536px]  rounded-tl-[99px] rounded-br-[99px]"
       src={nft.metadata.image}
       alt="Hero Image"
+      width={290}
+      height={362}
     />
   );
 }
