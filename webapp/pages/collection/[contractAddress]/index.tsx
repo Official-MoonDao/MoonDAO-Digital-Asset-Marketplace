@@ -2,32 +2,38 @@ import { MARKETPLACE_ADDRESS } from "../../../const/config";
 import Image from "next/image";
 import LogoSmall from "../../../assets/LogoSmall";
 
+import { useCollectionStats } from "../../../lib/marketplace/hooks/useStats";
+import { useAssets } from "../../../lib/marketplace/hooks";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  useAllAssets,
-  useCollectionStats,
-} from "../../../lib/marketplace-v3";
+} from "../../../lib/marketplace/marketplace-listings";
 import AssetPreview from "../../../components/Collection/AssetPreview";
-import { AuctionListing, DirectListing } from "../../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../../lib/marketplace/marketplace-utils";
 import { useEffect, useState } from "react";
 import { useContract } from "@thirdweb-dev/react";
-import Skeleton from "../../../components/Skeleton/Skeleton";
+import Skeleton from "../../../components/Layout/Skeleton";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 import { initSDK } from "../../../lib/thirdweb";
-import Metadata from "../../../components/Metadata";
+import Metadata from "../../../components/Layout/Metadata";
 
-interface CollectionPageProps {
+type CollectionPageProps = {
   contractAddress: string; //pre-rendered
   collectionMetadata: any; //pre-rendered
-}
+};
 
 export default function CollectionPage({
   contractAddress,
   collectionMetadata,
 }: CollectionPageProps) {
   //Marketplace data
-  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS);
+  const { contract: marketplace } = useContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
 
@@ -35,7 +41,7 @@ export default function CollectionPage({
   const [collectionType, setCollectionType] = useState<string>("");
   const { contract: collectionContract }: any = useContract(contractAddress);
 
-  const assets = useAllAssets(validListings, validAuctions, contractAddress);
+  const assets = useAssets(validListings, validAuctions, contractAddress);
   const { floorPrice, listed, supply } = useCollectionStats(
     validListings,
     validAuctions,

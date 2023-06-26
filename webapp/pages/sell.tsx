@@ -1,10 +1,14 @@
 import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
-import SaleInfo from "../components/SaleInfo/SaleInfo";
+import SaleInfo from "../components/Sell/SaleInfo";
 import { useRouter } from "next/router";
-import { getAllValidAuctions, getAllValidListings, useUserAssets } from "../lib/marketplace-v3";
+import { useUserAssets } from "../lib/marketplace/hooks";
+import {
+  getAllValidAuctions,
+  getAllValidListings,
+} from "../lib/marketplace/marketplace-listings";
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
-import SubmitCollection from "../components/SubmitCollection";
+import SubmitCollection from "../components/Sell/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
 import SellCard from "../components/Sell/SellCard";
 import NoAssets from "../components/Sell/NoAssets";

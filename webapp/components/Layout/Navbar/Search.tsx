@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import Glass from "../../assets/Glass";
+import Glass from "../../../assets/Glass";
+import { useSearch } from "../../../lib/marketplace/hooks";
 import {
   getAllValidAuctions,
   getAllValidListings,
-  useSearch,
-} from "../../lib/marketplace-v3";
+} from "../../../lib/marketplace/marketplace-listings";
 import { ThirdwebNftMedia, useContract } from "@thirdweb-dev/react";
-import { MARKETPLACE_ADDRESS } from "../../const/config";
-import Skeleton from "../Skeleton/Skeleton";
+import { MARKETPLACE_ADDRESS } from "../../../const/config";
+import Skeleton from "../Skeleton";
 import Link from "next/link";
 
 export default function Search() {
@@ -72,14 +72,12 @@ export default function Search() {
               <Skeleton height="10px" />
             ) : (
               searchResults.map((nft: any, i: number) => (
-                <div
-                  className="flex items-center hover:bg-indigo-900 w-full px-3 py-2"
+                <Link
                   key={"search-result-" + i}
+                  className="w-full flex items-center"
+                  href={`/collection/${nft.collection}/${nft.metadata.id}`}
                 >
-                  <Link
-                    className="flex items-center"
-                    href={`/collection/${nft.collection}/${nft.metadata.id}`}
-                  >
+                  <div className="flex items-center hover:bg-indigo-900 w-full px-3 py-2">
                     <ThirdwebNftMedia
                       metadata={nft.metadata}
                       width="50px"
@@ -87,8 +85,8 @@ export default function Search() {
                       className="rounded-lg"
                     />
                     <p className="pl-3">{nft.metadata.name}</p>
-                  </Link>
-                </div>
+                  </div>
+                </Link>
               ))
             )}
           </div>

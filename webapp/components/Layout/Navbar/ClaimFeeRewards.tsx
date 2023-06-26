@@ -1,20 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Web3Button,
   useAddress,
   useNetwork,
   useSigner,
 } from "@thirdweb-dev/react";
-import { FEE_DISTRIBUTOR_ADDRESS } from "../../const/config";
-import FEE_DISTRIBUTOR_ABI from "../../const/abis/FeeDistributor.json";
+import { FEE_DISTRIBUTOR_ADDRESS } from "../../../const/config";
+import FEE_DISTRIBUTOR_ABI from "../../../const/abis/FeeDistributor.json";
 import { Contract, ethers } from "ethers";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import moment from "moment";
 
 export function ClaimFeeRewards() {
-  const dialogRef = useRef<any>();
-
   const signer = useSigner();
   const [{ data: network }] = useNetwork();
   const address = useAddress();
@@ -84,7 +82,7 @@ export function ClaimFeeRewards() {
   }, [address, validChain, FeeDistributor]);
 
   return (
-    <div className="z-10 flex flex-col w-full" ref={dialogRef}>
+    <div className="z-10 flex flex-col w-full">
       <p>Fee Rewards:</p>
       <div className="flex gap-2">
         {Number(feeRewards).toFixed(7)}

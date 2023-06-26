@@ -1,5 +1,5 @@
 import VerticalStar from "../../assets/VerticalStar";
-import Metadata from "../Metadata";
+import Metadata from "../Layout/Metadata";
 import { NETWORK } from "../../const/config";
 
 const NoAssets = ({ address, userAssets }: any) => {

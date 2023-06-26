@@ -1,11 +1,13 @@
-import styles from "../../styles/Buy.module.css";
 import ProfileDirectListing from "./ProfileDirectListing";
 import ProfileAuctionListing from "./ProfileAuctionListing";
-import { AuctionListing, DirectListing } from "../../lib/utils";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../lib/marketplace/marketplace-utils";
 
 export default function ProfileListingGrid({ listings, type = "direct" }: any) {
   return (
-    <div className={styles.nftGridContainer}>
+    <div className="flex flex-wrap gap-[1%] w-full">
       {listings && listings[0] ? (
         <>
           {type === "direct"

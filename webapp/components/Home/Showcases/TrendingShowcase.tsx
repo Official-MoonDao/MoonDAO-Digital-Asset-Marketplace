@@ -1,7 +1,10 @@
-import ArrowButton from "../ArrowButton";
-import TrendingThumbnail from "../TrendingThumbnail";
-import SectionHeader from "../SectionHeader";
-import { AuctionListing, DirectListing } from "../../lib/utils";
+import ArrowButton from "../../Layout/ArrowButton";
+import TrendingThumbnail from "./TrendingThumbnail";
+import SectionHeader from "../../Layout/SectionHeader";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../../lib/marketplace/marketplace-utils";
 
 interface TrendingShowcaseProps {
   assets: DirectListing[] | AuctionListing[];
