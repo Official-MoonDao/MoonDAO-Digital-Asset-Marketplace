@@ -1,13 +1,13 @@
-interface ImageSelector {
+type ImageSelector = {
   currentSlide: number;
   setCurrentSlide: Function;
-}
+};
 
-interface Button {
+type ImageSelectorButton = {
   currentSlide: number;
   slideNumber: number;
   setCurrentSlide: Function;
-}
+};
 
 const HeroImageSelector = ({
   currentSlide,
@@ -44,7 +44,7 @@ const SelectButton = ({
   currentSlide,
   slideNumber,
   setCurrentSlide,
-}: Button) => {
+}: ImageSelectorButton) => {
   // Each button has an assigned "slide number", when the button is clicked the currently selected slide changes to match the attribute slide number.
   // Example: Slide 0 (zero index array) will get selected if the first button is pressed, and that corresponds to the first entry in the Slider Data array.
   return (

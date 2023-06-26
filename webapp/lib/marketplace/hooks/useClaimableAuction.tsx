@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { MOONEY_DECIMALS } from "../../../const/config";
 
-//Check if ended auction has a payout
+//Check if closed auction has a payout
 export function useClaimableAuction(
   winningBid: number,
   buyoutBidAmount: number,

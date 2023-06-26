@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AuctionListing, DirectListing } from "../marketplace-utils";
 
+//Get unique assets for a specific collection
 export function useAssets(
   listings: DirectListing[],
   auctions: AuctionListing[],

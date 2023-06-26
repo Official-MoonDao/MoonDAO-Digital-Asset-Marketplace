@@ -3,7 +3,6 @@ import Image from "next/image";
 
 export default function HeroImage({ asset }: any) {
   const { contract } = useContract(asset?.assetContract);
-
   const { data: nft }: any = useNFT(contract, asset?.tokenId);
 
   if (!nft)
