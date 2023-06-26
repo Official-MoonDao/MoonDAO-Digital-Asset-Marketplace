@@ -43,21 +43,25 @@ export default function ProfilePage({ walletAddress }: any) {
     <main className="w-full ml-auto mr-auto px-4 mt-24 max-w-[1200px]">
       <div>
         <div
-          className="w-full bg-[#272a2d] h-[300px] rounded-2xl"
+          className="w-full bg-[#272a2d] h-[300px] rounded-tl-[30px] rounded-br-[30px]"
           style={{
             background: `linear-gradient(-45deg, #${walletAddress?.slice(-12, -6)}, #${walletAddress?.slice(6, 12)})`,
           }}
-        />
+        ></div>
         <div
           className="w-[132px] h-[132px] rounded-[132px] -mt-[72px] ml-[5%]"
           style={{
-            background: `linear-gradient(180deg, #${walletAddress?.slice(6, 12)}, #${walletAddress?.slice(-6)})`,
+            background: `linear-gradient(180deg, #${walletAddress?.slice(
+              6,
+              12
+            )}, #${walletAddress?.slice(-6)})`,
             outline: "3px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 10,
           }}
         />
         <h1 className="ml-[2.5%] mt-1">
           {router.query.address ? (
-            router.query.address.toString().substring(0, 4) + "..." + router.query.address.toString().substring(38, 42)
+            walletAddress?.slice(0, 4) + "..." + walletAddress.slice(-4)
           ) : (
             <Skeleton width="320" />
           )}
@@ -67,26 +71,54 @@ export default function ProfilePage({ walletAddress }: any) {
       <div className="w-full flex justify-start border-b-[1px] border-white border-opacity-60 my-4">
         <h3
           className={`p-4 text-base font-semibold cursor-pointer transition-all duration-100 ease-in-out hover:text-[#e9e9f9]
-        ${tab === "listings" ? "text-moon-gold border-b-moon-gold border-b-2" : "text-white text-opacity-60"}`}
+        ${
+          tab === "listings"
+            ? "text-moon-gold border-b-moon-gold border-b-2"
+            : "text-white text-opacity-60"
+        }`}
           onClick={() => setTab("listings")}
         >
           Listings
         </h3>
         <h3
           className={` p-4 text-base font-semibold cursor-pointer transition-all duration-100 ease-in-out hover:text-[#e9e9f9]
-        ${tab === "auctions" ? "text-moon-gold border-b-moon-gold border-b-2" : "text-white text-opacity-60"}`}
+        ${
+          tab === "auctions"
+            ? "text-moon-gold border-b-moon-gold border-b-2"
+            : "text-white text-opacity-60"
+        }`}
           onClick={() => setTab("auctions")}
         >
           Auctions
         </h3>
       </div>
 
-      <div className={`${tab === "listings" ? "flex opacity-100" : "hidden h-0 opacity-0 transition-all duration-100"}`}>
-        {marketplace && !loadingListings ? <ProfileListingGrid listings={listings} /> : <Skeleton />}
+      <div
+        className={`${
+          tab === "listings"
+            ? "flex opacity-100"
+            : "hidden h-0 opacity-0 transition-all duration-100"
+        }`}
+      >
+        {marketplace && !loadingListings ? (
+          <ProfileListingGrid listings={listings} />
+        ) : (
+          <Skeleton />
+        )}
       </div>
 
-      <div className={`${tab === "auctions" ? "flex opacity-100" : "hidden h-0 opacity-0 transition-all duration-100"}`}>
-        {marketplace && !loadingListings ? <ProfileListingGrid listings={auctions} type="auction" /> : <Skeleton />}
+      <div
+        className={`${
+          tab === "auctions"
+            ? "flex opacity-100"
+            : "hidden h-0 opacity-0 transition-all duration-100"
+        }`}
+      >
+        {marketplace && !loadingListings ? (
+          <ProfileListingGrid listings={auctions} type="auction" />
+        ) : (
+          <Skeleton />
+        )}
       </div>
     </main>
   );

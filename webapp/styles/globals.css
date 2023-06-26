@@ -62,12 +62,13 @@ footer {
   font-family: "Roboto Mono", monospace, sans-serif !important;
   padding: 10px 12px 10px 12px !important;
   border-radius: 4px !important;
-  transition: 0.2s !important;
+  transition: 0.3s !important;
 }
 
 .connect-button:hover {
   border-top-left-radius: 22px !important;
   border-bottom-right-radius: 22px !important;
+
   transition: 0.5s !important;
 }
 

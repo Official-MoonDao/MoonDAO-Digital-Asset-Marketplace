@@ -18,7 +18,7 @@ export default function Metadata({
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>{"Marketplace | " + title}</title>
-      <link rel="icon" href="/favicon.png" />
+      <link rel="icon" href="/favicon.ico" />
       <meta name="description" content={description} />
       <meta name="theme-color" content="#090013" />
       <meta name="twitter:card" content="summary" />

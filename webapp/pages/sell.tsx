@@ -6,8 +6,8 @@ import { getAllValidAuctions, getAllValidListings, useUserAssets } from "../lib/
 import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
 import SubmitCollection from "../components/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
-import SellCard from "./sell/SellCard";
-import NoAssets from "./sell/NoAssets";
+import SellCard from "../components/Sell/SellCard";
+import NoAssets from "../components/Sell/NoAssets";
 
 export default function Sell() {
   const router = useRouter();
@@ -53,7 +53,17 @@ export default function Sell() {
             {/*Asset grid */}
             <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
               {userAssets[0]?.metadata?.id &&
-                userAssets.map((nft: any, i: number) => nft?.metadata && <SellCard nft={nft} setSelectedNft={setSelectedNft} i={i} />)}
+                userAssets.map(
+                  (nft: any, i: number) =>
+                    nft?.metadata && (
+                      <SellCard
+                        key={`userAsset-${i}`}
+                        nft={nft}
+                        setSelectedNft={setSelectedNft}
+                        i={i}
+                      />
+                    )
+                )}
             </section>
           </div>
           {!selectedNft?.metadata?.id && (

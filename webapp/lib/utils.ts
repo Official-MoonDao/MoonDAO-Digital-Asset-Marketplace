@@ -88,6 +88,7 @@ export function serializable(data: any, totalOffers: any = "") {
   if (totalOffers !== "") {
     return data;
   }
+
   if (data[0]["auctionId"]) {
     formatted = data.map(
       (listing: any) =>
@@ -139,7 +140,6 @@ export function useClickOutside(
   setEnabled: Function
 ) {
   function handleClickOutside(e: Event) {
-    console.log(e);
     ref.current && !ref.current.contains(e.target) && setEnabled(false);
     document.removeEventListener("click", handleClickOutside);
   }

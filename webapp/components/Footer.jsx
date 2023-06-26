@@ -60,7 +60,7 @@ export default function Footer() {
           Privacy
         </Link>
         <Link
-          href="/"
+          href="https://twitter.com/OfficialMoonDAO"
           className="font-bold text-moon-white tracking-wide hover:scale-105"
         >
           Twitter

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
 import LogoSmall from "../../assets/LogoSmall";
 import Hamburger from "../../assets/Hamburger";
@@ -7,15 +7,35 @@ import Link from "next/link";
 import NetworkError from "./NetworkError";
 import Search from "./Search";
 import { ClaimFeeRewards } from "./ClaimFeeRewards";
+import { useClickOutside } from "../../lib/utils";
+import { useRouter } from "next/router";
 
 /**
  * Navigation bar that shows up on all pages.
  * Rendered in _app.tsx file above the page content.
  */
 export function Navbar() {
+  const router = useRouter();
+  const mobileMenuRef: any = useRef();
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  useClickOutside(mobileMenuRef, mobileMenu, setMobileMenu);
+
   const address = useAddress();
+
+  function MobileNavButton({ href, label }: any) {
+    return (
+      <li>
+        <button
+          className="hover:scale-105 hover:text-white inline-block text-lg"
+          onClick={() => router.push(href).then(() => setMobileMenu(false))}
+        >
+          {label}
+        </button>
+      </li>
+    );
+  }
+
   return (
     <div className="py-4 pl-4 pr-3 relative z-50 md:bg-white md:bg-opacity-5 lg:py-5 lg:px-[30px]">
       <NetworkError />
@@ -58,28 +78,21 @@ export function Navbar() {
               <Hamburger />
             </button>
             <ul
+              ref={mobileMenuRef}
               className={`${
                 mobileMenu ? "block" : "hidden"
-              } text-gray-200 transition-all flex border border-indigo-300 shadow shadow-indigo-700 flex-col items-start px-6 gap-12 py-5 duration-150 top-10 right-5 z-10 ${
+              } text-gray-200 transition-all flex border border-indigo-300 shadow shadow-indigo-700 flex-col items-start px-6 gap-12 py-5 duration-150 top-2 right-2 z-10 ${
                 address ? "h-[500px]" : "h-[250px]"
               } w-[250px] bg-gradient-to-br from-slate-900 via-main-background to-indigo-900 rounded-xl absolute`}
             >
-              <li>
-                <Link
-                  href="/buy"
-                  className="hover:scale-105 hover:text-white inline-block text-lg"
-                >
-                  Buy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/sell"
-                  className="hover:scale-105 hover:text-white inline-block text-lg"
-                >
-                  Sell
-                </Link>
-              </li>
+              <button
+                className="absolute right-4"
+                onClick={() => setMobileMenu(!mobileMenu)}
+              >
+                <Hamburger />
+              </button>
+              <MobileNavButton label="Buy" href="/buy" />
+              <MobileNavButton label="Sell" href="/sell" />
               <li>
                 <ConnectWallet className="connect-button" />
               </li>

@@ -21,15 +21,15 @@ export default function CollectionThumbnail({
     collectionContract
   );
 
-  if (!metadata) return <Skeleton width="335px" height="262px"/>;
+  if (!metadata) return <Skeleton width="335px" height="262px" />;
   return (
     <Link href={`/collection/${collection.assetContract}`}>
-      <article className="flex items-center min-w-[300px] max-w-[345px] lg:w-full lg:max-w-none lg:hover:bg-gradient-to-br lg:hover:ring-2 ring-white from-moon-gold via-moon-secondary to-moon-gold transition-all duration-150 lg:rounded-xl lg:pl-1 lg:pr-4 lg:py-2 xl:py-3">
+      <article className="flex items-center min-w-[300px] max-w-[345px] lg:w-full lg:max-w-none hover:lg:bg-gradient-to-br lg:hover:ring-2 ring-moon-white from-moon-gold via-moon-secondary to-moon-gold transition-all duration-150 lg:rounded-xl lg:pl-1 lg:pr-4 lg:py-2 xl:py-3">
         <div className="flex items-center gap-2 md:gap-3 lg:gap-6">
           <p className="font-bold text-lg">{metadata.id}</p>
           <Image
-          width={80}
-          height={80}
+            width={80}
+            height={80}
             src={metadata.image}
             alt={`${metadata.name} collection image`}
             className="rounded-full object-cover"
