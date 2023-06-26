@@ -3,6 +3,7 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 import goodtimes from "../../public/fonts/goodtimes.json";
 import { Object3DNode } from "@react-three/fiber";
+import * as THREE from "three";
 
 class Text extends TextGeometry {}
 
@@ -33,11 +34,12 @@ export default function ThreeText({
   return (
     <mesh position={position}>
       <textGeometry args={[text, { font, size, height }]} />
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         attach="material"
+        clearcoat={1.0}
+        clearcoatRoughness={0.1}
+        metalness={0.9}
         color={color}
-        metalness={0.05}
-        roughness={0.7}
       />
     </mesh>
   );

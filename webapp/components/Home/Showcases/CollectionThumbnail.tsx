@@ -1,4 +1,8 @@
-import { useContract, useMetadata } from "@thirdweb-dev/react";
+import {
+  ThirdwebNftMedia,
+  useContract,
+  useMetadata,
+} from "@thirdweb-dev/react";
 import LogoSmall from "../../../assets/LogoSmall";
 import { useCollectionStats } from "../../../lib/marketplace/hooks";
 import Skeleton from "../../Layout/Skeleton";
@@ -27,12 +31,11 @@ export default function CollectionThumbnail({
       <article className="flex items-center min-w-[300px] max-w-[345px] lg:w-full lg:max-w-none hover:lg:bg-gradient-to-br lg:hover:ring-2 ring-moon-white from-moon-gold via-moon-secondary to-moon-gold transition-all duration-150 lg:rounded-xl lg:pl-1 lg:pr-4 lg:py-2 xl:py-3">
         <div className="flex items-center gap-2 md:gap-3 lg:gap-6">
           <p className="font-bold text-lg">{metadata.id}</p>
-          <Image
-            width={80}
-            height={80}
-            src={metadata.image}
-            alt={`${metadata.name} collection image`}
+          <ThirdwebNftMedia
+            metadata={metadata}
             className="rounded-full object-cover"
+            width="80px"
+            height="80px"
           />
         </div>
         <div className="ml-4 md:ml-5 flex flex-col">

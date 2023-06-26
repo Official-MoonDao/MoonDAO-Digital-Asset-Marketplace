@@ -1,4 +1,4 @@
-import { useContract, useNFT } from "@thirdweb-dev/react";
+import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
 import LogoSmall from "../../assets/LogoSmall";
 import { useRouter } from "next/router";
 import { useAssetStats } from "../../lib/marketplace/hooks";
@@ -35,12 +35,11 @@ export default function AssetPreview({
             router.push(`/collection/${contractAddress}/${tokenId}`)
           }
         >
-          <Image
-            className="object-cover w-[335px] h-[275px] object-center group-hover:scale-110 transition-all duration-200"
-            src={`${nft.metadata.image}`}
-            alt={`${nft.metadata.name} image.`}
-            width={335}
-            height={275}
+          <ThirdwebNftMedia
+            className="object-cover object-center group-hover:scale-110 transition-all duration-200"
+            metadata={nft.metadata}
+            width={"100%"}
+            height={"100%"}
           />
         </button>
       </div>

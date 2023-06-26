@@ -1,4 +1,9 @@
-import { useContract, useMetadata } from "@thirdweb-dev/react";
+import {
+  MediaRenderer,
+  ThirdwebNftMedia,
+  useContract,
+  useMetadata,
+} from "@thirdweb-dev/react";
 import LogoSmall from "../../../assets/LogoSmall";
 import { useCollectionStats } from "../../../lib/marketplace/hooks";
 import randomColor from "../../../lib/utils/randomColor";
@@ -14,7 +19,7 @@ export default function NewCollectionThumbnail({
   const { contract: collectionContract } = useContract(
     collection?.assetContract
   );
-  const { data: metadata } = useMetadata(collectionContract);
+  const { data: metadata }: any = useMetadata(collectionContract);
 
   const { floorPrice } = useCollectionStats(
     validListings,
@@ -29,12 +34,11 @@ export default function NewCollectionThumbnail({
         href={`/collection/${collection.assetContract}`}
       >
         {metadata?.image ? (
-          <Image
-            className="z-10 w-[300px] h-[235px] object-cover rounded-t-[6px] rounded-b-[15px] group-hover:ring ring-indigo-200"
+          <MediaRenderer
+            className="z-10 object-cover rounded-t-[6px] rounded-b-[15px] group-hover:ring ring-indigo-200"
             src={metadata.image}
-            width={300}
-            height={235}
-            alt={`${metadata.name} collection thumbnail`}
+            width="275px"
+            height="275px"
           />
         ) : (
           <div
