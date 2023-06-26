@@ -102,7 +102,7 @@ export default function BuyOrBid({
         <>
           {/*Web3 connect button and template in case of listed by user address*/}
           {isOwner ? (
-            <div>This listing was created by you.</div>
+            <div className="ml-3 italic pt-1 opacity-80">This listing was created by you.</div>
           ) : (
             <>
               <Web3Button

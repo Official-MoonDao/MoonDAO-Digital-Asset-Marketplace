@@ -23,10 +23,7 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
   const router = useRouter();
   const address = useAddress();
 
-  const { contract: marketplace } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
+  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
   const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
@@ -56,10 +53,7 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
         <div
           className="w-full bg-[#272a2d] h-[300px] rounded-tl-[30px] rounded-br-[30px]"
           style={{
-            background: `linear-gradient(-45deg, #${walletAddress?.slice(
-              -12,
-              -6
-            )}, #${walletAddress?.slice(6, 12)})`,
+            background: `linear-gradient(-45deg, #${walletAddress?.slice(-12, -6)}, #${walletAddress?.slice(6, 12)})`,
           }}
         ></div>
         <div
