@@ -17,6 +17,7 @@ export default function ClaimAuctionPayout({
 
   return (
     <Web3Button
+      className="web3-button web3-button-primary"
       contractAddress={MARKETPLACE_ADDRESS}
       action={(marketplace) =>
         marketplace

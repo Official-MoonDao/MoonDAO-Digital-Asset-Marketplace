@@ -72,6 +72,31 @@ footer {
   transition: 0.5s !important;
 }
 
+.web3-button {
+  background: #1d1d1d50 !important;
+  font-family: "Roboto Mono", monospace, sans-serif !important;
+  padding: 10px 12px 10px 12px !important;
+  border-radius: 4px !important;
+  transition: 0.3s !important;
+}
+
+.web3-button:hover {
+  border-top-left-radius: 22px !important;
+  border-bottom-right-radius: 22px !important;
+  background: #1d1d1dec !important;
+  transition: 0.5s !important;
+}
+
+.web3-button-primary:hover {
+  color: #f9b916;
+  transition: 0.5s !important;
+}
+
+.web3-button-secondary:hover {
+  color: #d7594f;
+  transition: 0.5s !important;
+}
+
 /* Animation to slide menus in */
 .slide-menu-animation {
   -webkit-animation: slide-top 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;

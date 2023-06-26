@@ -61,7 +61,7 @@ export default function AssetPreview({
             onClick={() =>
               router.push(`/collection/${contractAddress}/${tokenId}`)
             }
-            className="mt-10 border-[0.5px] hover:scale-105 px-[10px] py-[6px] rounded transition-all duration-150 bg-slate-900 hover:bg-indigo-700"
+            className="mt-10 border-[0.5px] hover:scale-105 px-[10px] py-[4px] transition-all duration-150 hover:bg-slate-900 rounded-tl-[10px] rounded-br-[10px]"
           >
             <a>Buy now</a>
           </button>

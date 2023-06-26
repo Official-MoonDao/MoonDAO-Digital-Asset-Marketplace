@@ -204,7 +204,7 @@ export default function SaleInfo({
           <>
             {/* Direct listing fields */}
             <div
-              className={`flex flex-col ${
+              className={`py-2 flex flex-col ${
                 tab === "direct"
                   ? "opacity-100"
                   : "hidden opacity-0 h-0 transition-all duration-100"
@@ -304,7 +304,7 @@ export default function SaleInfo({
 
             {/* Auction listing fields */}
             <div
-              className={`${
+              className={`py-2 ${
                 tab === "auction"
                   ? "flex flex-col opacity-100"
                   : "hidden opacity-0 h-0 transition-all duration-100"
