@@ -17,29 +17,39 @@ import {
 import { Canvas } from "@react-three/fiber";
 import ThreeText from "../../components/r3f/ThreeText";
 import BannerScene from "../../components/r3f/Profile/BannerScene";
+import { useUserWinnings } from "../../lib/marketplace/hooks/useUserWinnings";
 
 type ProfilePageProps = {
   walletAddress: string;
+  queryTab: "listings" | "auctions" | "winningBids";
 };
 
-export default function ProfilePage({ walletAddress }: ProfilePageProps) {
+export default function ProfilePage({
+  walletAddress,
+  queryTab,
+}: ProfilePageProps) {
   const router = useRouter();
-  const address = useAddress();
+  const address: any = useAddress();
 
-  const { contract: marketplace } = useContract(
+  const { contract: marketplace }: any = useContract(
     MARKETPLACE_ADDRESS,
     "marketplace-v3"
   );
   const [loadingListings, setLoadingListings] = useState<boolean>(true);
   const [validListings, setValidListings] = useState<DirectListing[]>([]);
-  const [validAuctions, setValidAuctions] = useState<AuctionListing[]>([]);
+  const [allAuctions, setAllAuctions] = useState<AuctionListing[]>([]);
 
   const { listings, auctions } = useListingsByWallet(
     validListings,
-    validAuctions,
+    allAuctions,
     walletAddress
   );
-  const [tab, setTab] = useState<"listings" | "auctions">("listings");
+
+  const assetsWon = useUserWinnings(marketplace, allAuctions, address);
+
+  const [tab, setTab] = useState<"listings" | "auctions" | "winningBids">(
+    queryTab
+  );
 
   useEffect(() => {
     if (marketplace) {
@@ -48,11 +58,18 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
         setLoadingListings(false);
       });
       getAllAuctions(marketplace).then((auctions: AuctionListing[]) => {
-        setValidAuctions(auctions);
+        setAllAuctions(auctions);
         setLoadingListings(false);
       });
     }
   }, [marketplace]);
+
+  useEffect(() => {
+    if (address) {
+      router.push(`/profile/${address}`);
+    }
+  }, [address]);
+
   return (
     <main className="w-full ml-auto mr-auto px-4 mt-24 max-w-[1200px]">
       <div>
@@ -76,7 +93,7 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
           Listings
         </h3>
         <h3
-          className={` p-4 text-base font-semibold cursor-pointer transition-all duration-100 ease-in-out hover:text-[#e9e9f9]
+          className={`p-4 text-base font-semibold cursor-pointer transition-all duration-100 ease-in-out hover:text-[#e9e9f9]
         ${
           tab === "auctions"
             ? "text-moon-gold border-b-moon-gold border-b-2"
@@ -85,6 +102,22 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
           onClick={() => setTab("auctions")}
         >
           Auctions
+        </h3>
+        <h3
+          className={`p-4 text-base font-semibold cursor-pointer transition-all duration-100 ease-in-out hover:text-[#e9e9f9]
+        ${
+          tab === "winningBids"
+            ? "text-moon-gold border-b-moon-gold border-b-2"
+            : "text-white text-opacity-60"
+        }`}
+          onClick={() => setTab("winningBids")}
+        >
+          Winning Bids
+          {assetsWon && assetsWon.length > 0 && (
+            <span className="mx-2 py-1 px-1 bg-moon-secondary rounded-full">
+              {assetsWon.length}
+            </span>
+          )}
         </h3>
       </div>
 
@@ -96,7 +129,7 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
         }`}
       >
         {marketplace && !loadingListings ? (
-          <ProfileListingGrid listings={listings} />
+          <ProfileListingGrid listings={listings} type="direct" />
         ) : (
           <Skeleton />
         )}
@@ -110,7 +143,23 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
         }`}
       >
         {marketplace && !loadingListings ? (
-          <ProfileListingGrid listings={auctions} type="auction" />
+          <ProfileListingGrid
+            listings={auctions?.filter((a: AuctionListing) => a.status !== 2)}
+            type="auction"
+          />
+        ) : (
+          <Skeleton />
+        )}
+      </div>
+      <div
+        className={`${
+          tab === "winningBids"
+            ? "flex-opacity-100"
+            : "hidden h-0 opacity-0 transition-all duration-100"
+        }`}
+      >
+        {marketplace && !loadingListings ? (
+          <ProfileListingGrid listings={assetsWon} type="winningBids" />
         ) : (
           <Skeleton />
         )}
@@ -119,11 +168,16 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({
+  params,
+  query,
+}) => {
   const walletAddress = params?.address;
+  const queryTab = query?.tab || "listings";
   return {
     props: {
       walletAddress,
+      queryTab,
     },
   };
 };

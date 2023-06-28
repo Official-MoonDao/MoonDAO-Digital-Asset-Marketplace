@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { useNetworkMismatch, useSigner } from "@thirdweb-dev/react";
 import { NETWORK } from "../../../const/config";
 import { useListingsByWallet } from "./useListingsByWallet";
-import { profile } from "console";
 
 //Get all NFTs from collections accepted by the marketplace by wallet
 export function useUserAssets(
@@ -22,12 +21,22 @@ export function useUserAssets(
   const signer: any = useSigner();
   const networkMismatch = useNetworkMismatch();
 
-  const { listings: profileListings, auctions: profileAuctions } =
-    useListingsByWallet(validListings, validAuctions, walletAddress);
+  const {
+    listings: profileListings,
+    auctions: profileAuctions,
+    isLoading: loadingProfileAuctions,
+  } = useListingsByWallet(validListings, validAuctions, walletAddress);
 
   useEffect(() => {
-    if (marketplace && signer && profileListings && profileAuctions) {
-      if (!profileListings[0] && !profileAuctions[0]) return;
+    if (
+      marketplace &&
+      signer &&
+      profileListings &&
+      profileAuctions &&
+      !networkMismatch
+    ) {
+      if (loadingProfileAuctions) return;
+      setAssets([]);
       marketplace.roles.get("asset").then(async (res: any) => {
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
@@ -36,7 +45,7 @@ export function useUserAssets(
           const extensions = getAllDetectedExtensionNames(contract.abi);
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
-            ownedAssets = await contract.erc1155.getOwned(signer.address);
+            ownedAssets = await contract.erc1155.getOwned(walletAddress);
             //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
             ownedAssets = await ownedAssets.map((asset: any) => {
               const ownedQuantity = asset.quantityOwned;
@@ -59,7 +68,7 @@ export function useUserAssets(
               };
             });
           } else {
-            ownedAssets = await contract.erc721.getOwned(signer.address);
+            ownedAssets = await contract.erc721.getOwned(walletAddress);
 
             ownedAssets = ownedAssets
               .filter(

@@ -48,9 +48,14 @@ export default function Sell() {
   }, [marketplace]);
 
   //Handling if user has no NFTs or is connected to the wrong network
-  if (!address || !userAssets[0]) {
+  if (!address && !userAssets[0] && !loading) {
     return (
-      <NoAssets address={address} userAssets={userAssets} loading={loading} />
+      <>
+        <NoAssets address={address} userAssets={userAssets} loading={loading} />
+        <div className="w-full">
+          <SubmitCollection />
+        </div>
+      </>
     );
   }
 

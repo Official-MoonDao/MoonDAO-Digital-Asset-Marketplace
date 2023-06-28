@@ -72,6 +72,22 @@ footer {
   transition: 0.5s !important;
 }
 
+.bridge-button {
+  width: 100%;
+  background: #6433b9 !important;
+  font-family: "Roboto Mono", monospace, sans-serif !important;
+  padding: 14px 16px 14px 16px !important;
+  border-radius: 2px !important;
+  transition: 0.3s !important;
+}
+
+.bridge-button:hover {
+  border-top-left-radius: 22px !important;
+  border-bottom-right-radius: 22px !important;
+
+  transition: 0.5s !important;
+}
+
 .web3-button {
   background: #1d1d1d75 !important;
   color: rgba(255, 255, 255, 0.596) !important;

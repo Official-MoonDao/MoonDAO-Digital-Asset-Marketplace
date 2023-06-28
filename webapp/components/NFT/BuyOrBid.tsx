@@ -7,6 +7,7 @@ import Skeleton from "../Layout/Skeleton";
 import { CurrListing } from "../../lib/marketplace/marketplace-utils";
 import { useRouter } from "next/router";
 import { MarketplaceV3 } from "@thirdweb-dev/sdk";
+import Link from "next/link";
 
 type BuyOrBidProps = {
   marketplace: MarketplaceV3 | undefined;
@@ -155,6 +156,18 @@ export default function BuyOrBid({
                     >
                       Place bid
                     </Web3Button>
+                    <p className="text-[80%] opacity-60 p-2">
+                      {
+                        "*Winning an Auction: after the auction has expired go to the"
+                      }
+                      <Link
+                        className="text-moon-gold"
+                        href={`/profile/${walletAddress}?tab=winningBids`}
+                      >{` 'winning bids' `}</Link>
+                      {
+                        "tab to claim your asset, if the auction creator has already claimed the payout this will be done automatically*"
+                      }
+                    </p>
                   </>
                 )}
             </>

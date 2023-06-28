@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { DirectListing } from "../../lib/marketplace/marketplace-utils";
-import {
-  MediaRenderer,
-  ThirdwebNftMedia,
-  useContract,
-  useNFT,
-} from "@thirdweb-dev/react";
+import { MediaRenderer } from "@thirdweb-dev/react";
 import { MOONEY_DECIMALS } from "../../const/config";
 import Skeleton from "../Layout/Skeleton";
 import CancelListing from "./CancelListing";
@@ -22,7 +17,7 @@ export default function ProfileDirectListing({
   const buyOut = listing.pricePerToken;
   const end = listing.endTimestamp;
   return (
-    <article className="relative flex flex-col justify-center my-2 hover:scale-[1.03] transition-all duration-150">
+    <article className="relative flex flex-col justify-baseline my-2 hover:scale-[1.03] transition-all duration-150">
       {/*Status*/}
       <div
         className={`${

@@ -1,37 +1,36 @@
-import { MARKETPLACE_ADDRESS } from "../../const/config";
 import { Web3Button } from "@thirdweb-dev/react";
+import { MARKETPLACE_ADDRESS } from "../../const/config";
 import { useRouter } from "next/router";
 import { toast } from "react-hot-toast";
 
-interface ClaimAuctionPayoutProps {
-  claimable: boolean;
-  auctionId: number;
-}
+type ClaimAssetProps = {
+  walletAddress: string;
+  auctionId: string | number;
+};
 
-export default function ClaimAuctionPayout({
-  claimable,
+export default function ClaimAsset({
+  walletAddress,
   auctionId,
-}: ClaimAuctionPayoutProps) {
+}: ClaimAssetProps) {
   const router = useRouter();
-
   return (
     <Web3Button
       className="web3-button web3-button-primary"
       contractAddress={MARKETPLACE_ADDRESS}
       action={(marketplace) =>
-        marketplace
-          .call("collectAuctionPayout", [+auctionId])
-          .then(() => router.reload())
+        marketplace.englishAuctions.closeAuctionForBidder(
+          auctionId,
+          walletAddress
+        )
       }
       onSuccess={() => {
         router.reload();
         setTimeout(() => {
-          toast.success("Successfully claimed!");
+          toast.success("Asset claimed!");
         }, 1000);
       }}
-      isDisabled={!claimable}
     >
-      {claimable ? "Claim Payout" : "No Payout"}
+      {"Claim Asset"}
     </Web3Button>
   );
 }

@@ -10,6 +10,7 @@ import {
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
 import Link from "next/link";
+import PolygonBridge from "./PolygonBridge";
 
 //TODO for the slide selector: Transition between images, automatic change of images after interval.
 //TODO adjust blur so it doesnt overlay on top of hero image
@@ -100,7 +101,7 @@ export default function Hero({ topAssets }: any) {
           {`Whether you're an artist seeking to showcase your unique creations or
           a collector in search of one-of-a-kind digital artifacts, the MoonDAO
           Marketplace offers a seamless and secure environment for buying and
-          selling NFTs with MOONEY.`}
+          selling NFTs with L2 MOONEY.`}
         </p>
 
         <ArrowButton
@@ -108,6 +109,9 @@ export default function Hero({ topAssets }: any) {
           position={"mt-12 lg:mt-10 2xl:mt-[50px]"}
           link={"/buy?assetType=collection"}
         />
+        <div className="w-1/2 py-4 mt-8">
+          <PolygonBridge />
+        </div>
       </div>
     </div>
   );
