@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   basePath: "",
   images: {
-    domains: ["gateway.ipfscdn.io", "i.seadn.io", "ipfs.io"],
+    domains: ["ipfs-3.thirdwebcdn.com", "i.seadn.io", "ipfs.io"],
   },
 
   webpack: (config) => {

@@ -2,40 +2,27 @@
 
 // 1. Set up the network your smart contracts are deployed to.
 // First, import the chain from the package, then set the NETWORK variable to the chain.
-import { Ethereum, Goerli, Mumbai } from "@thirdweb-dev/chains";
+import { Chain, Ethereum, Mumbai } from "@thirdweb-dev/chains";
 
-export const NETWORK =
-  process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? Ethereum : Goerli;
+export const NETWORK: Chain =
+  process.env.NEXT_PUBLIC_NETWORK === "mainnet" ? Ethereum : Mumbai;
 
 // 2. The address of the marketplace V3 smart contract.
 // Deploy your own: https://thirdweb.com/thirdweb.eth/MarketplaceV3
-export const MARKETPLACE_ADDRESS = "0x4234D057e948B5d438e5be3d32290975e40320F9"; //GOERLI
+export const SUBGRAPH_URL: string =
+  "https://api.studio.thegraph.com/query/38443/moondao-marketplace-test-l2/v0.0.2";
 
-//FeeDistributor contract that distributes a portion of the platform fee to vMooney holders
-export const FEE_DISTRIBUTOR_ADDRESS =
-  process.env.NEXT_PUBLIC_NETWORK === "mainnet"
-    ? ""
-    : "0xf2936f9813CB967da9b544d1bF2e0601cd7a3131"; //GOERLI
+export const MARKETPLACE_ADDRESS: string =
+  "0x2ade7e5C953873ebe5417D62319334F7975A9595"; //Mumbai
 
-//Split contract that holds the mooney from the 2% platform fee
-export const FEE_DISTRIBUTOR_SPLIT_ADDRESS =
-  process.env.NEXT_PUBLIC_NETWORK === "mainnet"
-    ? ""
-    : "0x4D84E66658cDa987e6a3287A8939969793869551"; //GOERLI
-
-export const ETHERSCAN_URL =
+export const ETHERSCAN_URL: string =
   NETWORK === Ethereum
-    ? "https://etherscan.io/"
-    : "https://goerli.etherscan.io/";
+    ? "https://polygonscan.com/"
+    : "https://mumbai.polygonscan.com/";
 
-export const MOONEY_ADDRESS =
+export const L2_MOONEY_ADDRESS: string =
   NETWORK === Ethereum
-    ? "0x20d4DB1946859E2Adb0e5ACC2eac58047aD41395" //MAINNET
-    : "0x86A827E4E98081D156D58F4aAb4F2bBa64eAA599"; //GOERLI
+    ? "" //Polygon
+    : "0xDE870ca93467A914160e6a6ddC75535cA7647534"; //Mumbai
 
-export const VMOONEY_ADDRESS =
-  NETWORK === Ethereum
-    ? "0xCc71C80d803381FD6Ee984FAff408f8501DB1740" //MAINNET
-    : "0x6899EcEeAF3Fb4D5854Dc090F62EA5D97E301664"; //GOERLI
-
-export const MOONEY_DECIMALS = 10 ** 18;
+export const MOONEY_DECIMALS: number = 10 ** 18;

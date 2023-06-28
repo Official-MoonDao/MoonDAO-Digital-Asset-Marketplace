@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { AuctionListing, DirectListing } from "../marketplace-utils";
 import { initSDK } from "../../thirdweb";
-import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 
 //Search for collection or asset by name, return collection or asset url
 export function useSearch(
@@ -24,21 +23,21 @@ export function useSearch(
         if (
           listings[i] &&
           !uniqueAssets.includes(
-            listings[i].assetContract + listings[i].tokenId
+            listings[i].assetContractAddress + listings[i].tokenId
           )
         ) {
           const tokenId: any = listings[i].tokenId;
-          uniqueAssets.push(listings[i].assetContract + tokenId);
+          uniqueAssets.push(listings[i].assetContractAddress + tokenId);
           filteredAssets.push(listings[i]);
         }
         if (
           auctions[i] &&
           !uniqueAssets.includes(
-            auctions[i].assetContract + auctions[i].tokenId
+            auctions[i].assetContractAddress + auctions[i].tokenId
           )
         ) {
           const tokenId: any = auctions[i].tokenId;
-          uniqueAssets.push(auctions[i].assetContract + tokenId);
+          uniqueAssets.push(auctions[i].assetContractAddress + tokenId);
           filteredAssets.push(auctions[i]);
         }
       }
@@ -53,29 +52,12 @@ export function useSearch(
   useEffect(() => {
     if (!text || text?.trim() === "" || text.length < 2) return;
     //update unique assets
-    uniqueAssets();
 
-    validAssets.map(async (l: any) => {
-      setSearchResults([]);
-      const sdk = initSDK();
-      const contract: any = await sdk.getContract(l.assetContract);
+    const results = validAssets.filter((l: any) =>
+      l.asset.name.toLowerCase().includes(text.toLowerCase())
+    );
 
-      const extensions = getAllDetectedFeatureNames(contract.abi);
-      let nft: any;
-      if (extensions[0] === "ERC1155") {
-        nft = {
-          ...(await contract.erc1155.get(l.tokenId)),
-          collection: l.assetContract,
-        };
-      } else {
-        nft = {
-          ...(await contract.erc721.get(l.tokenId)),
-          collection: l.assetContract,
-        };
-      }
-      if (nft.metadata.name.toLowerCase().includes(text.toLowerCase()))
-        setSearchResults((prev: any) => [...prev, nft]);
-    });
+    setSearchResults(results);
   }, [text]);
 
   //limit search to 4 results

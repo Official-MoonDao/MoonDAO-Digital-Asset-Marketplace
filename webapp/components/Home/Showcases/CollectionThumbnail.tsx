@@ -15,7 +15,7 @@ export default function CollectionThumbnail({
   validAuctions,
 }: any) {
   const { contract: collectionContract } = useContract(
-    collection.assetContract
+    collection.assetContractAddress
   );
   const { data: metadata }: any = useMetadata(collectionContract);
 
@@ -25,9 +25,9 @@ export default function CollectionThumbnail({
     collectionContract
   );
 
-  if (!metadata) return <Skeleton width="335px" height="262px" />;
+  if (!metadata) return <Skeleton width="335px" height="100px" />;
   return (
-    <Link href={`/collection/${collection.assetContract}`}>
+    <Link href={`/collection/${collection.assetContractAddress}`}>
       <article className="flex items-center min-w-[300px] max-w-[345px] lg:w-full lg:max-w-none hover:lg:bg-gradient-to-br lg:hover:ring-2 ring-moon-white from-moon-gold via-moon-secondary to-moon-gold transition-all duration-150 lg:rounded-xl lg:pl-1 lg:pr-4 lg:py-2 xl:py-3">
         <div className="flex items-center gap-2 md:gap-3 lg:gap-6">
           <p className="font-bold text-lg">{metadata.id}</p>

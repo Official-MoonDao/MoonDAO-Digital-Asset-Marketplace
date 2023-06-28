@@ -1,4 +1,5 @@
 import {
+  MediaRenderer,
   ThirdwebNftMedia,
   useAddress,
   useContract,
@@ -15,20 +16,18 @@ import CancelListing from "./CancelListing";
 
 interface ProfileAuctionListingProps {
   listing: AuctionListing;
+  walletAddress: string;
 }
 
 export default function ProfileAuctionListing({
   listing,
+  walletAddress,
 }: ProfileAuctionListingProps) {
-  const address = useAddress();
   const buyOut = listing?.buyoutBidAmount;
   const minBid = listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
   const [winningBid, setWinningBid] = useState<number>(0);
-
-  const { contract: nftContract } = useContract(listing.assetContract);
-  const { data: nft }: any = useNFT(nftContract, listing.tokenId);
 
   const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,
@@ -39,16 +38,16 @@ export default function ProfileAuctionListing({
 
   useEffect(() => {
     if (marketplace) {
-      marketplace
-        .call("getWinningBid", [+listing.auctionId])
+      marketplace.englishAuctions
+        .getWinningBid(listing.auctionId)
         .then((bid: any) => {
-          setWinningBid(bid[2].toString() / MOONEY_DECIMALS);
+          setWinningBid(bid.amount / MOONEY_DECIMALS);
         })
         .catch((e: any) => console.log(e));
     }
-  }, [marketplace]);
+  }, [marketplace, listing]);
 
-  if (listing.status === "3" || listing.status === "2") return <></>;
+  if (listing.status === 3 || listing.status === 2) return <></>;
   return (
     <article className="relative flex flex-col justify-center my-2 hover:scale-[1.03] transition-all duration-150">
       <div
@@ -67,13 +66,13 @@ export default function ProfileAuctionListing({
       </div>
       {/*Image with Link*/}
       <div>
-        {nft ? (
+        {listing.asset ? (
           <Link
-            href={`/collection/${listing.assetContract}/${listing.tokenId}`}
+            href={`/collection/${listing.assetContractAddress}/${listing.tokenId}`}
           >
-            <ThirdwebNftMedia
+            <MediaRenderer
               className="rounded-xl object-cover"
-              metadata={nft?.metadata}
+              src={listing.asset.image}
             />
           </Link>
         ) : (
@@ -84,7 +83,7 @@ export default function ProfileAuctionListing({
       <div className="w-[300px] rounded-b-xl -mt-2 py-2 px-3 flex flex-col gap-3 bg-gradient-to-br from-moon-secondary via-indigo-900 to-moon-secondary">
         {/*Title*/}
         <h4 className="font-GoodTimes tracking-wider text-lg">
-          {nft?.metadata?.name}
+          {listing.asset.name}
         </h4>
         {/*Price*/}
         <div>
@@ -112,7 +111,7 @@ export default function ProfileAuctionListing({
         {/* Auctions that have ended and have a payout */}
         {claimable && (
           <>
-            {address && address === listing.seller && (
+            {walletAddress && walletAddress === listing.creatorAddress && (
               <ClaimAuctionPayout
                 claimable={claimable}
                 auctionId={+listing.auctionId}
@@ -123,12 +122,20 @@ export default function ProfileAuctionListing({
           </>
         )}
         {/* Expired Auctions /w No bids */}
-        {address &&
-          address === listing.seller &&
-          +end * 1000 < Date.now() &&
-          !claimable && (
+        {walletAddress &&
+        walletAddress === listing.creatorAddress &&
+        +end * 1000 < Date.now() &&
+        !claimable ? (
+          <CancelListing
+            type="auction"
+            listingId={+listing.auctionId}
+            expired
+          />
+        ) : (
+          winningBid <= 0 && (
             <CancelListing type="auction" listingId={+listing.auctionId} />
-          )}
+          )
+        )}
       </div>
     </article>
   );

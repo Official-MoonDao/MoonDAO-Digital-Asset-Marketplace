@@ -6,12 +6,13 @@ import {
   DirectListing,
 } from "../marketplace-utils";
 import { useListingsByTokenId } from "./useListingsByTokenId";
-import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
+import { getAllDetectedExtensionNames } from "@thirdweb-dev/sdk";
 import { useContract } from "@thirdweb-dev/react";
 import { MOONEY_DECIMALS } from "../../../const/config";
 
 function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
   //get floor price for validListings
+ 
   const listingFloor =
     listings && listings[0]
       ? Math.min(...listings.map((listing) => +listing.pricePerToken))
@@ -55,7 +56,7 @@ export function useAssetStats(
     if (assetListings && assetAuctions && contract) {
       floorPrice =
         +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
-      const extensions = getAllDetectedFeatureNames(contract?.abi);
+      const extensions = getAllDetectedExtensionNames(contract?.abi);
       (async () => {
         if (extensions[0] !== "ERC1155") {
           supply = await contract.erc721.totalCount();
@@ -64,14 +65,14 @@ export function useAssetStats(
         }
 
         const listed =
-          assetListings.reduce(
+          assetListings?.reduce(
             (arr: number, l: any) => arr + Number(l.quantity),
             0
           ) +
-          assetAuctions.reduce(
-            (arr: number, a: any) => arr + Number(a.quantity),
-            0
-          );
+            assetAuctions?.reduce(
+              (arr: number, a: any) => arr + Number(a.quantity),
+              0
+            ) || 0;
 
         setStats({
           floorPrice: floorPrice || 0,
@@ -107,7 +108,7 @@ export function useCollectionStats(
         validListings[0] &&
         validListings?.filter(
           (l: DirectListing) =>
-            l.assetContract.toLowerCase() ===
+            l.assetContractAddress.toLowerCase() ===
             collectionContract.getAddress().toLowerCase()
         );
       setCollectionListings(filteredListings);
@@ -117,7 +118,7 @@ export function useCollectionStats(
         validAuctions[0] &&
         validAuctions?.filter(
           (a: AuctionListing) =>
-            a.assetContract.toLowerCase() ===
+            a.assetContractAddress.toLowerCase() ===
             collectionContract.getAddress().toLowerCase()
         );
       setCollectionAuctions(filteredAuctions);
@@ -129,18 +130,20 @@ export function useCollectionStats(
     if (collectionContract && (collectionListings || collectionAuctions)) {
       const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
       const listed =
-        collectionListings.reduce(
+        collectionListings?.reduce(
           (arr: number, l: any) => arr + Number(l.quantity),
           0
         ) +
-        collectionAuctions.reduce(
-          (arr: number, a: any) => arr + Number(a.quantity),
-          0
-        );
+          collectionAuctions?.reduce(
+            (arr: number, a: any) => arr + Number(a.quantity),
+            0
+          ) || 0;
 
       let supply: any;
       (async () => {
-        const extensions = getAllDetectedFeatureNames(collectionContract?.abi);
+        const extensions = getAllDetectedExtensionNames(
+          collectionContract?.abi
+        );
         if (extensions[0] === "ERC1155") {
           supply = await collectionContract.erc1155.totalCount();
         } else {

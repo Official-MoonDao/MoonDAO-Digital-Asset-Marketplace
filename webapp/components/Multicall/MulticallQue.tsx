@@ -7,7 +7,7 @@ import { useClickOutside } from "../../lib/utils/hooks";
 import { Web3Button, useSigner } from "@thirdweb-dev/react";
 import {
   MARKETPLACE_ADDRESS,
-  MOONEY_ADDRESS,
+  L2_MOONEY_ADDRESS,
   MOONEY_DECIMALS,
 } from "../../const/config";
 import { multiCreateListings } from "../../lib/marketplace/marketplace-multicall";
@@ -26,7 +26,7 @@ export function MulticallQue({ address }: any) {
     {
       assetContract: "0xdbb3aaA438e49a93c3E3E213AEbF2F5370993D2d",
       tokenId: "2",
-      currency: MOONEY_ADDRESS,
+      currency: L2_MOONEY_ADDRESS,
       quantity: "1",
       pricePerToken: String(5 * MOONEY_DECIMALS),
       startTimestamp: Math.round(new Date(Date.now()).valueOf() / 1000),

@@ -142,8 +142,7 @@ export default function Buy({ validListings, validAuctions }: BuyPageProps) {
                 (l: DirectListing | AuctionListing, i: number) => (
                   <AssetPreview
                     key={`filtered-asset-preview-${i}`}
-                    contractAddress={l.assetContract}
-                    tokenId={l.tokenId}
+                    listing={l}
                     validListings={validListings}
                     validAuctions={validAuctions}
                   />

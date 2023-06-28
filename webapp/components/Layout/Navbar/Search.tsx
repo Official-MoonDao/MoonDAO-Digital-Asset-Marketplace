@@ -5,10 +5,18 @@ import {
   getAllValidAuctions,
   getAllValidListings,
 } from "../../../lib/marketplace/marketplace-listings";
-import { ThirdwebNftMedia, useContract } from "@thirdweb-dev/react";
+import {
+  MediaRenderer,
+  ThirdwebNftMedia,
+  useContract,
+} from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS } from "../../../const/config";
 import Skeleton from "../Skeleton";
 import Link from "next/link";
+import {
+  AuctionListing,
+  DirectListing,
+} from "../../../lib/marketplace/marketplace-utils";
 
 export default function Search() {
   const searchRef: any = useRef();
@@ -71,23 +79,25 @@ export default function Search() {
             {isSearching ? (
               <Skeleton height="10px" />
             ) : (
-              searchResults.map((nft: any, i: number) => (
-                <Link
-                  key={"search-result-" + i}
-                  className="w-full flex items-center"
-                  href={`/collection/${nft.collection}/${nft.metadata.id}`}
-                >
-                  <div className="flex items-center hover:bg-indigo-900 w-full px-3 py-2">
-                    <ThirdwebNftMedia
-                      metadata={nft.metadata}
-                      width="50px"
-                      height="50px"
-                      className="rounded-lg"
-                    />
-                    <p className="pl-3">{nft.metadata.name}</p>
-                  </div>
-                </Link>
-              ))
+              searchResults.map(
+                (listing: DirectListing | AuctionListing, i: number) => (
+                  <Link
+                    key={"search-result-" + i}
+                    className="w-full flex items-center"
+                    href={`/collection/${listing.assetContractAddress}/${listing.tokenId}`}
+                  >
+                    <div className="flex items-center hover:bg-indigo-900 w-full px-3 py-2">
+                      <MediaRenderer
+                        src={listing?.asset?.image}
+                        width="50px"
+                        height="50px"
+                        className="rounded-lg"
+                      />
+                      <p className="pl-3">{listing.asset?.name}</p>
+                    </div>
+                  </Link>
+                )
+              )
             )}
           </div>
         )}

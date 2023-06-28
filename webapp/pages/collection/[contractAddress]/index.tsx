@@ -14,9 +14,9 @@ import {
   DirectListing,
 } from "../../../lib/marketplace/marketplace-utils";
 import { useEffect, useState } from "react";
-import { useContract } from "@thirdweb-dev/react";
+import { MediaRenderer, useContract } from "@thirdweb-dev/react";
 import Skeleton from "../../../components/Layout/Skeleton";
-import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
+import { getAllDetectedExtensionNames } from "@thirdweb-dev/sdk";
 import { initSDK } from "../../../lib/thirdweb";
 import Metadata from "../../../components/Layout/Metadata";
 
@@ -59,7 +59,7 @@ export default function CollectionPage({
       });
 
       //set collection type
-      const extensions = getAllDetectedFeatureNames(collectionContract.abi);
+      const extensions = getAllDetectedExtensionNames(collectionContract.abi);
       setCollectionType(extensions[0]);
     }
   }, [marketplace, collectionContract]);
@@ -75,9 +75,7 @@ export default function CollectionPage({
       <div className="flex flex-col items-center md:flex-row md:items-start md:gap-12 lg:gap-16 xl:gap-20">
         <div>
           {collectionMetadata ? (
-            <Image
-              width={285}
-              height={285}
+            <MediaRenderer
               className="border-4 p-2 rounded-full object-cover xl:w-[320px] xl:h-[320px]"
               src={collectionMetadata.image}
               alt="Collection thumbnail"
@@ -139,11 +137,10 @@ export default function CollectionPage({
       {/*Grid with the collection's assets */}
       <div className="mt-20 md:mt-24 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
         {assets[0] &&
-          assets.map((a: DirectListing | AuctionListing, i: number) => (
+          assets.map((l: DirectListing | AuctionListing, i: number) => (
             <div className="" key={`asset-${i}`}>
               <AssetPreview
-                contractAddress={contractAddress}
-                tokenId={a.tokenId}
+                listing={l}
                 validListings={validListings}
                 validAuctions={validAuctions}
               />

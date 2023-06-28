@@ -9,7 +9,6 @@ import { useCollectionStats } from "../../../lib/marketplace/hooks";
 import randomColor from "../../../lib/utils/randomColor";
 import Skeleton from "../../Layout/Skeleton";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function NewCollectionThumbnail({
   collection,
@@ -17,7 +16,7 @@ export default function NewCollectionThumbnail({
   validAuctions,
 }: any) {
   const { contract: collectionContract } = useContract(
-    collection?.assetContract
+    collection?.assetContractAddress
   );
   const { data: metadata }: any = useMetadata(collectionContract);
 
@@ -31,7 +30,7 @@ export default function NewCollectionThumbnail({
     <article className="relative flex flex-col group items-center hover:scale-[1.035] group transition-all duration-150">
       <Link
         className="flex flex-col group items-center"
-        href={`/collection/${collection.assetContract}`}
+        href={`/collection/${collection.assetContractAddress}`}
       >
         {metadata?.image ? (
           <MediaRenderer

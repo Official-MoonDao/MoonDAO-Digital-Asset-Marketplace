@@ -1,16 +1,12 @@
 import { MarketplaceV3 } from "@thirdweb-dev/sdk";
-import { serializable } from "./marketplace-utils";
+import { serialize } from "./marketplace-utils";
 
 //Get all auctions including expired & closed auctions from marketplace
 export async function getAllAuctions(marketplace: MarketplaceV3) {
   try {
-    const totalAuctions = await marketplace.call("totalAuctions");
-    const auctions = await marketplace.call(
-      "getAllAuctions",
-      0,
-      totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
-    );
-    return serializable(auctions);
+    const auctions = await marketplace.englishAuctions.getAll();
+    const serialized = serialize(auctions);
+    return serialized;
   } catch (err) {
     console.log(err);
     return [];
@@ -20,13 +16,9 @@ export async function getAllAuctions(marketplace: MarketplaceV3) {
 //Get all valid listings from marketplace
 export async function getAllValidListings(marketplace: MarketplaceV3) {
   try {
-    const totalListings = await marketplace.call("totalListings");
-    const listings = await marketplace.call(
-      "getAllValidListings",
-      0,
-      totalListings?.toNumber() - 1 >= 0 ? totalListings?.toNumber() - 1 : 0
-    );
-    return serializable(listings);
+    const listings = await marketplace.directListings.getAllValid();
+    const serialized = serialize(listings);
+    return serialized;
   } catch (err) {
     console.log(err);
     return [];
@@ -36,13 +28,9 @@ export async function getAllValidListings(marketplace: MarketplaceV3) {
 //Get all valid auctions from marketplace
 export async function getAllValidAuctions(marketplace: MarketplaceV3) {
   try {
-    const totalAuctions = await marketplace.call("totalAuctions");
-    const auctions = await marketplace.call(
-      "getAllValidAuctions",
-      0,
-      totalAuctions?.toNumber() - 1 >= 0 ? totalAuctions?.toNumber() - 1 : 0
-    );
-    return serializable(auctions);
+    const auctions = await marketplace.englishAuctions.getAllValid();
+    const serialized = serialize(auctions);
+    return serialized;
   } catch (err) {
     console.log(err);
     return [];

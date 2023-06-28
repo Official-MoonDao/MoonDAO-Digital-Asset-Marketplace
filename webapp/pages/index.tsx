@@ -9,7 +9,6 @@ import {
   getAllValidAuctions,
   getAllValidListings,
 } from "../lib/marketplace/marketplace-listings";
-import { useEffect, useState } from "react";
 import { useFilter } from "../lib/marketplace/marketplace-subgraph";
 import {
   AuctionListing,
@@ -32,12 +31,15 @@ export default function Home({ validListings, validAuctions }: HomeProps) {
     validAuctions
   );
 
-  useEffect(() => {}, []);
-
   return (
     <main className="flex flex-col items-center px-6 md:px-10">
       <Metadata title="Home" />
-      <Hero top4={trendingAssets.slice(0, 4)} />
+      <Hero
+        topAssets={trendingAssets.slice(
+          0,
+          trendingAssets.length < 4 ? trendingAssets.length : 4
+        )}
+      />
       <CollectionShowcase
         collections={trendingCollections}
         validListings={validListings}

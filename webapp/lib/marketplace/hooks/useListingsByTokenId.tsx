@@ -16,15 +16,15 @@ export function useListingsByTokenId(
         validListings[0] &&
         validListings?.filter(
           (l: DirectListing) =>
-            l.assetContract.toLowerCase() === contractAddress.toLowerCase() &&
-            +l.tokenId === Number(tokenId)
+            l.assetContractAddress.toLowerCase() ===
+              contractAddress.toLowerCase() && +l.tokenId === Number(tokenId)
         );
       const filteredAuctions =
         validAuctions[0] &&
         validAuctions?.filter(
-          (a: any) =>
-            a.assetContract.toLowerCase() === contractAddress.toLowerCase() &&
-            +a.tokenId === Number(tokenId)
+          (a: AuctionListing) =>
+            a.assetContractAddress.toLowerCase() ===
+              contractAddress.toLowerCase() && +a.tokenId === Number(tokenId)
         );
       setListings(filteredListings || []);
       setAuctions(filteredAuctions || []);

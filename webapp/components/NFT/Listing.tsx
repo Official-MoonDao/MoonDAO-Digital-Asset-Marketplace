@@ -1,5 +1,4 @@
 import { MOONEY_DECIMALS } from "../../const/config";
-import styles from "./NFT.module.css";
 
 interface ListingProps {
   type: "direct" | "auction";
@@ -7,10 +6,15 @@ interface ListingProps {
   setCurrListing: Function;
 }
 
-export default function Listing({ type = "direct", listing, setCurrListing }: ListingProps) {
+export default function Listing({
+  type = "direct",
+  listing,
+  setCurrListing,
+}: ListingProps) {
   const listingId = type === "direct" ? listing?.listingId : listing?.auctionId;
-  const sellerAddress = listing.seller;
-  const buyOut = type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
+  const seller = listing.creatorAddress;
+  const buyOut =
+    type === "direct" ? listing.pricePerToken : listing.buyoutBidAmount;
   const minBid = type === "direct" ? 0 : listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
@@ -28,7 +32,7 @@ export default function Listing({ type = "direct", listing, setCurrListing }: Li
             Seller
           </p>
           <p className="mt-1">
-            {sellerAddress.slice(0, 6) + "..." + sellerAddress.slice(-4)}
+            {seller.slice(0, 6) + "..." + seller.slice(-4)}
           </p>
         </div>
         {/*Price*/}

@@ -77,7 +77,7 @@ export default function TokenPage({
   //NFT Collection & Metadata
   const { contract: nftCollection } = useContract(contractAddress);
 
-  const { data: collectionMetadata } = useMetadata(nftCollection);
+  const { data: collectionMetadata }: any = useMetadata(nftCollection);
 
   // Load historical transfer events: TODO - more event types like sale
 
@@ -203,7 +203,7 @@ export default function TokenPage({
 
             {currListing?.listing && nft.type === "ERC721" && (
               <Link
-                href={`/profile/${currListing?.listing.listingCreator}`}
+                href={`/profile/${currListing?.listing.creatorAddress}`}
                 className={styles.nftOwnerContainer}
               >
                 {/* Random linear gradient circle shape */}
@@ -218,8 +218,8 @@ export default function TokenPage({
                   <div>
                     <p className="text-white opacity-60 mt-1 p-[2px]">Seller</p>
                     <p className="font-semibold m-0 text-white text-opacity-90">
-                      {currListing?.listing?.seller?.slice(0, 8)}...
-                      {currListing?.listing?.seller?.slice(-4)}
+                      {currListing?.listing?.creatorAddress?.slice(0, 8)}...
+                      {currListing?.listing?.creatorAddress?.slice(-4)}
                     </p>
                   </div>
                 </div>
@@ -242,20 +242,25 @@ export default function TokenPage({
                 {/* Pricing information */}
                 <p className="text-white opacity-60 mt-1 p-[2px]">Price</p>
                 <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                  {!currListing ? (
+                  {!currListing?.listing ||
+                  (currListing.type === "direct" &&
+                    !currListing.listing.pricePerToken) ||
+                  (currListing.type === "auction" &&
+                    !currListing.listing.buyoutBidAmount) ? (
                     <Skeleton width="120" height="24" />
                   ) : (
                     <>
                       {currListing.listing && currListing.type === "direct" ? (
                         <>
-                          {+currListing.listing.pricePerToken / MOONEY_DECIMALS}
+                          {+currListing.listing.pricePerToken /
+                            MOONEY_DECIMALS || "..."}
                           {" " + "MOONEY"}
                         </>
                       ) : currListing.listing &&
                         currListing.type === "auction" ? (
                         <>
                           {+currListing.listing.buyoutBidAmount /
-                            MOONEY_DECIMALS}
+                            MOONEY_DECIMALS || "..."}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -354,7 +359,10 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const tokenId = params?.tokenId;
 
   const sdk = initSDK();
-  const marketplace: any = await sdk.getContract(MARKETPLACE_ADDRESS);
+  const marketplace: any = await sdk.getContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
   const acceptedCollections = await marketplace.roles.get("asset");
 
   //if no contract address or token id, return 404
