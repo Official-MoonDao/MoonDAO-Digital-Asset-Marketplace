@@ -1,36 +1,49 @@
 import { BigNumber } from "ethers";
-import { MOONEY_ADDRESS } from "../../const/config";
+import { L2_MOONEY_ADDRESS } from "../../const/config";
+import { DirectListingV3, EnglishAuction } from "@thirdweb-dev/sdk";
 
 export type DirectListing = {
+  asset: {
+    name: string;
+    description: string;
+    image: string;
+    id: string;
+    uri: string;
+  };
   listingId: string | number;
-  seller: string;
-  assetContract: string;
+  creatorAddress: string;
+  assetContractAddress: string;
   tokenId: string;
   quantity: string;
-  currency: string;
+  currencyContractAddress: string;
   pricePerToken: string | number;
   startTimestamp: string | number;
   endTimestamp: string | number;
   reserved: boolean;
-  tokenType: string | number;
   status: string | number;
   popularity: any;
 };
 
 export type AuctionListing = {
+  asset: {
+    name: string;
+    description: string;
+    image: string;
+    id: string;
+    uri: string;
+  };
   auctionId: string | number;
-  seller: string;
-  assetContract: string;
+  creatorAddress: string;
+  assetContractAddress: string;
   tokenId: string;
   quantity: string;
-  currency: string;
+  currencyContractAddress: string;
   minimumBidAmount: string | number;
   buyoutBidAmount: string | number;
   timeBufferInSeconds: string | number;
   bidBufferBps: string | number;
   startTimestamp: string | number;
   endTimestamp: string | number;
-  tokenType: string | number;
   status: string | number;
   popularity: any;
 };
@@ -41,21 +54,21 @@ export type CurrListing = {
 };
 
 export type DirectSubmission = {
-  assetContract: string;
+  assetContractAddress: string;
   tokenId: string;
-  currency: string;
   quantity: string;
+  currencyContractAddress: string;
   pricePerToken: string;
   startTimestamp: string;
   endTimestamp: string;
-  reserved: boolean;
+  isReservedListing: boolean;
 };
 
 export type AuctionSubmission = {
-  assetContract: string;
+  assetContractAddress: string;
   tokenId: string;
-  currency: string;
   quantity: string;
+  currencyContractAddress: string;
   minimumBidAmount: string;
   buyoutBidAmount: string;
   timeBufferInSeconds: string;
@@ -85,62 +98,63 @@ export function BigConvert(data: any) {
   return !data ? 0 : BigNumber.from(data).toString();
 }
 
-export function serializable(data: any) {
+export function serialize(data: any) {
   //data = array of listings = [[{listingData1}], [{listingData2}]]
   let formatted;
-  if (data.length === 0) return [null];
-
-  if (data[0]["auctionId"]) {
+  if (data[0]?.minimumBidAmount) {
     formatted = data.map(
-      (listing: any) =>
-        isMOONEY(listing[5]) &&
+      (auction: EnglishAuction) =>
+        isL2MOONEY(auction.currencyContractAddress) &&
         ({
-          auctionId: BigConvert(listing[0]),
-          seller: listing[1],
-          assetContract: listing[2],
-          tokenId: BigConvert(listing[3]),
-          quantity: BigConvert(listing[4]),
-          currency: listing[5],
-          minimumBidAmount: BigConvert(listing[6]),
-          buyoutBidAmount: BigConvert(listing[7]),
-          timeBufferInSeconds: BigConvert(listing[8]),
-          bidBufferBps: BigConvert(listing[9]),
-          startTimestamp: BigConvert(listing[10]),
-          endTimestamp: BigConvert(listing[11]),
-          tokenType: BigConvert(listing[12]),
-          status: BigConvert(listing[13]),
+          asset: auction.asset,
+          auctionId: auction.id,
+          creatorAddress: auction.creatorAddress,
+          assetContractAddress: auction.assetContractAddress,
+          tokenId: auction.tokenId,
+          quantity: auction.quantity,
+          currencyContractAddress: auction.currencyContractAddress,
+          minimumBidAmount: auction.minimumBidAmount,
+          buyoutBidAmount: auction.buyoutBidAmount,
+          timeBufferInSeconds: auction.timeBufferInSeconds,
+          bidBufferBps: auction.bidBufferBps,
+          startTimestamp: auction.startTimeInSeconds,
+          endTimestamp: auction.endTimeInSeconds,
+          status: auction.status,
         } as AuctionListing)
     );
   } else {
     formatted = data.map(
-      (listing: any) =>
+      (listing: DirectListingV3) =>
+        isL2MOONEY(listing.currencyContractAddress) &&
         ({
-          listingId: BigConvert(listing[0]),
-          seller: listing[1],
-          assetContract: listing[2],
-          tokenId: BigConvert(listing[3]),
-          quantity: BigConvert(listing[4]),
-          currency: listing[5],
-          pricePerToken: BigConvert(listing[6]),
-          startTimestamp: BigConvert(listing[7]),
-          endTimestamp: BigConvert(listing[8]),
-          reserved: listing[9],
-          tokenType: BigConvert(listing[10]),
-          status: BigConvert(listing[11]),
+          asset: listing.asset,
+          listingId: listing.id,
+          creatorAddress: listing.creatorAddress,
+          assetContractAddress: listing.assetContractAddress,
+          tokenId: listing.tokenId,
+          quantity: listing.quantity,
+          currencyContractAddress: listing.currencyContractAddress,
+          pricePerToken: listing.pricePerToken,
+          startTimestamp: listing.startTimeInSeconds,
+          endTimestamp: listing.endTimeInSeconds,
+          reserved: listing.isReservedListing,
+          status: listing.status,
         } as DirectListing)
     );
   }
 
   //Filter out any listings or auctions that are not in MOONEY
-  const MOONEYListings = formatted.filter((listing: any) =>
-    isMOONEY(listing.currency)
+  const L2_MOONEYListings = formatted.filter(
+    (listing: any) =>
+      listing?.currencyContractAddress &&
+      isL2MOONEY(listing.currencyContractAddress)
   );
 
-  return JSON.parse(JSON.stringify(MOONEYListings));
+  return JSON.parse(JSON.stringify(L2_MOONEYListings));
 }
 
-function isMOONEY(currencyAddress: string) {
-  return currencyAddress.toLowerCase() === MOONEY_ADDRESS.toLowerCase();
+function isL2MOONEY(currencyAddress: string) {
+  return currencyAddress.toLowerCase() === L2_MOONEY_ADDRESS.toLowerCase();
 }
 
 //////HOOKS////////////////////////////////////////////

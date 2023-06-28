@@ -5,9 +5,11 @@ import { useRouter } from "next/router";
 export default function CancelListing({
   listingId,
   type,
+  expired = false,
 }: {
   listingId: string | number;
   type: string;
+  expired?: boolean;
 }) {
   const router = useRouter();
   return (
@@ -24,7 +26,15 @@ export default function CancelListing({
       >
         {`Cancel Listing`}
       </Web3Button>
-      {type === "auction" && <p>This auction expired with no bids</p>}
+      <div className="text-[80%] text-moon-gold opacity-70">
+        {type === "auction" && expired ? (
+          <p>This auction expired with no bids</p>
+        ) : type === "auction" ? (
+          <p>This auction can be canceled until the first bid is made</p>
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 type ImageSelector = {
   currentSlide: number;
   setCurrentSlide: Function;
+  topAssetsLength: number;
 };
 
 type ImageSelectorButton = {
@@ -12,30 +13,19 @@ type ImageSelectorButton = {
 const HeroImageSelector = ({
   currentSlide,
   setCurrentSlide,
+  topAssetsLength,
 }: ImageSelector) => {
   //This component takes in the current slide and the function to change the slides, and passes it to the buttons.
   return (
     <div className="mt-8 flex gap-5 lg:ml-12 lg:mt-6">
-      <SelectButton
-        slideNumber={0}
-        setCurrentSlide={setCurrentSlide}
-        currentSlide={currentSlide}
-      />
-      <SelectButton
-        slideNumber={1}
-        setCurrentSlide={setCurrentSlide}
-        currentSlide={currentSlide}
-      />
-      <SelectButton
-        slideNumber={2}
-        setCurrentSlide={setCurrentSlide}
-        currentSlide={currentSlide}
-      />
-      <SelectButton
-        slideNumber={3}
-        setCurrentSlide={setCurrentSlide}
-        currentSlide={currentSlide}
-      />
+      {Array.from(Array(topAssetsLength)).map((_, i) => (
+        <SelectButton
+          key={"select-button-" + i}
+          slideNumber={i}
+          setCurrentSlide={setCurrentSlide}
+          currentSlide={currentSlide}
+        />
+      ))}
     </div>
   );
 };

@@ -10,8 +10,8 @@ export default function QueThumbnail({
 }: {
   que: DirectSubmission | AuctionSubmission;
 }) {
-  const { contract } = useContract(que?.assetContract);
-  const { data: contractMetadata } = useMetadata(contract);
+  const { contract } = useContract(que?.assetContractAddress);
+  const { data: contractMetadata }: any = useMetadata(contract);
   const { data: nft }: any = useNFT(contract, que?.tokenId);
 
   return (

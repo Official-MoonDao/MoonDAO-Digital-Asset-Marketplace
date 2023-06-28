@@ -1,4 +1,4 @@
-# MoonDAO Digital Asset Marketplace 🌕🌕
+# MoonDAO Digital Asset Marketplace - WebApp 🌕🌕
 
 [![](/public/Original_Black.png)](https://moondao-marketplace-test.netlify.app/)
 

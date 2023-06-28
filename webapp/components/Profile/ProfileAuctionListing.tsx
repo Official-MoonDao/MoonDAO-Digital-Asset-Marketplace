@@ -1,4 +1,10 @@
-import { ThirdwebNftMedia, useAddress, useContract, useNFT } from "@thirdweb-dev/react";
+import {
+  MediaRenderer,
+  ThirdwebNftMedia,
+  useAddress,
+  useContract,
+  useNFT,
+} from "@thirdweb-dev/react";
 import Link from "next/link";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../const/config";
 import Skeleton from "../Layout/Skeleton";
@@ -10,35 +16,38 @@ import CancelListing from "./CancelListing";
 
 interface ProfileAuctionListingProps {
   listing: AuctionListing;
+  walletAddress: string;
 }
 
-export default function ProfileAuctionListing({ listing }: ProfileAuctionListingProps) {
-  const address = useAddress();
+export default function ProfileAuctionListing({
+  listing,
+  walletAddress,
+}: ProfileAuctionListingProps) {
   const buyOut = listing?.buyoutBidAmount;
   const minBid = listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
   const [winningBid, setWinningBid] = useState<number>(0);
 
-  const { contract: nftContract } = useContract(listing.assetContract);
-  const { data: nft }: any = useNFT(nftContract, listing.tokenId);
-
-  const { contract: marketplace } = useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
+  const { contract: marketplace } = useContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
 
   const claimable = useClaimableAuction(winningBid, +buyOut, end);
 
   useEffect(() => {
     if (marketplace) {
-      marketplace
-        .call("getWinningBid", [+listing.auctionId])
+      marketplace.englishAuctions
+        .getWinningBid(listing.auctionId)
         .then((bid: any) => {
-          setWinningBid(bid[2].toString() / MOONEY_DECIMALS);
+          setWinningBid(bid.amount / MOONEY_DECIMALS);
         })
         .catch((e: any) => console.log(e));
     }
-  }, [marketplace]);
+  }, [marketplace, listing]);
 
-  if (listing.status === "3" || listing.status === "2") return <></>;
+  if (listing.status === 3 || listing.status === 2) return <></>;
   return (
     <article className="relative flex flex-col justify-center my-2 hover:scale-[1.03] transition-all duration-150">
       <div
@@ -57,13 +66,13 @@ export default function ProfileAuctionListing({ listing }: ProfileAuctionListing
       </div>
       {/*Image with Link*/}
       <div>
-        {nft ? (
+        {listing.asset ? (
           <Link
-            href={`/collection/${listing.assetContract}/${listing.tokenId}`}
+            href={`/collection/${listing.assetContractAddress}/${listing.tokenId}`}
           >
-            <ThirdwebNftMedia
+            <MediaRenderer
               className="rounded-xl object-cover"
-              metadata={nft?.metadata}
+              src={listing.asset.image}
             />
           </Link>
         ) : (
@@ -74,7 +83,7 @@ export default function ProfileAuctionListing({ listing }: ProfileAuctionListing
       <div className="w-[300px] rounded-b-xl -mt-2 py-2 px-3 flex flex-col gap-3 bg-gradient-to-br from-moon-secondary via-indigo-900 to-moon-secondary">
         {/*Title*/}
         <h4 className="font-GoodTimes tracking-wider text-lg">
-          {nft?.metadata?.name}
+          {listing.asset.name}
         </h4>
         {/*Price*/}
         <div>
@@ -102,13 +111,31 @@ export default function ProfileAuctionListing({ listing }: ProfileAuctionListing
         {/* Auctions that have ended and have a payout */}
         {claimable && (
           <>
-            {address && address === listing.seller && <ClaimAuctionPayout claimable={claimable} auctionId={+listing.auctionId} />}
+            {walletAddress && walletAddress === listing.creatorAddress && (
+              <ClaimAuctionPayout
+                claimable={claimable}
+                auctionId={+listing.auctionId}
+              />
+            )}
 
             <p className="w-full text-center text-[75%]">{`(Payout: ${winningBid} MOONEY)`}</p>
           </>
         )}
         {/* Expired Auctions /w No bids */}
-        {address && address === listing.seller && +end * 1000 < Date.now() && !claimable && <CancelListing type="auction" listingId={+listing.auctionId} />}
+        {walletAddress &&
+        walletAddress === listing.creatorAddress &&
+        +end * 1000 < Date.now() &&
+        !claimable ? (
+          <CancelListing
+            type="auction"
+            listingId={+listing.auctionId}
+            expired
+          />
+        ) : (
+          winningBid <= 0 && (
+            <CancelListing type="auction" listingId={+listing.auctionId} />
+          )
+        )}
       </div>
     </article>
   );

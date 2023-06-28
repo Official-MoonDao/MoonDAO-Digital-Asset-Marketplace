@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Web3Button,
   useAddress,
+  useChain,
   useNetwork,
   useSigner,
 } from "@thirdweb-dev/react";
-import { FEE_DISTRIBUTOR_ADDRESS } from "../../../const/config";
 import FEE_DISTRIBUTOR_ABI from "../../../const/abis/FeeDistributor.json";
 import { Contract, ethers } from "ethers";
 import Image from "next/image";
@@ -14,23 +14,17 @@ import moment from "moment";
 
 export function ClaimFeeRewards() {
   const signer = useSigner();
-  const [{ data: network }] = useNetwork();
+  const chain = useChain();
   const address = useAddress();
   const [feeRewards, setFeeRewards] = useState<string>("0");
 
   const validChain = useMemo(() => {
-    return (
-      network?.chain?.name?.toLowerCase() === process.env.NEXT_PUBLIC_NETWORK
-    );
-  }, [network]);
+    return chain?.name?.toLowerCase() === process.env.NEXT_PUBLIC_NETWORK;
+  }, [chain]);
 
   const FeeDistributor = useMemo(() => {
-    return new Contract(
-      FEE_DISTRIBUTOR_ADDRESS,
-      FEE_DISTRIBUTOR_ABI as any,
-      signer
-    );
-  }, [signer, network]);
+    return new Contract("", FEE_DISTRIBUTOR_ABI as any, signer);
+  }, [signer, chain]);
 
   const nextRevenueDistributionDate = useMemo(() => {
     let nearestWednesday = moment()
@@ -90,7 +84,7 @@ export function ClaimFeeRewards() {
         <p>MOONEY</p>
       </div>
       <Web3Button
-        contractAddress={FEE_DISTRIBUTOR_ADDRESS}
+        contractAddress={""}
         contractAbi={FEE_DISTRIBUTOR_ABI as any}
         action={async () => await claimRewardsForSigner()}
         isDisabled={feeRewards === "0"}

@@ -1,13 +1,14 @@
 import {
   MarketplaceV3,
   ThirdwebSDK,
-  getAllDetectedFeatureNames,
+  getAllDetectedExtensionNames,
 } from "@thirdweb-dev/sdk";
 import { AuctionListing, DirectListing } from "../marketplace-utils";
 import { useEffect, useState } from "react";
 import { useNetworkMismatch, useSigner } from "@thirdweb-dev/react";
 import { NETWORK } from "../../../const/config";
 import { useListingsByWallet } from "./useListingsByWallet";
+import { profile } from "console";
 
 //Get all NFTs from collections accepted by the marketplace by wallet
 export function useUserAssets(
@@ -26,25 +27,25 @@ export function useUserAssets(
 
   useEffect(() => {
     if (marketplace && signer && profileListings && profileAuctions) {
+      if (!profileListings[0] && !profileAuctions[0]) return;
       marketplace.roles.get("asset").then(async (res: any) => {
-        setAssets([]);
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
           const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
           const contract: any = await sdk.getContract(collection);
-          const extensions = getAllDetectedFeatureNames(contract.abi);
+          const extensions = getAllDetectedExtensionNames(contract.abi);
           let ownedAssets: any;
           if (extensions[0] === "ERC1155") {
             ownedAssets = await contract.erc1155.getOwned(signer.address);
             //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
-
             ownedAssets = await ownedAssets.map((asset: any) => {
               const ownedQuantity = asset.quantityOwned;
 
               //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
+
               const listedQuantity = profileListings?.reduce(
                 (arr: number, listing: any) =>
-                  listing.assetContract.toLowerCase() ===
+                  listing.assetContractAddress.toLowerCase() ===
                     collection.toLowerCase() &&
                   listing.tokenId === asset.metadata.id
                     ? arr + Number(listing?.quantity)
@@ -54,25 +55,27 @@ export function useUserAssets(
 
               return {
                 ...asset,
-                collection,
                 quantityOwned: ownedQuantity - listedQuantity,
               };
             });
           } else {
             ownedAssets = await contract.erc721.getOwned(signer.address);
-            ownedAssets = ownedAssets.filter(
-              (asset: any) =>
-                !profileListings?.find(
-                  (listing: any) =>
-                    listing.assetContract === collection &&
-                    listing.tokenId === asset.metadata.id
-                ) &&
-                !profileAuctions?.find(
-                  (auction: any) =>
-                    auction.assetContract === collection &&
-                    auction.tokenId === asset.metadata.id
-                )
-            );
+
+            ownedAssets = ownedAssets
+              .filter(
+                (asset: any) =>
+                  !profileListings?.find(
+                    (listing: any) =>
+                      listing.assetContractAddress === collection &&
+                      listing.tokenId === asset.metadata.id
+                  ) &&
+                  !profileAuctions?.find(
+                    (auction: any) =>
+                      auction.assetContractAddress === collection &&
+                      auction.tokenId === asset.metadata.id
+                  )
+              )
+              .map((asset: any) => ({ ...asset, quantityOwned: "1" }));
           }
 
           const collectionName = await contract.call("name");

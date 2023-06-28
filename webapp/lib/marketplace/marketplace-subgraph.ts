@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { cacheExchange, createClient, fetchExchange } from "urql";
 import { AuctionListing, DirectListing } from "./marketplace-utils";
+import { SUBGRAPH_URL } from "../../const/config";
 
 ///INIT GRAPH CLIENT//////////////////////////////////
 ///////////////////////////////////////////////////////
-const SUBGRAPH_URL =
-  "https://api.studio.thegraph.com/query/38443/moondao-marketplace-test/v0.0.3";
 
 const graphClient: any = createClient({
   url: SUBGRAPH_URL,
@@ -75,7 +74,7 @@ export async function queryTrending(
 
   allListings.forEach((listing: any) => {
     const trendingCountKey: string =
-      listing.assetContract.toLowerCase() + "/" + listing.tokenId;
+      listing.assetContractAddress.toLowerCase() + "/" + listing.tokenId;
     if (!trendingListings[trendingCountKey]) {
       trendingListings[trendingCountKey] = {
         ...listing,
@@ -117,8 +116,8 @@ export function useFilter(
       ? filteredAssets?.filter(
           (l: DirectListing | AuctionListing) =>
             l &&
-            !uniqueCollectionAddresses.includes(l.assetContract) &&
-            uniqueCollectionAddresses.push(l.assetContract)
+            !uniqueCollectionAddresses.includes(l.assetContractAddress) &&
+            uniqueCollectionAddresses.push(l.assetContractAddress)
         )
       : [];
   }, [filteredAssets]);
@@ -129,8 +128,8 @@ export function useFilter(
       ? filteredAssets?.filter(
           (l: DirectListing | AuctionListing) =>
             l &&
-            !uniqueAssets.includes(l.assetContract + l.tokenId) &&
-            uniqueAssets.push(l.assetContract + l.tokenId)
+            !uniqueAssets.includes(l.assetContractAddress + l.tokenId) &&
+            uniqueAssets.push(l.assetContractAddress + l.tokenId)
         )
       : [];
   }, [filteredAssets]);

@@ -25,10 +25,10 @@ export default function BuyOrBid({
   const [bidValue, setBidValue] = useState<number>(0);
 
   const isOwner = useMemo(() => {
-    if (walletAddress && currListing?.listing?.seller)
+    if (walletAddress && currListing?.listing?.creatorAddress)
       return (
         walletAddress?.toLowerCase() ===
-        currListing?.listing?.seller.toLowerCase()
+        currListing?.listing?.creatorAddress.toLowerCase()
       );
   }, [walletAddress, currListing]);
 
@@ -96,7 +96,7 @@ export default function BuyOrBid({
 
   return (
     <>
-      {currListing && !currListing.listing?.seller ? (
+      {currListing && !currListing.listing?.creatorAddress ? (
         <Skeleton width="100%" height="164" />
       ) : (
         <>

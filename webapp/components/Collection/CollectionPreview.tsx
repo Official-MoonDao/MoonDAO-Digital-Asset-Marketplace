@@ -13,9 +13,9 @@ export default function CollectionPreview({
   validAuctions,
 }: any) {
   const { contract: collectionContract } = useContract(
-    collection.assetContract
+    collection.assetContractAddress
   );
-  const { data: metadata } = useMetadata(collectionContract);
+  const { data: metadata }: any = useMetadata(collectionContract);
 
   const { floorPrice } = useCollectionStats(
     validListings,
@@ -29,7 +29,7 @@ export default function CollectionPreview({
     <article className="relative flex flex-col group items-center hover:scale-[1.035] group transition-all duration-150">
       <Link
         className="flex flex-col group items-center"
-        href={`/collection/${collection.assetContract}`}
+        href={`/collection/${collection.assetContractAddress}`}
       >
         {metadata?.image ? (
           <MediaRenderer

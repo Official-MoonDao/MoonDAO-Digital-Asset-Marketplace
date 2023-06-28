@@ -14,7 +14,7 @@ import Link from "next/link";
 //TODO for the slide selector: Transition between images, automatic change of images after interval.
 //TODO adjust blur so it doesnt overlay on top of hero image
 
-export default function Hero({ top4 }: any) {
+export default function Hero({ topAssets }: any) {
   // State for the hero, contains link of the collection when clicked and image
   const [currentSlide, setCurrentSlide] = useState<number>(0);
   const [heroImageArray, setHeroImageArray] = useState<
@@ -22,10 +22,10 @@ export default function Hero({ top4 }: any) {
   >([]);
 
   useEffect(() => {
-    if (top4[0]) {
-      setHeroImageArray(top4);
+    if (topAssets[0]) {
+      setHeroImageArray(topAssets);
     }
-  }, [top4]);
+  }, [topAssets]);
 
   useEffect(() => {
     if (heroImageArray.length > 0) {
@@ -46,7 +46,7 @@ export default function Hero({ top4 }: any) {
       <div className="flex flex-col items-center relative">
         {/*Here goes the link to the collection and the image*/}
         <Link
-          href={`/collection/${heroImageArray[currentSlide]?.assetContract}/${heroImageArray[currentSlide]?.tokenId}`}
+          href={`/collection/${heroImageArray[currentSlide]?.assetContractAddress}/${heroImageArray[currentSlide]?.tokenId}`}
         >
           <HeroImage asset={heroImageArray[currentSlide]} />
         </Link>
@@ -54,6 +54,7 @@ export default function Hero({ top4 }: any) {
         <HeroImageSelector
           currentSlide={currentSlide}
           setCurrentSlide={setCurrentSlide}
+          topAssetsLength={topAssets.length}
         />
 
         {/*Stars and frame detail*/}

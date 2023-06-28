@@ -1,9 +1,8 @@
-import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
+import { MediaRenderer } from "@thirdweb-dev/react";
 import LogoSmall from "../../../assets/LogoSmall";
 import Skeleton from "../../Layout/Skeleton";
 import { useAssetStats } from "../../../lib/marketplace/hooks";
 import Link from "next/link";
-import Image from "next/image";
 export default function TrendingThumbnail({
   asset,
   validListings,
@@ -11,31 +10,27 @@ export default function TrendingThumbnail({
   last = false,
   first = false,
 }: any) {
-  const { contract } = useContract(asset.assetContract);
-  const { data: nft }: any = useNFT(contract, asset.tokenId);
-
-  const { floorPrice, listed, supply } = useAssetStats(
+  const { floorPrice, listed } = useAssetStats(
     validListings,
     validAuctions,
-    asset?.assetContract,
+    asset?.assetContractAddress,
     asset?.tokenId
   );
-
-  if (!nft) return <Skeleton width="335px" height="162px" />;
+  if (!asset?.asset) return <Skeleton width="335px" height="162px" />;
 
   return (
-    <Link href={`/collection/${asset.assetContract}/${asset.tokenId}`}>
+    <Link href={`/collection/${asset?.assetContractAddress}/${asset?.tokenId}`}>
       <article className="relative group overflow-hidden">
         {/*Stamps to cut corners*/}
         {/* <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -left-8 -top-3"></div>
         <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div> */}
         {/*Image container to create zoom effect*/}
         <div className={"w-full h-[275px] overflow-hidden"}>
-          <ThirdwebNftMedia
+          <MediaRenderer
             className={`object-cover object-center group-hover:scale-110 transition-all duration-200  ${
               first && "rounded-tl-[60px]"
             }`}
-            metadata={nft.metadata}
+            src={asset.asset.image}
           />
         </div>
         {/*Card with Asset data*/}
@@ -45,7 +40,7 @@ export default function TrendingThumbnail({
           }`}
         >
           <div className="pl-6 mt-5 flex flex-col items-start">
-            <h6 className="text-lg font-bold">{nft.metadata.name}</h6>
+            <h6 className="text-lg font-bold">{asset.asset.name}</h6>
             <p className="mt-1 text-sm opacity-60 blend">{listed} listed</p>
             <p className="text-sm mt-5 opacity-70">Floor Price</p>
             <span className="flex items-center gap-2">
@@ -56,7 +51,7 @@ export default function TrendingThumbnail({
             </span>
           </div>
           <div className="mt-5  pr-6 flex flex-col items-end">
-            <p className="font-bold text-lg">#{nft.metadata.id}</p>
+            <p className="font-bold text-lg">#{asset.tokenId}</p>
             <button className="mt-[50px] text-xs border-[0.5px] px-[10px] py-[6px] rounded-tl-[10px] rounded-br-[10px] hover:bg-slate-900">
               Details
             </button>

@@ -5,7 +5,7 @@ import { AuctionListing, DirectListing } from "../marketplace-utils";
 export function useAssets(
   listings: DirectListing[],
   auctions: AuctionListing[],
-  assetContract: string
+  assetContractAddress: string
 ) {
   const [assets, setAssets] = useState([]);
   useEffect(() => {
@@ -17,7 +17,7 @@ export function useAssets(
       for (let i = 0; i < length; i++) {
         if (
           listings[i] &&
-          listings[i].assetContract === assetContract &&
+          listings[i].assetContractAddress === assetContractAddress &&
           !uniqueAssets.includes(listings[i].tokenId)
         ) {
           const tokenId: any = listings[i].tokenId;
@@ -26,7 +26,7 @@ export function useAssets(
         }
         if (
           auctions[i] &&
-          auctions[i].assetContract === assetContract &&
+          auctions[i].assetContractAddress === assetContractAddress &&
           !uniqueAssets.includes(auctions[i].tokenId)
         ) {
           const tokenId: any = auctions[i].tokenId;

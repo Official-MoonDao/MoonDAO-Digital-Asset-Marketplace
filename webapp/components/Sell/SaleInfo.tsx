@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useContract, Web3Button } from "@thirdweb-dev/react";
+import { MarketplaceV3, useContract, Web3Button } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../lib/utils/toastConfig";
 import {
   MARKETPLACE_ADDRESS,
-  MOONEY_ADDRESS,
+  L2_MOONEY_ADDRESS,
   MOONEY_DECIMALS,
 } from "../../const/config";
+import {
+  AuctionSubmission,
+  DirectSubmission,
+} from "../../lib/marketplace/marketplace-utils";
 
 type Props = {
   nft: any;
@@ -63,17 +67,16 @@ export default function SaleInfo({
     try {
       const hasApproval = await nftCollection?.call(
         "isApprovedForAll",
-        walletAddress || nft.owner,
-        MARKETPLACE_ADDRESS
+
+        [walletAddress || nft.owner, MARKETPLACE_ADDRESS]
       );
 
       // If it is, provide approval
       if (!hasApproval) {
-        const txResult = await nftCollection?.call(
-          "setApprovalForAll",
+        const txResult = await nftCollection?.call("setApprovalForAll", [
           MARKETPLACE_ADDRESS,
-          true
-        );
+          true,
+        ]);
 
         if (txResult) {
           toast.success("Marketplace approval granted", {
@@ -125,19 +128,19 @@ export default function SaleInfo({
     const startDate: any = new Date(data.startDate).valueOf() / 1000;
     const endDate: any = new Date(data.endDate).valueOf() / 1000;
 
-    const auction = {
-      assetContract: data.nftContractAddress,
+    const auction: AuctionSubmission = {
+      assetContractAddress: data.nftContractAddress,
       tokenId: data.tokenId,
-      currency: MOONEY_ADDRESS,
       quantity: nft.type === "ERC1155" ? data.quantity : "1",
-      minimumBidAmount: String(+data.floorPrice * MOONEY_DECIMALS),
-      buyoutBidAmount: String(+data.buyoutPrice * MOONEY_DECIMALS),
+      currencyContractAddress: L2_MOONEY_ADDRESS,
+      minimumBidAmount: String(+data.floorPrice),
+      buyoutBidAmount: String(+data.buyoutPrice),
       timeBufferInSeconds: "900", //15 minutes
       bidBufferBps: "500",
       startTimestamp: startDate,
       endTimestamp: endDate,
     };
-    const txResult = await marketplace.call("createAuction", auction);
+    const txResult = await marketplace.englishAuctions.createAuction(auction);
     await router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
@@ -149,22 +152,21 @@ export default function SaleInfo({
 
   //handle auction listing
   async function handleSubmissionDirect(data: DirectFormData) {
-    console.log(data.quantity);
     if (!checkBalance(data.quantity)) return;
     await checkAndProvideApproval();
     const startDate: any = new Date(data.startDate).valueOf() / 1000;
     const endDate: any = new Date(data.endDate).valueOf() / 1000;
-    const listing = {
-      assetContract: contractAddress,
+    const listing: DirectSubmission = {
+      assetContractAddress: contractAddress,
       tokenId: data.tokenId,
-      currency: MOONEY_ADDRESS,
       quantity: nft.type === "ERC1155" ? data.quantity : "1",
-      pricePerToken: String(+data.price * MOONEY_DECIMALS),
+      currencyContractAddress: L2_MOONEY_ADDRESS,
+      pricePerToken: String(+data.price),
       startTimestamp: startDate,
       endTimestamp: endDate,
-      reserved: false,
+      isReservedListing: false,
     };
-    const txResult = await marketplace.call("createListing", listing);
+    const txResult = await marketplace.directListings.createListing(listing);
     await router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
     toast("Listed Successfully!", {
       icon: "🥳",
