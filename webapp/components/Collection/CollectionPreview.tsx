@@ -1,4 +1,4 @@
-import { useContract, useMetadata } from "@thirdweb-dev/react";
+import { MediaRenderer, useContract, useMetadata } from "@thirdweb-dev/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -32,11 +32,11 @@ export default function CollectionPreview({
         href={`/collection/${collection.assetContract}`}
       >
         {metadata?.image ? (
-          <Image
+          <MediaRenderer
             className="z-10 w-[300px] h-[235px] object-cover rounded-t-[6px] rounded-b-[15px] group-hover:ring ring-indigo-200"
             src={metadata.image}
-            width={300}
-            height={235}
+            width={"275px"}
+            height={"275px"}
             alt={`${metadata.name} collection thumbnail`}
           />
         ) : (

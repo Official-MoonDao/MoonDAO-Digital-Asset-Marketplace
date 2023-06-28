@@ -102,7 +102,9 @@ export default function BuyOrBid({
         <>
           {/*Web3 connect button and template in case of listed by user address*/}
           {isOwner ? (
-            <div className="ml-3 italic pt-1 opacity-80">This listing was created by you.</div>
+            <div className="ml-3 italic pt-1 opacity-80">
+              This listing was created by you.
+            </div>
           ) : (
             <>
               <Web3Button
@@ -110,7 +112,10 @@ export default function BuyOrBid({
                 action={async () => await buyListing()}
                 className={`connect-button`}
               >
-                Buy at asking price
+                {`Buy for ${
+                  currListing?.listing.pricePerToken / MOONEY_DECIMALS ||
+                  currListing?.listing.buyoutBidAmount / MOONEY_DECIMALS
+                } (MOONEY)`}
               </Web3Button>
 
               {currListing &&
@@ -128,7 +133,7 @@ export default function BuyOrBid({
                         currListing.type === "auction" &&
                         winningBid &&
                         +winningBid > 0
-                          ? winningBid
+                          ? String(+winningBid / MOONEY_DECIMALS)
                           : currListing.listing
                           ? String(
                               +currListing.listing.minimumBidAmount /

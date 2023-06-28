@@ -13,7 +13,7 @@ export default function CancelListing({
   return (
     <div>
       <Web3Button
-      className="connect-button"
+        className="web3-button web3-button-secondary"
         contractAddress={MARKETPLACE_ADDRESS}
         action={(contract: any) =>
           type === "auction"

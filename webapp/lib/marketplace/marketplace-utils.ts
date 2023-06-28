@@ -1,4 +1,5 @@
 import { BigNumber } from "ethers";
+import { MOONEY_ADDRESS } from "../../const/config";
 
 export type DirectListing = {
   listingId: string | number;
@@ -92,6 +93,7 @@ export function serializable(data: any) {
   if (data[0]["auctionId"]) {
     formatted = data.map(
       (listing: any) =>
+        isMOONEY(listing[5]) &&
         ({
           auctionId: BigConvert(listing[0]),
           seller: listing[1],
@@ -128,7 +130,17 @@ export function serializable(data: any) {
         } as DirectListing)
     );
   }
-  return JSON.parse(JSON.stringify(formatted));
+
+  //Filter out any listings or auctions that are not in MOONEY
+  const MOONEYListings = formatted.filter((listing: any) =>
+    isMOONEY(listing.currency)
+  );
+
+  return JSON.parse(JSON.stringify(MOONEYListings));
+}
+
+function isMOONEY(currencyAddress: string) {
+  return currencyAddress.toLowerCase() === MOONEY_ADDRESS.toLowerCase();
 }
 
 //////HOOKS////////////////////////////////////////////

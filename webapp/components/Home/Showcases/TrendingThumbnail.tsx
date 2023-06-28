@@ -1,4 +1,4 @@
-import { useContract, useNFT } from "@thirdweb-dev/react";
+import { ThirdwebNftMedia, useContract, useNFT } from "@thirdweb-dev/react";
 import LogoSmall from "../../../assets/LogoSmall";
 import Skeleton from "../../Layout/Skeleton";
 import { useAssetStats } from "../../../lib/marketplace/hooks";
@@ -30,15 +30,12 @@ export default function TrendingThumbnail({
         {/* <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -left-8 -top-3"></div>
         <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div> */}
         {/*Image container to create zoom effect*/}
-        <div className={"w-[335px] h-[275px] overflow-hidden"}>
-          <Image
+        <div className={"w-full h-[275px] overflow-hidden"}>
+          <ThirdwebNftMedia
             className={`object-cover object-center group-hover:scale-110 transition-all duration-200  ${
               first && "rounded-tl-[60px]"
             }`}
-            src={nft.metadata.image}
-            alt={`${nft.metadata.name} image.`}
-            width={335}
-            height={275}
+            metadata={nft.metadata}
           />
         </div>
         {/*Card with Asset data*/}
@@ -53,7 +50,9 @@ export default function TrendingThumbnail({
             <p className="text-sm mt-5 opacity-70">Floor Price</p>
             <span className="flex items-center gap-2">
               <LogoSmall size={{ width: 10.54, height: 11.07 }} />
-              {floorPrice}
+              {floorPrice && floorPrice.toString().length < 12
+              ? floorPrice
+              : floorPrice?.toString().slice(0, 10) + "..."}
             </span>
           </div>
           <div className="mt-5  pr-6 flex flex-col items-end">

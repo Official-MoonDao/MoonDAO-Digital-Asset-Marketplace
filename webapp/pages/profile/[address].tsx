@@ -14,6 +14,9 @@ import {
   AuctionListing,
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
+import { Canvas } from "@react-three/fiber";
+import ThreeText from "../../components/r3f/ThreeText";
+import BannerScene from "../../components/r3f/Profile/BannerScene";
 
 type ProfilePageProps = {
   walletAddress: string;
@@ -50,30 +53,11 @@ export default function ProfilePage({ walletAddress }: ProfilePageProps) {
   return (
     <main className="w-full ml-auto mr-auto px-4 mt-24 max-w-[1200px]">
       <div>
-        <div
-          className="w-full bg-[#272a2d] h-[300px] rounded-tl-[30px] rounded-br-[30px]"
-          style={{
-            background: `linear-gradient(-45deg, #${walletAddress?.slice(-12, -6)}, #${walletAddress?.slice(6, 12)})`,
-          }}
-        ></div>
-        <div
-          className="w-[132px] h-[132px] rounded-[132px] -mt-[72px] ml-[5%]"
-          style={{
-            background: `linear-gradient(180deg, #${walletAddress?.slice(
-              6,
-              12
-            )}, #${walletAddress?.slice(-6)})`,
-            outline: "3px solid rgba(255, 255, 255, 0.1)",
-            zIndex: 10,
-          }}
-        />
-        <h1 className="ml-[2.5%] mt-1">
-          {router.query.address ? (
-            walletAddress?.slice(0, 4) + "..." + walletAddress.slice(-4)
-          ) : (
-            <Skeleton width="320" />
-          )}
-        </h1>
+        <div className="flex justify-center items-center w-full bg-[#272a2d] h-[300px] rounded-tl-[30px] rounded-br-[30px] bg-gradient-to-br from-moon-secondary via-indigo-900 to-moon-secondary">
+          <Canvas flat className="w-full">
+            <BannerScene walletAddress={walletAddress} />
+          </Canvas>
+        </div>
       </div>
 
       <div className="w-full flex justify-start border-b-[1px] border-white border-opacity-60 my-4">

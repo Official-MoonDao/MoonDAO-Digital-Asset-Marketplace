@@ -81,9 +81,7 @@ export function Navbar() {
               ref={mobileMenuRef}
               className={`${
                 mobileMenu ? "block" : "hidden"
-              } text-gray-200 transition-all flex border border-indigo-300 shadow shadow-indigo-700 flex-col items-start px-6 gap-12 py-5 duration-150 top-2 right-2 z-10 ${
-                address ? "h-[500px]" : "h-[250px]"
-              } w-[250px] bg-gradient-to-br from-slate-900 via-main-background to-indigo-900 rounded-xl absolute`}
+              } text-gray-200 transition-all flex border border-indigo-300 shadow shadow-indigo-700 flex-col items-start px-6 gap-12 py-5 duration-150 top-2 right-2 z-10 h-[250px] w-[250px] bg-gradient-to-br from-slate-900 via-main-background to-indigo-900 rounded-xl absolute`}
             >
               <button
                 className="absolute right-4"
@@ -106,13 +104,13 @@ export function Navbar() {
           <div className="flex gap-7 lg:gap-9 xl:gap-14 2xl:gap-16">
             <Link
               href="/buy"
-              className="hover:scale-105 hover:text-indigo-200 inline-block text-lg lg:text-xl transition-all duration-150"
+              className="hover:scale-105 hover:text-orange-500 inline-block text-lg lg:text-xl transition-all duration-150"
             >
               Buy
             </Link>
             <Link
               href="/sell"
-              className="hover:scale-105 hover:text-indigo-200 inline-block text-lg lg:text-xl transition-all duration-150"
+              className="hover:scale-105 hover:text-orange-500 inline-block text-lg lg:text-xl transition-all duration-150"
             >
               Sell
             </Link>
