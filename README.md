@@ -28,7 +28,7 @@ The MoonDAO Digital Asset Marketplace is where people can buy or list digital as
 4. Auction Listings
    1. Fill in the input fields (quantity, start-time, end-time, buyout-price, minimum-bid)
    2. Buyout Payout: If an auction is bought out, it is closed, the seller receives the digital asset and the seller can claim the payout. In order to claim the payout for an auction the seller must navigate to their profile page and click "claim payout" on the auction.
-   3. Bid Payout: If an auction receives bids within the set time range, once it expires it will send the digital asset to the address with the winning bid.  The seller can then claim the payout on their profile page.
+   3. Bid Payout: Once an auction expires the winning bidder will be assign the asset. The seller or bidder will have to then close the auction by going to their profile page and claiming the payout or asset.
    4. Cancel:  Once a auction has started and has received a bid it CANNOT be canceld. If an auction expires before it is bought out or receives any bids the seller will need to cancel it to re-claim their digital asset.
 
 ### Profile
