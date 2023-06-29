@@ -68,7 +68,6 @@ footer {
 .connect-button:hover {
   border-top-left-radius: 22px !important;
   border-bottom-right-radius: 22px !important;
-
   transition: 0.5s !important;
 }
 

@@ -22,9 +22,6 @@ import {
   CurrListing,
 } from "../../../lib/marketplace/marketplace-utils";
 import { useRouter } from "next/router";
-
-import styles from "../../../styles/Token.module.css";
-
 import { initSDK } from "../../../lib/thirdweb";
 import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
 import Metadata from "../../../components/Layout/Metadata";
@@ -204,7 +201,7 @@ export default function TokenPage({
             {currListing?.listing && nft.type === "ERC721" && (
               <Link
                 href={`/profile/${currListing?.listing.creatorAddress}`}
-                className={styles.nftOwnerContainer}
+                className="flex items-center mb-2 mt-6 gap-2 transition-opacity duration-200 ease-in-out mx-4"
               >
                 {/* Random linear gradient circle shape */}
                 <div

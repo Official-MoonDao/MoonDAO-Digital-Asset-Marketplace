@@ -1,10 +1,10 @@
 import { SkyboxGenerator } from "../components/r3f/Blockade/SkyboxGenerator";
-import Container from "../components/Layout/Container";
 
 export default function Exclusive() {
+  //lg
   return (
-    <Container maxWidth="lg" className="h-[70vh]">
+    <section className="w-full mx-auto px-4 mt-24 max-w-[1200px] h-[70vh]">
       <SkyboxGenerator />
-    </Container>
+    </section>
   );
 }

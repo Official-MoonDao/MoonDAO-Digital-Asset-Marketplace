@@ -45,7 +45,9 @@ export default function TrendingThumbnail({
             <p className="text-sm mt-5 opacity-70">Floor Price</p>
             <span className="flex items-center gap-2">
               <LogoSmall size={{ width: 10.54, height: 11.07 }} />
-              {floorPrice}
+              {floorPrice && floorPrice.toString().length < 12
+              ? floorPrice
+              : floorPrice?.toString().slice(0, 10) + "..."}
             </span>
           </div>
           <div className="mt-5  pr-6 flex flex-col items-end">

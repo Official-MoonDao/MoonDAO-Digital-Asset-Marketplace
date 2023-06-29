@@ -3,7 +3,6 @@ import {
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
 import Listing from "./Listing";
-import styles2 from "../../styles/Profile.module.css";
 type AssetListingsProps = {
   tab: string;
   setTab: Function;
@@ -29,15 +28,15 @@ export default function AssetListings({
     >
       <div className={"w-full flex justify-evenly p-2"}>
         <h3
-          className={`${styles2.tab} 
-        ${tab === "listings" ? styles2.activeTab : ""}`}
+          className={`p-4 text-base font-semibold cursor-pointer transition-colors duration-100 ease-in-out hover:text-[#e9e9f9]
+        ${tab === "listings" ? "border-b-2 border-moon-gold text-moon-gold" : "text-white text-opacity-60"}`}
           onClick={() => setTab("listings")}
         >
           Listings
         </h3>
         <h3
-          className={`${styles2.tab}
-        ${tab === "auctions" ? styles2.activeTab : ""}`}
+          className={`p-4 text-base font-semibold text-white text-opacity-60 cursor-pointer transition-colors duration-100 ease-in-out hover:text-[#e9e9f9]
+        ${tab === "auctions" ? "border-b-2 border-moon-gold text-moon-gold" : "text-white text-opacity-60"}`}
           onClick={() => setTab("auctions")}
         >
           Auctions

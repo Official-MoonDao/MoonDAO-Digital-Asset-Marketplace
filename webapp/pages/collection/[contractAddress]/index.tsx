@@ -1,7 +1,5 @@
 import { MARKETPLACE_ADDRESS } from "../../../const/config";
-import Image from "next/image";
 import LogoSmall from "../../../assets/LogoSmall";
-
 import { useCollectionStats } from "../../../lib/marketplace/hooks/useStats";
 import { useAssets } from "../../../lib/marketplace/hooks";
 import {
