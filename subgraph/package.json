@@ -1,6 +1,6 @@
 {
   "name": "moondao-marketplace-test",
-  "license": "UNLICENSED",
+  "license": "Apache License Version 2.0",
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",

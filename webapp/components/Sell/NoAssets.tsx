@@ -1,10 +1,13 @@
 import VerticalStar from "../../assets/VerticalStar";
 import Metadata from "../Layout/Metadata";
 import { NETWORK } from "../../const/config";
+import { useNetwork, useNetworkMismatch } from "@thirdweb-dev/react";
 
 const NoAssets = ({ address, userAssets, loading }: any) => {
+  const networkMistmatch = useNetworkMismatch();
+  console.log(networkMistmatch);
   return (
-    <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full md:pl-36 xl:pl-44 2xl:pl-52 pb-60 xl:pb-72 2xl:pb-96">
+    <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full md:pl-36 xl:pl-44 2xl:pl-52 pb-24 xl:pb-24 2xl:pb-48">
       <Metadata title="Sell" />
       <div className="flex flex-col items-center md:items-start w-full px-5">
         <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">
@@ -13,15 +16,23 @@ const NoAssets = ({ address, userAssets, loading }: any) => {
             <VerticalStar />
           </span>
         </h2>
-        <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400">
-          {!address
-            ? `Please connect your wallet to sell NFTs`
-            : loading
-            ? `...loading`
-            : !loading &&
-              !userAssets[0] &&
-              `The marketplace only supports NFTs on the ${NETWORK?.name} network.`}
-        </p>
+        {!address && (
+          <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400 w-3/4">
+            {!loading ? "Please connect your wallet" : "Loading..."}
+          </p>
+        )}
+        {networkMistmatch && (
+          <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400 w-3/4">
+            {`The marketplace only support NFTs on ${NETWORK.name}`}
+          </p>
+        )}
+        {address && !loading && !networkMistmatch && (
+          <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400 w-3/4">
+            {
+              "You don't have any approved NFTs to sell. Please buy an NFT from the marketplace or submit a collection."
+            }
+          </p>
+        )}
       </div>
     </div>
   );

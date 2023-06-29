@@ -416,6 +416,23 @@ export default function SaleInfo({
               >
                 Create Auction Listing
               </Web3Button>
+              {/* info */}
+              <div className="flex flex-col gap-2 text-[80%] opacity-60 p-2 mt-4 bg-[#1d1d1d] rounded-lg bg-opacity-60">
+                <h1 className="text-[110%]">Auction Info:</h1>
+                <p className="">
+                  *Once a bid is placed, the auction cannot be cancelled.*
+                </p>
+                <p>
+                  *Buyout: If an auction is bought out, the bidder will receive
+                  the asset and the seller will receive the payout
+                  automatically.*
+                </p>
+                <p>
+                  *Bids: If an auction expires with a winning bid, the buyer or
+                  seller will have to close the auction by claiming their asset
+                  or payout.*
+                </p>
+              </div>
             </div>
           </>
         </>

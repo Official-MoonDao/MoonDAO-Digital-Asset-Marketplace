@@ -15,6 +15,7 @@ import {
   DirectListing,
 } from "../lib/marketplace/marketplace-utils";
 import Metadata from "../components/Layout/Metadata";
+import PolygonBridge from "../components/Home/PolygonBridge";
 
 type HomeProps = {
   validListings: DirectListing[];
@@ -40,6 +41,7 @@ export default function Home({ validListings, validAuctions }: HomeProps) {
           trendingAssets.length < 4 ? trendingAssets.length : 4
         )}
       />
+
       <CollectionShowcase
         collections={trendingCollections}
         validListings={validListings}

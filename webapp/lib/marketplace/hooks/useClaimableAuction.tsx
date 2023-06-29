@@ -8,6 +8,7 @@ export function useClaimableAuction(
   endTimestamp: string | number
 ) {
   const claimable = useMemo(() => {
+    console.log(winningBid, buyoutBidAmount, endTimestamp);
     const now = Date.now() / 1000;
     return (
       winningBid >= +buyoutBidAmount / MOONEY_DECIMALS ||

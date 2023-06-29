@@ -28,6 +28,7 @@ export default function ProfileAuctionListing({
   const end = listing.endTimestamp;
 
   const [winningBid, setWinningBid] = useState<number>(0);
+  const [loadingBid, setLoadingBid] = useState<boolean>(true);
 
   const { contract: marketplace } = useContract(
     MARKETPLACE_ADDRESS,
@@ -37,19 +38,24 @@ export default function ProfileAuctionListing({
   const claimable = useClaimableAuction(winningBid, +buyOut, end);
 
   useEffect(() => {
-    if (marketplace) {
+    if (marketplace && listing?.auctionId) {
+      setLoadingBid(true);
       marketplace.englishAuctions
         .getWinningBid(listing.auctionId)
         .then((bid: any) => {
-          setWinningBid(bid.amount / MOONEY_DECIMALS);
+          setWinningBid(bid.bidAmount / MOONEY_DECIMALS);
+          setLoadingBid(false);
         })
-        .catch((e: any) => console.log(e));
+        .catch((e: any) => {
+          setLoadingBid(false);
+          console.log(e);
+        });
     }
   }, [marketplace, listing]);
 
   if (listing.status === 3 || listing.status === 2) return <></>;
   return (
-    <article className="relative flex flex-col justify-center my-2 hover:scale-[1.03] transition-all duration-150">
+    <article className="relative flex flex-col justify-baseline my-2 hover:scale-[1.03] transition-all duration-150">
       <div
         className={`${
           +end * 1000 > Date.now()
@@ -100,6 +106,13 @@ export default function ProfileAuctionListing({
             +minBid / MOONEY_DECIMALS
           } MOONEY`}</p>
         </div>
+        {/*Winning bid*/}
+        <div>
+          <p className="text-sm opacity-80">Winning bid</p>
+          <p className="tracking-wide">{`${
+            winningBid || "No bids yet"
+          } MOONEY`}</p>
+        </div>
         {/*Expiration Date */}
         <div>
           <p className="text-sm opacity-80">Listing Expiration</p>
@@ -109,6 +122,7 @@ export default function ProfileAuctionListing({
         </div>
 
         {/* Auctions that have ended and have a payout */}
+
         {claimable && (
           <>
             {walletAddress && walletAddress === listing.creatorAddress && (
@@ -122,7 +136,8 @@ export default function ProfileAuctionListing({
           </>
         )}
         {/* Expired Auctions /w No bids */}
-        {walletAddress &&
+        {!loadingBid &&
+        walletAddress &&
         walletAddress === listing.creatorAddress &&
         +end * 1000 < Date.now() &&
         !claimable ? (
@@ -131,10 +146,10 @@ export default function ProfileAuctionListing({
             listingId={+listing.auctionId}
             expired
           />
+        ) : !loadingBid && walletAddress && winningBid <= 0 ? (
+          <CancelListing type="auction" listingId={+listing.auctionId} />
         ) : (
-          winningBid <= 0 && (
-            <CancelListing type="auction" listingId={+listing.auctionId} />
-          )
+          ""
         )}
       </div>
     </article>

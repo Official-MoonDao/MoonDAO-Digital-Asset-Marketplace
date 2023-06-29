@@ -22,18 +22,19 @@ async function graphQuery(query: string) {
 ///////////////////////////////////////////////////////
 
 // ListingIds and AuctionIds that are trending (have the most bids/sales)
+// determined by newest 250 bids/sales (increase size as needed up to 1000)
 export async function queryTrending(
   validListings: DirectListing[],
   validAuctions: AuctionListing[]
 ) {
   const query = `
     query {
-        newSales(first: 25, orderBy: blockTimestamp, orderDirection: desc) {
+        newSales(first: 250, orderBy: blockTimestamp, orderDirection: desc) {
             listingId
             assetContract
             tokenId
           }
-          newBids(first: 25, orderBy: blockTimestamp, orderDirection: desc) {
+          newBids(first: 250, orderBy: blockTimestamp, orderDirection: desc) {
             auctionId
             assetContract
             auction_tokenId

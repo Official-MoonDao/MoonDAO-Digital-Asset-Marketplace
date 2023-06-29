@@ -5,31 +5,46 @@ import {
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
 import { useAddress } from "@thirdweb-dev/react";
+import ProfileWinningBid from "./ProfileWinningBid";
 
 export default function ProfileListingGrid({ listings, type = "direct" }: any) {
   const address = useAddress();
+  console.log(type, listings);
   return (
     <div className="flex flex-wrap gap-[1%] w-full">
       {listings && listings[0] ? (
         <>
-          {type === "direct"
-            ? listings.map((l: DirectListing, i: number) => (
-                <ProfileDirectListing
-                  key={`profile-direct-listing-${i}`}
-                  listing={l}
-                  walletAddress={address || ""}
-                />
-              ))
-            : listings.map((a: AuctionListing, i: number) => (
-                <ProfileAuctionListing
-                  key={`profile-auction-listing-${i}`}
-                  listing={a}
-                  walletAddress={address || ""}
-                />
-              ))}
+          {type === "direct" &&
+            listings.map((l: DirectListing, i: number) => (
+              <ProfileDirectListing
+                key={`profile-direct-listing-${i}`}
+                listing={l}
+                walletAddress={address || ""}
+              />
+            ))}{" "}
+          {type === "auction" &&
+            listings.map((a: AuctionListing, i: number) => (
+              <ProfileAuctionListing
+                key={`profile-auction-listing-${i}`}
+                listing={a}
+                walletAddress={address || ""}
+              />
+            ))}
+          {type === "winningBids" &&
+            listings.map((a: AuctionListing, i: number) => (
+              <ProfileWinningBid
+                key={`profile-winning-bid-${i}`}
+                listing={a}
+                walletAddress={address || ""}
+              />
+            ))}
         </>
       ) : (
-        <div>{`No valid ${type} listings`}</div>
+        <div>
+          {type === "direct" || type === "auction"
+            ? `No ${type} listings`
+            : `No assets to claim`}
+        </div>
       )}
     </div>
   );

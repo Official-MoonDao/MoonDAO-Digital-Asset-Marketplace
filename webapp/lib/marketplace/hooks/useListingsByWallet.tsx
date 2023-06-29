@@ -4,20 +4,16 @@ import { AuctionListing, DirectListing } from "../marketplace-utils";
 //Get listings and auctions for a specific wallet
 export function useListingsByWallet(
   validListings: DirectListing[],
-  validAuctions: AuctionListing[],
+  allAuctions: AuctionListing[],
   walletAddress: string
 ) {
   const [listings, setListings] = useState<any>([]);
   const [auctions, setAuctions] = useState<any>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
+  console.log(allAuctions);
   useEffect(() => {
-    if (validListings && validAuctions && walletAddress) {
-      console.log(
-        "listingsByWallet",
-        validListings,
-        validAuctions,
-        walletAddress
-      );
+    if (validListings && allAuctions && walletAddress) {
       const filteredListings =
         validListings[0] &&
         validListings?.filter(
@@ -25,15 +21,16 @@ export function useListingsByWallet(
             l.creatorAddress && l.creatorAddress === walletAddress
         );
       const filteredAuctions =
-        validAuctions[0] &&
-        validAuctions?.filter(
+        allAuctions[0] &&
+        allAuctions?.filter(
           (a: AuctionListing) =>
             a.creatorAddress && a.creatorAddress === walletAddress
         );
       setListings(filteredListings);
       setAuctions(filteredAuctions);
+      setLoading(false);
     }
-  }, [validListings, validAuctions, walletAddress]);
+  }, [validListings, allAuctions, walletAddress]);
 
-  return { listings, auctions };
+  return { listings, auctions, isLoading: loading };
 }
