@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+import { ConnectWallet, MediaRenderer, useAddress } from "@thirdweb-dev/react";
 import LogoSmall from "../../../assets/LogoSmall";
 import Hamburger from "../../../assets/Hamburger";
 import Image from "next/image";
@@ -26,7 +26,10 @@ export function Navbar() {
   function MobileNavButton({ href, label }: any) {
     return (
       <li>
-        <button className="hover:scale-105 hover:text-orange-500 inline-block text-lg" onClick={() => router.push(href).then(() => setMobileMenu(false))}>
+        <button
+          className="hover:scale-105 hover:text-orange-500 inline-block text-lg"
+          onClick={() => router.push(href).then(() => setMobileMenu(false))}
+        >
           {label}
         </button>
       </li>
@@ -43,7 +46,12 @@ export function Navbar() {
             <LogoSmall />
           </Link>
           <Link href="/" className="hidden lg:block">
-            <Image src="/MoonDAOLogo.png" alt="MoonDAO Logo" width={146} height={42} />
+            <MediaRenderer
+              src="/MoonDAOLogo.png"
+              alt="MoonDAO Logo"
+              width={"146px"}
+              height={"42px"}
+            />
           </Link>
           <Search />
         </div>
@@ -54,13 +62,22 @@ export function Navbar() {
           {address && (
             <div className="absolute sm: top-16 right-2">
               <Link className="" href={`/profile/${address}`}>
-                <Image className="hover:scale-105 transition-all duration-150" src="/user-icon.png" width={32} height={32} alt="Profile" />
+                <Image
+                  className="hover:scale-105 transition-all duration-150"
+                  src="/user-icon.png"
+                  width={32}
+                  height={32}
+                  alt="Profile"
+                />
               </Link>
               {/*<ClaimFeeRewards />*/}
             </div>
           )}
           <div className="">
-            <button className="hover:scale-105" onClick={() => setMobileMenu(!mobileMenu)}>
+            <button
+              className="hover:scale-105"
+              onClick={() => setMobileMenu(!mobileMenu)}
+            >
               <Hamburger />
             </button>
             <ul
@@ -69,7 +86,10 @@ export function Navbar() {
                 mobileMenu ? "block" : "hidden"
               } text-gray-200 transition-all flex border border-gray-100 border-opacity-40 shadow shadow-white flex-col items-start px-6 gap-12 py-5 duration-150 top-2 right-2 z-10 h-[250px] w-[280px] bg-slate-900 rounded-xl absolute`}
             >
-              <button className="absolute right-4 hover:scale-105" onClick={() => setMobileMenu(!mobileMenu)}>
+              <button
+                className="absolute right-4 hover:scale-105"
+                onClick={() => setMobileMenu(!mobileMenu)}
+              >
                 <Hamburger />
               </button>
               <MobileNavButton label="Buy" href="/buy" />
@@ -85,10 +105,16 @@ export function Navbar() {
         {/*Desktop buy, sell and Connect*/}
         <div className="hidden md:flex items-center">
           <div className="flex gap-7 lg:gap-9 xl:gap-14 2xl:gap-16">
-            <Link href="/buy" className="hover:scale-105 hover:text-orange-500 inline-block text-lg lg:text-xl transition-all duration-150">
+            <Link
+              href="/buy"
+              className="hover:scale-105 hover:text-orange-500 inline-block text-lg lg:text-xl transition-all duration-150"
+            >
               Buy
             </Link>
-            <Link href="/sell" className="hover:scale-105 hover:text-orange-500 inline-block text-lg lg:text-xl transition-all duration-150">
+            <Link
+              href="/sell"
+              className="hover:scale-105 hover:text-orange-500 inline-block text-lg lg:text-xl transition-all duration-150"
+            >
               Sell
             </Link>
           </div>
@@ -99,7 +125,13 @@ export function Navbar() {
           {address && (
             <div className="ml-4 lg:ml-6">
               <Link className="" href={`/profile/${address}`}>
-                <Image className="hover:scale-105 transition-all duration-150" src="/user-icon.png" width={40} height={40} alt="Profile" />
+                <Image
+                  className="hover:scale-105 transition-all duration-150"
+                  src="/user-icon.png"
+                  width={40}
+                  height={40}
+                  alt="Profile"
+                />
               </Link>
               {/*<ClaimFeeRewards />*/}
               {/* <div className="absolute right-[2%] w-[250px]">
