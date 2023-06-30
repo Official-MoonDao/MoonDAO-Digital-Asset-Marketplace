@@ -12,19 +12,23 @@ export function useListingsByWallet(
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (validListings && allAuctions && walletAddress) {
+    if (walletAddress) {
       const filteredListings =
-        validListings[0] &&
-        validListings?.filter(
-          (l: DirectListing) =>
-            l.creatorAddress && l.creatorAddress === walletAddress
-        );
+        (validListings &&
+          validListings[0] &&
+          validListings?.filter(
+            (l: DirectListing) =>
+              l.creatorAddress && l.creatorAddress === walletAddress
+          )) ||
+        [];
       const filteredAuctions =
-        allAuctions[0] &&
-        allAuctions?.filter(
-          (a: AuctionListing) =>
-            a.creatorAddress && a.creatorAddress === walletAddress
-        );
+        (allAuctions &&
+          allAuctions[0] &&
+          allAuctions?.filter(
+            (a: AuctionListing) =>
+              a.creatorAddress && a.creatorAddress === walletAddress
+          )) ||
+        [];
       setListings(filteredListings);
       setAuctions(filteredAuctions);
       setLoading(false);
