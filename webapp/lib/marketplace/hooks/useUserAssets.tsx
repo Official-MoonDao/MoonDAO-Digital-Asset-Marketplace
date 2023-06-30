@@ -34,7 +34,7 @@ export function useUserAssets(
         setAssets([]);
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
-          console.log(profileListings, profileAuctions, "TEST");
+
           try {
             const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
             const contract: any = await sdk.getContract(collection);
@@ -43,10 +43,10 @@ export function useUserAssets(
             if (extensions[0] === "ERC1155") {
               ownedAssets = await contract.erc1155.getOwned(signer._address);
               //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
-              if (!profileListings[0] && !profileAuctions[0]) {
+              if (profileListings[0] || profileAuctions[0]) {
                 ownedAssets = await ownedAssets.map((asset: any) => {
-                  if (asset.status === 4) return;
                   const ownedQuantity = asset.quantityOwned;
+                  console.log("test", profileListings, ownedAssets);
 
                   //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
 
