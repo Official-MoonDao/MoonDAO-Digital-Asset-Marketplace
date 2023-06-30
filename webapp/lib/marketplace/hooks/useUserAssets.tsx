@@ -13,7 +13,8 @@ import { useListingsByWallet } from "./useListingsByWallet";
 export function useUserAssets(
   marketplace: MarketplaceV3 | undefined,
   validListings: DirectListing[],
-  validAuctions: AuctionListing[]
+  validAuctions: AuctionListing[],
+  walletAddress: string
 ) {
   const [assets, setAssets] = useState<any>();
 
@@ -27,8 +28,14 @@ export function useUserAssets(
   } = useListingsByWallet(validListings, validAuctions, signer?._address);
 
   useEffect(() => {
-    if (marketplace && signer && !networkMismatch && !assets) {
-      if (!profileListings || !profileAuctions) return;
+    if (
+      marketplace &&
+      signer &&
+      !networkMismatch &&
+      !assets &&
+      profileAuctions &&
+      profileListings
+    ) {
       marketplace.roles.get("asset").then(async (res: any) => {
         setAssets(undefined);
         await res.forEach(async (collection: any) => {
@@ -42,12 +49,12 @@ export function useUserAssets(
             if (extensions[0] === "ERC1155") {
               ownedAssets = await contract.erc1155.getOwned(signer._address);
               //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
-              if (profileListings[0] || profileAuctions[0]) {
+              if (profileListings?.[0] || profileAuctions?.[0]) {
                 ownedAssets = await ownedAssets.map((asset: any) => {
                   const ownedQuantity = asset.quantityOwned;
 
                   //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
-
+                  console.log(profileListings);
                   const listedQuantity = profileListings?.reduce(
                     (arr: number, listing: any) =>
                       listing.assetContractAddress.toLowerCase() ===
@@ -67,7 +74,7 @@ export function useUserAssets(
             } else {
               ownedAssets = await contract.erc721.getOwned(signer._address);
 
-              if (profileListings[0] || profileAuctions[0]) {
+              if (profileListings?.[0] || profileAuctions?.[0]) {
                 ownedAssets = ownedAssets
                   .filter(
                     (asset: any) =>
@@ -100,21 +107,37 @@ export function useUserAssets(
             }));
 
             //add ownedAssets to assets array and filter out any duplicates (on address change duplicates are created and then filtered out, this is a quick fix)
-            ownedAssets.length > 0 &&
-              setAssets((prev: any) =>
-                prev
-                  ? [
-                      ...prev.filter((a: any) => a.collection !== collection),
-                      ...ownedAssets,
-                    ]
-                  : ownedAssets
-              );
+            ownedAssets.length > 0
+              ? setAssets((prev: any) =>
+                  prev
+                    ? [
+                        ...prev.filter((a: any) => a.collection !== collection),
+                        ...ownedAssets,
+                      ]
+                    : ownedAssets
+                )
+              : setAssets(undefined);
           } catch (err: any) {
             console.log(err.message);
           }
         });
       });
     }
-  }, [marketplace, signer, profileListings, profileAuctions]);
+  }, [
+    marketplace,
+    signer,
+    profileListings,
+    profileAuctions,
+    walletAddress,
+    assets,
+  ]);
+
+  useEffect(() => {
+    if (signer && walletAddress) {
+      if (signer._address !== walletAddress) {
+        setAssets(undefined);
+      }
+    }
+  }, [signer, walletAddress]);
   return assets;
 }

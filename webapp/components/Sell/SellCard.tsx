@@ -1,6 +1,7 @@
 import { ThirdwebNftMedia } from "@thirdweb-dev/react";
 
 const SellCard = ({ nft, i, setSelectedNft }: any) => {
+  if (nft.quantityOwned <= 0) return <></>; //only render if user owns at least 1 of this NFT
   return (
     <div
       className="relative group hover:translate-y-[-4%] duration-300 ease-in my-[2.5%] flex flex-col items-center"

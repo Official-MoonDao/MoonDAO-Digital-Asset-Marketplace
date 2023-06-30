@@ -93,8 +93,7 @@ export default function Hero({ topAssets }: any) {
         </div>
         {/*Title and paragraph*/}
         <h1 className="text-white font-GoodTimes text-[34px] md:text-4xl md:tracking-wide md:leading-relaxed lg:text-5xl xl:text-6xl 2xl:text-7xl">
-          DIGITAL <br className="md:hidden" />
-          ASSET <br />
+          MOONDAO <br />
           <span className="lg:mt-4 lg:inline-block">MARKETPLACE</span>
         </h1>
         <p className="mt-8 md:mt-6 2xl:mt-[26px] lg:mt-7 text-sm leading-6 px-3 md:px-0 text-moon-orange text-md md:text-left lg:text-base xl:text-lg max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
@@ -110,7 +109,7 @@ export default function Hero({ topAssets }: any) {
           link={"/buy?assetType=collection"}
         />
         <div className="w-1/2 py-4 mt-8">
-          <PolygonBridge />
+          <PolygonBridge linked />
         </div>
       </div>
     </div>

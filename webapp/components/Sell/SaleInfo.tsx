@@ -222,7 +222,7 @@ export default function SaleInfo({
                       min={1}
                       {...registerDirect("quantity")}
                       onChange={(e) => {
-                        if (e.target.value > nft.quantityOwned) {
+                        if (+e.target.value > nft.quantityOwned) {
                           e.target.value = nft.quantityOwned;
                           toast.error(
                             `You can't list more than ${nft.quantityOwned} of this asset`,
@@ -332,7 +332,7 @@ export default function SaleInfo({
                       min={1}
                       {...registerAuction("quantity")}
                       onChange={(e) => {
-                        if (e.target.value > nft.quantityOwned) {
+                        if (+e.target.value > nft?.quantityOwned) {
                           e.target.value = nft.quantityOwned;
                           toast.error(
                             `You can't list more than ${nft.quantityOwned} of this asset`,
