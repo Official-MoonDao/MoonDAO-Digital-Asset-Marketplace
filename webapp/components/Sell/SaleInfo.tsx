@@ -263,7 +263,7 @@ export default function SaleInfo({
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
                 min={new Date(
-                  8640000 + Date.now() - new Date().getTimezoneOffset() * 60000
+                  Date.now() - new Date().getTimezoneOffset() + 1428 * 60000
                 )
                   .toISOString()
                   .slice(0, -8)}
@@ -367,7 +367,7 @@ export default function SaleInfo({
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
                 min={new Date(
-                  8640000 + Date.now() - new Date().getTimezoneOffset() * 60000
+                  Date.now() - new Date().getTimezoneOffset() + 1428 * 60000
                 )
                   .toISOString()
                   .slice(0, -8)}

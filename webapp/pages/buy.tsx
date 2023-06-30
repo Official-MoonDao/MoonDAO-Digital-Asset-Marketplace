@@ -15,19 +15,31 @@ import AssetPreview from "../components/Collection/AssetPreview";
 import { useRouter } from "next/router";
 import CollectionPreview from "../components/Collection/CollectionPreview";
 import Metadata from "../components/Layout/Metadata";
+import { useContract } from "@thirdweb-dev/react";
 
 type BuyPageProps = {
-  validListings: DirectListing[];
-  validAuctions: AuctionListing[];
+  _validListings: DirectListing[];
+  _validAuctions: AuctionListing[];
 };
 
-export default function Buy({ validListings, validAuctions }: BuyPageProps) {
+export default function Buy({ _validListings, _validAuctions }: BuyPageProps) {
   const router = useRouter();
+
+  const { contract: marketplace } = useContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
+
   const filterSelectionRef: any = useRef();
   const [filter, setFilter] = useState<any>({
     type: "",
     assetOrCollection: "",
   });
+
+  const [validListings, setValidListings] =
+    useState<DirectListing[]>(_validListings);
+  const [validAuctions, setValidAuctions] =
+    useState<AuctionListing[]>(_validAuctions);
 
   const { collections: filteredCollections, assets: filteredAssets } =
     useFilter(filter?.type, validListings, validAuctions);
@@ -41,6 +53,17 @@ export default function Buy({ validListings, validAuctions }: BuyPageProps) {
       ? setFilter({ ...filter, assetOrCollection: "collection" })
       : setFilter({ ...filter, assetOrCollection: "asset" });
   }
+
+  useEffect(() => {
+    if (marketplace) {
+      getAllValidListings(marketplace).then((listings: DirectListing[]) => {
+        setValidListings(listings);
+      });
+      getAllValidAuctions(marketplace).then((auctions: AuctionListing[]) => {
+        setValidAuctions(auctions);
+      });
+    }
+  }, [_validListings, _validAuctions]);
 
   useEffect(() => {
     if (filterSelectionRef.current && router.query) {
@@ -168,8 +191,8 @@ export async function getStaticProps() {
   );
   return {
     props: {
-      validListings,
-      validAuctions,
+      _validListings: validListings,
+      _validAuctions: validAuctions,
     },
     revalidate: 10,
   };
