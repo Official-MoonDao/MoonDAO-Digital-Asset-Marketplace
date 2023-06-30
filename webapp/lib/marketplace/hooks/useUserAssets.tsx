@@ -28,7 +28,7 @@ export function useUserAssets(
   } = useListingsByWallet(validListings, validAuctions, signer?._address);
 
   useEffect(() => {
-    if (marketplace && signer && !networkMismatch) {
+    if (marketplace && signer && !networkMismatch && !assets[0]) {
       if (loadingProfileAuctions) return;
       marketplace.roles.get("asset").then(async (res: any) => {
         setAssets([]);

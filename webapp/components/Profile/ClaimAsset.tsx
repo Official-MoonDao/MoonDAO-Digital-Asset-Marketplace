@@ -2,6 +2,7 @@ import { Web3Button } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS } from "../../const/config";
 import { useRouter } from "next/router";
 import { toast } from "react-hot-toast";
+import toastStyle from "../../lib/utils/toastConfig";
 
 type ClaimAssetProps = {
   walletAddress: string;
@@ -26,7 +27,7 @@ export default function ClaimAsset({
       onSuccess={() => {
         router.reload();
         setTimeout(() => {
-          toast.success("Asset claimed!");
+          toast.success("Asset claimed!", { style: toastStyle });
         }, 1000);
       }}
     >

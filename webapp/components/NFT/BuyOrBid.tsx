@@ -23,7 +23,10 @@ export default function BuyOrBid({
   currListing,
 }: BuyOrBidProps) {
   const router = useRouter();
-  const [bidValue, setBidValue] = useState<number>(0);
+  const [bidValue, setBidValue] = useState<number>(
+    currListing?.listing?.minimumBidAmount / MOONEY_DECIMALS || 0
+  );
+  const [directListingQuantity, setDirectListingQuantity] = useState<number>(1);
 
   const isOwner = useMemo(() => {
     if (walletAddress && currListing?.listing?.creatorAddress)
@@ -66,7 +69,7 @@ export default function BuyOrBid({
       if (currListing.type === "direct") {
         txResult = await marketplace.directListings.buyFromListing(
           currListing.listing.listingId,
-          1,
+          directListingQuantity,
           walletAddress
         );
       } else {
@@ -108,17 +111,41 @@ export default function BuyOrBid({
             </div>
           ) : (
             <>
-              <Web3Button
-                contractAddress={MARKETPLACE_ADDRESS}
-                action={async () => await buyListing()}
-                className={`connect-button`}
-              >
-                {`Buy for ${
-                  currListing?.listing.pricePerToken / MOONEY_DECIMALS ||
-                  currListing?.listing.buyoutBidAmount / MOONEY_DECIMALS
-                } (MOONEY)`}
-              </Web3Button>
+              <div className="flex justify-evenly items-center">
+                <Web3Button
+                  contractAddress={MARKETPLACE_ADDRESS}
+                  action={async () => await buyListing()}
+                  className={`connect-button`}
+                >
+                  {`Buy ${directListingQuantity || "1"} for ${
+                    (currListing?.listing.pricePerToken / MOONEY_DECIMALS) *
+                      (directListingQuantity || 1) ||
+                    currListing?.listing.buyoutBidAmount / MOONEY_DECIMALS
+                  } (MOONEY)`}
+                </Web3Button>
 
+                {currListing?.type === "direct" &&
+                  currListing?.listing.quantity > 1 && (
+                    <input
+                      className="block border border-white w-[25%] py-3 px-4 bg-black bg-opacity-70 border-opacity-60 rounded-lg ml-[2px]"
+                      placeholder={"1"}
+                      type="number"
+                      step={1}
+                      onChange={(e: any) => {
+                        if (+e.target.value > +currListing?.listing.quantity) {
+                          const currQuantity = currListing?.listing.quantity;
+                          e.target.value = currQuantity;
+                          setDirectListingQuantity(currQuantity);
+                          return toast.error(
+                            `You can't buy more than ${currQuantity} of this asset`,
+                            { style: toastStyle }
+                          );
+                        }
+                        setDirectListingQuantity(e.target.value);
+                      }}
+                    />
+                  )}
+              </div>
               {currListing &&
                 walletAddress &&
                 currListing.type === "auction" && (
@@ -143,7 +170,7 @@ export default function BuyOrBid({
                           : "0"
                       }
                       type="number"
-                      step={0.000001}
+                      step={1}
                       onChange={(e: any) => {
                         setBidValue(e.target.value);
                       }}
