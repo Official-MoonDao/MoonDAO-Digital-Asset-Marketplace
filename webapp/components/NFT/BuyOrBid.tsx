@@ -117,10 +117,20 @@ export default function BuyOrBid({
                   action={async () => await buyListing()}
                   className={`connect-button`}
                 >
-                  {`Buy ${directListingQuantity || "1"} for ${
-                    (currListing?.listing.pricePerToken / MOONEY_DECIMALS) *
-                      (directListingQuantity || 1) ||
-                    currListing?.listing.buyoutBidAmount / MOONEY_DECIMALS
+                  {`Buy ${
+                    currListing?.type === "direct"
+                      ? directListingQuantity || "1"
+                      : currListing?.listing.quantity
+                  } for ${
+                    currListing?.type === "direct"
+                      ? Number(
+                          (currListing?.listing.pricePerToken /
+                            MOONEY_DECIMALS) *
+                            (directListingQuantity || 1)
+                        ).toFixed(1)
+                      : Number(
+                          currListing?.listing.buyoutBidAmount / MOONEY_DECIMALS
+                        ).toFixed(1)
                   } (MOONEY)`}
                 </Web3Button>
 

@@ -1,10 +1,4 @@
-import {
-  MediaRenderer,
-  ThirdwebNftMedia,
-  useAddress,
-  useContract,
-  useNFT,
-} from "@thirdweb-dev/react";
+import { MediaRenderer, useContract } from "@thirdweb-dev/react";
 import Link from "next/link";
 import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../const/config";
 import Skeleton from "../Layout/Skeleton";
@@ -91,6 +85,11 @@ export default function ProfileAuctionListing({
         <h4 className="font-GoodTimes tracking-wider text-lg">
           {listing.asset.name}
         </h4>
+        {/*Quantity*/}
+        <div>
+          <p className="text-sm opacity-80">Quantity</p>
+          <p className="tracking-wide">{listing.quantity}</p>
+        </div>
         {/*Price*/}
         <div>
           <p className="text-sm opacity-80">Buyout price</p>

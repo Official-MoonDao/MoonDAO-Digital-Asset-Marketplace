@@ -20,9 +20,7 @@ export default function ClaimAuctionPayout({
       className="web3-button web3-button-primary"
       contractAddress={MARKETPLACE_ADDRESS}
       action={(marketplace) =>
-        marketplace
-          .call("collectAuctionPayout", [+auctionId])
-          .then(() => router.reload())
+        marketplace.call("collectAuctionPayout", [+auctionId])
       }
       onSuccess={() => {
         router.reload();

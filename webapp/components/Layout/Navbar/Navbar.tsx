@@ -62,11 +62,11 @@ export function Navbar() {
           {address && (
             <div className="absolute sm: top-16 right-2">
               <Link className="" href={`/profile/${address}`}>
-                <Image
+                <MediaRenderer
                   className="hover:scale-105 transition-all duration-150"
                   src="/user-icon.png"
-                  width={32}
-                  height={32}
+                  width={"32px"}
+                  height={"32px"}
                   alt="Profile"
                 />
               </Link>
@@ -125,11 +125,11 @@ export function Navbar() {
           {address && (
             <div className="ml-4 lg:ml-6">
               <Link className="" href={`/profile/${address}`}>
-                <Image
+                <MediaRenderer
                   className="hover:scale-105 transition-all duration-150"
                   src="/user-icon.png"
-                  width={40}
-                  height={40}
+                  width={"40px"}
+                  height={"40px"}
                   alt="Profile"
                 />
               </Link>

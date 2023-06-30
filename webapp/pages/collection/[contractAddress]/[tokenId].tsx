@@ -90,7 +90,7 @@ export default function TokenPage({
     }
   }, [marketplace]);
 
-  ///set Current Listing (potentially refactor scurrListing to useMemo?)
+  ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListings[0] || auctionListings[0]) {
       const listing = directListings[0]

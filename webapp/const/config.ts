@@ -26,3 +26,6 @@ export const L2_MOONEY_ADDRESS: string =
     : "0xDE870ca93467A914160e6a6ddC75535cA7647534"; //Mumbai
 
 export const MOONEY_DECIMALS: number = 10 ** 18;
+
+export const ZERO_ADDRESS: string =
+  "0x0000000000000000000000000000000000000000";

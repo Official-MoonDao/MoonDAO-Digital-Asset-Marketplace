@@ -17,7 +17,7 @@ export function useUserWinnings(
     if (marketplace && walletAddress && allAuctions && allAuctions[0]) {
       (async () => {
         setAssetsWon([]);
-        const wonAuctions = await allAuctions.map(async (a: AuctionListing) => {
+        await allAuctions.map(async (a: AuctionListing) => {
           if (a.status !== 5) return;
           let winningBid: any;
           let closed: any;

@@ -9,7 +9,6 @@ import ProfileWinningBid from "./ProfileWinningBid";
 
 export default function ProfileListingGrid({ listings, type = "direct" }: any) {
   const address = useAddress();
-  console.log(type, listings);
   return (
     <div className="flex flex-wrap gap-[1%] w-full">
       {listings && listings[0] ? (

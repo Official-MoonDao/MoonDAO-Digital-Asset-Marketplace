@@ -16,6 +16,7 @@ import { useRouter } from "next/router";
 import CollectionPreview from "../components/Collection/CollectionPreview";
 import Metadata from "../components/Layout/Metadata";
 import { useContract } from "@thirdweb-dev/react";
+import { useShallowQueryRoute } from "../lib/utils/hooks/useShallowQueryRoute";
 
 type BuyPageProps = {
   _validListings: DirectListing[];
@@ -31,6 +32,7 @@ export default function Buy({ _validListings, _validAuctions }: BuyPageProps) {
   );
 
   const filterSelectionRef: any = useRef();
+  const shallowQueryRoute = useShallowQueryRoute();
   const [filter, setFilter] = useState<any>({
     type: "",
     assetOrCollection: "",
@@ -46,12 +48,20 @@ export default function Buy({ _validListings, _validAuctions }: BuyPageProps) {
 
   function filterTypeChange(e: any) {
     setFilter({ ...filter, type: e.target.value });
+    shallowQueryRoute({
+      filterType: e.target.value,
+      assetType: filter.assetOrCollection,
+    });
   }
 
   function assetTypeChange() {
-    filter.assetOrCollection === "asset"
-      ? setFilter({ ...filter, assetOrCollection: "collection" })
-      : setFilter({ ...filter, assetOrCollection: "asset" });
+    if (filter.assetOrCollection === "asset") {
+      setFilter({ ...filter, assetOrCollection: "collection" });
+      shallowQueryRoute({ assetType: "collection", filterType: filter.type });
+    } else {
+      setFilter({ ...filter, assetOrCollection: "asset" });
+      shallowQueryRoute({ assetType: "asset", filterType: filter.type });
+    }
   }
 
   useEffect(() => {

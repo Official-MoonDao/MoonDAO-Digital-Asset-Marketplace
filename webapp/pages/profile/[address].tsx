@@ -15,9 +15,9 @@ import {
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
 import { Canvas } from "@react-three/fiber";
-import ThreeText from "../../components/r3f/ThreeText";
 import BannerScene from "../../components/r3f/Profile/BannerScene";
 import { useUserWinnings } from "../../lib/marketplace/hooks/useUserWinnings";
+import { useShallowQueryRoute } from "../../lib/utils/hooks";
 
 type ProfilePageProps = {
   walletAddress: string;
@@ -50,6 +50,7 @@ export default function ProfilePage({
   const [tab, setTab] = useState<"listings" | "auctions" | "winningBids">(
     queryTab
   );
+  const shallowQueryRoute = useShallowQueryRoute();
 
   useEffect(() => {
     if (marketplace) {
@@ -88,7 +89,10 @@ export default function ProfilePage({
             ? "text-moon-gold border-b-moon-gold border-b-2"
             : "text-white text-opacity-60"
         }`}
-          onClick={() => setTab("listings")}
+          onClick={() => {
+            setTab("listings");
+            shallowQueryRoute({ address: walletAddress, tab: "listings" });
+          }}
         >
           Listings
         </h3>
@@ -99,7 +103,10 @@ export default function ProfilePage({
             ? "text-moon-gold border-b-moon-gold border-b-2"
             : "text-white text-opacity-60"
         }`}
-          onClick={() => setTab("auctions")}
+          onClick={() => {
+            setTab("auctions");
+            shallowQueryRoute({ address: walletAddress, tab: "auctions" });
+          }}
         >
           Auctions
         </h3>
@@ -110,7 +117,10 @@ export default function ProfilePage({
             ? "text-moon-gold border-b-moon-gold border-b-2"
             : "text-white text-opacity-60"
         }`}
-          onClick={() => setTab("winningBids")}
+          onClick={() => {
+            setTab("winningBids");
+            shallowQueryRoute({ address: walletAddress, tab: "winningBids" });
+          }}
         >
           Winning Bids
           {assetsWon && assetsWon.length > 0 && (

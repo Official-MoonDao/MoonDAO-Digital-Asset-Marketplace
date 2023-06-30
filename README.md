@@ -11,6 +11,7 @@ The MoonDAO Digital Asset Marketplace is where people can buy or list digital as
 ### Buying Assets
 1. Direct Listings
    1. Find an asset with a direct listing and purchase for the specified amount
+   2. Select a quantity for ERC-1155 listings
 2. Auction Listings
    1. Find an asset and place a bid or buyout the auction
       1. Buyout: Immediatley purchase the asset
@@ -19,17 +20,17 @@ The MoonDAO Digital Asset Marketplace is where people can buy or list digital as
 ### Selling Assets
 1. Permissions
    1. Only specific collections can be listed on the marketplace, click the 'submit a collection' button [HERE](https://moondao-marketplace-test.netlify.com/sell) to submit your nft collection.  It will be reviewed and you will be notified in a MoonDAO channel by a MoonDAO steward.
-2. ERC-721 & ERC-1155
-   1. List a single ERC-721 or multiple ERC-1155, if you choose to list multiple ERC-1155s they will be bundled together
-3. Direct Listings
+1. Direct Listings
    1. Fill in the input fields (quantity, start-time, end-time, price)
-   2. Payout: If the direct listing is bought within the time range the asset will be sent to the buyer and the seller will receive the payout, automatically
-   3. Cancel:  The seller can cancel a direct listing at anytime by going to their profile page
-4. Auction Listings
+   2. Quantity: List a single ERC-721 or multiple ERC-1155 tokens. If you choose to list multiple ERC-1155s they can be sold separately.
+   3. Payout: If the direct listing is bought within the time range the asset will be sent to the buyer and the seller will receive the payout, automatically
+   4. Cancel:  The seller can cancel a direct listing at anytime by going to their profile page
+2. Auction Listings
    1. Fill in the input fields (quantity, start-time, end-time, buyout-price, minimum-bid)
-   2. Buyout Payout: If an auction is bought out, it is closed, the seller receives the digital asset and the seller can claim the payout. In order to claim the payout for an auction the seller must navigate to their profile page and click "claim payout" on the auction.
-   3. Bid Payout: Once an auction expires the winning bidder will be assign the asset. The seller or bidder will have to then close the auction by going to their profile page and claiming the payout or asset.
-   4. Cancel:  Once a auction has started and has received a bid it CANNOT be canceld. If an auction expires before it is bought out or receives any bids the seller will need to cancel it to re-claim their digital asset.
+   2. Quantity: List a single ERC-721 or multiple ERC-1155 tokens as a bundle (the tokens will be sold together)
+   3. Buyout Payout: If an auction is bought out, it is closed, the seller receives the digital asset and the seller can claim the payout. In order to claim the payout for an auction the seller must navigate to their profile page and click "claim payout" on the auction.
+   4. Bid Payout: Once an auction expires the winning bidder will be assign the asset. The seller or bidder will have to then close the auction by going to their profile page and claiming the payout or asset.
+   5. Cancel:  Once a auction has started and has received a bid it CANNOT be canceld. If an auction expires before it is bought out or receives any bids the seller will need to cancel it to re-claim their digital asset.
 
 ### Profile
 1. Manage listings

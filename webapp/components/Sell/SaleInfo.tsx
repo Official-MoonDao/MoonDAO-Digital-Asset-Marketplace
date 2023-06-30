@@ -1,13 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { MarketplaceV3, useContract, Web3Button } from "@thirdweb-dev/react";
+import { useContract, Web3Button } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../lib/utils/toastConfig";
-import {
-  MARKETPLACE_ADDRESS,
-  L2_MOONEY_ADDRESS,
-  MOONEY_DECIMALS,
-} from "../../const/config";
+import { MARKETPLACE_ADDRESS, L2_MOONEY_ADDRESS } from "../../const/config";
 import {
   AuctionSubmission,
   DirectSubmission,
@@ -225,6 +221,15 @@ export default function SaleInfo({
                       type="number"
                       min={1}
                       {...registerDirect("quantity")}
+                      onChange={(e) => {
+                        if (e.target.value > nft.quantityOwned) {
+                          e.target.value = nft.quantityOwned;
+                          toast.error(
+                            `You can't list more than ${nft.quantityOwned} of this asset`,
+                            { style: toastStyle }
+                          );
+                        }
+                      }}
                     />
                     <h3
                       className={`relative right-[-5%] bottom-2 text-2xl ${
@@ -326,6 +331,15 @@ export default function SaleInfo({
                       type="number"
                       min={1}
                       {...registerAuction("quantity")}
+                      onChange={(e) => {
+                        if (e.target.value > nft.quantityOwned) {
+                          e.target.value = nft.quantityOwned;
+                          toast.error(
+                            `You can't list more than ${nft.quantityOwned} of this asset`,
+                            { style: toastStyle }
+                          );
+                        }
+                      }}
                     />
                     <h3
                       className={`relative right-[-5%] bottom-2 text-2xl ${
