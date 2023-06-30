@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import Hero from "../components/Home/Hero";
 import CollectionShowcase from "../components/Home/Showcases/CollectionShowcase";
 import TrendingShowcase from "../components/Home/Showcases/TrendingShowcase";
@@ -15,7 +14,6 @@ import {
   DirectListing,
 } from "../lib/marketplace/marketplace-utils";
 import Metadata from "../components/Layout/Metadata";
-import PolygonBridge from "../components/Home/PolygonBridge";
 
 type HomeProps = {
   validListings: DirectListing[];
@@ -76,6 +74,6 @@ export async function getStaticProps() {
       validListings,
       validAuctions,
     },
-    revalidate: 60,
+    revalidate: 10,
   };
 }

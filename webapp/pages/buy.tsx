@@ -171,6 +171,6 @@ export async function getStaticProps() {
       validListings,
       validAuctions,
     },
-    revalidate: 60,
+    revalidate: 10,
   };
 }
