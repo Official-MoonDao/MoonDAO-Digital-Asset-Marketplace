@@ -42,9 +42,9 @@ export default function Hero({ topAssets }: any) {
   }, [currentSlide, heroImageArray]);
 
   return (
-    <div className="mt-10 flex flex-col items-center pb-12 md:flex-row-reverse md:py-10 lg:pt-12 md:gap-20 xl:gap-28 2xl:gap-40">
+    <div className="mt-10 flex flex-col items-center pb-12 md:flex-row-reverse md:py-10 lg:pt-12 md:gap-12 xl:gap-28 2xl:gap-40">
       {/*Hero image*/}
-      <div className="flex flex-col items-center relative">
+      <div className="flex flex-col items-center relative md:-mt-32 xl:-mt-16 2xl:-mt-0">
         {/*Here goes the link to the collection and the image*/}
         <Link
           href={`/collection/${heroImageArray[currentSlide]?.assetContractAddress}/${heroImageArray[currentSlide]?.tokenId}`}
@@ -65,7 +65,7 @@ export default function Hero({ topAssets }: any) {
         <span className="hidden 2xl:block absolute -bottom-32 -left-40">
           <HeroStar />
         </span>
-        <span className="hidden lg:block lg:absolute top-48 left-[370px] lg:opacity-70 xl:left-[420px] 2xl:left-[550px]">
+        <span className="hidden xl:block xl:absolute top-48 xl:opacity-70 left-[400px] xl:left-[407px] 2xl:left-[550px]">
           <FrameDetail />
         </span>
         <span className="hidden lg:block 2xl:hidden lg:absolute lg:opacity-30 -top-9 -right-8">
@@ -97,7 +97,7 @@ export default function Hero({ topAssets }: any) {
           ASSET <br />
           <span className="lg:mt-4 lg:inline-block">MARKETPLACE</span>
         </h1>
-        <p className="mt-8 md:mt-6 2xl:mt-[26px] lg:mt-7 text-sm leading-6 px-3 md:px-0 text-moon-orange text-md md:text-left lg:text-base xl:text-lg max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
+        <p className="mt-8 md:mt-6 2xl:mt-[26px] lg:mt-7 text-sm leading-6 px-3 md:px-0 text-moon-orange text-md md:text-left lg:text-base xl:text-lg max-w-sm lg:max-w-md xl:max-w-[600px] 2xl:max-w-[658px]">
           {`Whether you're an artist seeking to showcase your unique creations or
           a collector in search of one-of-a-kind digital artifacts, the MoonDAO
           Marketplace offers a seamless and secure environment for buying and

@@ -11,7 +11,6 @@ export function useListingsByWallet(
   const [auctions, setAuctions] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  console.log(allAuctions);
   useEffect(() => {
     if (validListings && allAuctions && walletAddress) {
       const filteredListings =

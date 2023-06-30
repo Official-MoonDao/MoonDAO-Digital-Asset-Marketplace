@@ -145,17 +145,17 @@ export default function TokenPage({
                 Traits
               </h3>
 
-              <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20">
+              <div className="py-3 px-2 flex flex-wrap justify-center gap-4 bg-black mt-3 rounded-lg bg-opacity-30 border border-white border-opacity-40">
                 {Object.entries(nft?.metadata?.attributes || {}).map(
                   ([key, value]: any) => (
                     <div
-                      className="flex flex-col grow gap-1 py-2 px-3 min-w-[128px] min-h-[32px]"
+                      className="flex flex-col gap-[6px] py-2 rounded-lg bg-slate-900 text-center px-3 min-w-[128px] min-h-[32px] grow-0"
                       key={key}
                     >
-                      <p className="m-0 text-white opacity-60">
+                      <p className="text-white opacity-60 font-semibold uppercase tracking-wider text-sm">
                         {value.trait_type}
                       </p>
-                      <p className="font-semibold m-0 text-white opacity-90">
+                      <p className="text-base text-white tracking-widest text-[17px] font-mono">
                         {value.value?.toString() || ""}
                       </p>
                     </div>

@@ -47,8 +47,12 @@ export default function Sell() {
     }
   }, [marketplace]);
 
+  useEffect(() => {
+    console.log(userAssets);
+  }, [userAssets]);
+
   //Handling if user has no NFTs or is connected to the wrong network
-  if (!address && !userAssets[0] && !loading) {
+  if (!address || !userAssets[0] || loading) {
     return (
       <>
         <NoAssets address={address} userAssets={userAssets} loading={loading} />
