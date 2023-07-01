@@ -65,7 +65,7 @@ export default function Hero({ topAssets }: any) {
         <span className="hidden 2xl:block absolute -bottom-32 -left-40">
           <HeroStar />
         </span>
-        <span className="hidden xl:block xl:absolute top-48 xl:opacity-70 left-[400px] xl:left-[407px] 2xl:left-[550px]">
+        <span className="hidden lg:block lg:absolute top-48 lg:opacity-70 left-[370px] xl:left-[413px] 2xl:left-[553px]">
           <FrameDetail />
         </span>
         <span className="hidden lg:block 2xl:hidden lg:absolute lg:opacity-30 -top-9 -right-8">
@@ -77,7 +77,7 @@ export default function Hero({ topAssets }: any) {
       </div>
 
       {/*Title, paragraph and button to see all collections*/}
-      <div className="relative mt-16 text-center z-10 md:text-left flex flex-col items-center md:mt-2 md:items-start lg:mt-10">
+      <div className="md:max-w-[500px] xl:max-w-[600px] 2xl:max-w-[700px] relative mt-16 text-center z-10 md:text-left flex flex-col items-center md:mt-2 md:items-start lg:mt-10">
         {/*Blur blob*/}
         <div
           className="absolute overflow-hidden hidden lg:block -z-50 lg:left-[calc(-90%-30rem)] xl:left-[calc(-40%-30rem)] lg:top-[calc(50%-30rem)] 2xl:left-[calc(-5%-30rem)] 2xl:top-[calc(50%-30rem)] transform-gpu blur-[85px] "
