@@ -13,10 +13,9 @@ import { useListingsByWallet } from "./useListingsByWallet";
 export function useUserAssets(
   marketplace: MarketplaceV3 | undefined,
   validListings: DirectListing[],
-  validAuctions: AuctionListing[],
-  walletAddress: string
+  validAuctions: AuctionListing[]
 ) {
-  const [assets, setAssets] = useState<any>([]);
+  const [assets, setAssets] = useState<any>();
 
   const signer: any = useSigner();
   const networkMismatch = useNetworkMismatch();
@@ -28,18 +27,13 @@ export function useUserAssets(
   } = useListingsByWallet(validListings, validAuctions, signer?._address);
 
   useEffect(() => {
-    if (
-      marketplace &&
-      profileListings &&
-      signer &&
-      profileAuctions &&
-      !networkMismatch
-    ) {
-      if (loadingProfileAuctions) return;
+    if (marketplace && signer && !networkMismatch && !assets) {
+      if (!profileListings || !profileAuctions) return;
       marketplace.roles.get("asset").then(async (res: any) => {
-        setAssets([]);
+        setAssets(undefined);
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
+
           try {
             const sdk: ThirdwebSDK = ThirdwebSDK.fromSigner(signer, NETWORK);
             const contract: any = await sdk.getContract(collection);
@@ -48,47 +42,54 @@ export function useUserAssets(
             if (extensions[0] === "ERC1155") {
               ownedAssets = await contract.erc1155.getOwned(signer._address);
               //Create a new array of ownedAssets with quantityOwned updated to reflect the number of assets not listed on the marketplace
-              ownedAssets = await ownedAssets.map((asset: any) => {
-                if (asset.status === 4) return;
-                const ownedQuantity = asset.quantityOwned;
+              if (profileListings[0] || profileAuctions[0]) {
+                ownedAssets = await ownedAssets.map((asset: any) => {
+                  const ownedQuantity = asset.quantityOwned;
 
-                //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
+                  //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
 
-                const listedQuantity = profileListings?.reduce(
-                  (arr: number, listing: any) =>
-                    listing.assetContractAddress.toLowerCase() ===
-                      collection.toLowerCase() &&
-                    listing.tokenId === asset.metadata.id
-                      ? arr + Number(listing?.quantity)
-                      : arr,
-                  0
-                );
+                  const listedQuantity = profileListings?.reduce(
+                    (arr: number, listing: any) =>
+                      listing.assetContractAddress.toLowerCase() ===
+                        collection.toLowerCase() &&
+                      listing.tokenId === asset.metadata.id
+                        ? arr + Number(listing?.quantity)
+                        : arr,
+                    0
+                  );
 
-                return {
-                  ...asset,
-                  quantityOwned: ownedQuantity - listedQuantity,
-                };
-              });
+                  return {
+                    ...asset,
+                    quantityOwned: ownedQuantity - listedQuantity,
+                  };
+                });
+              }
             } else {
               ownedAssets = await contract.erc721.getOwned(signer._address);
 
-              ownedAssets = ownedAssets
-                .filter(
-                  (asset: any) =>
-                    !profileListings?.find(
-                      (listing: any) =>
-                        listing.assetContractAddress === collection &&
-                        listing.tokenId === asset.metadata.id
-                    ) &&
-                    !profileAuctions?.find(
-                      (auction: any) =>
-                        auction.assetContractAddress === collection &&
-                        auction.tokenId === asset.metadata.id
-                    )
-                )
-                .map((asset: any) => ({ ...asset, quantityOwned: "1" }));
+              if (profileListings[0] || profileAuctions[0]) {
+                ownedAssets = ownedAssets
+                  .filter(
+                    (asset: any) =>
+                      !profileListings?.find(
+                        (listing: any) =>
+                          listing.assetContractAddress === collection &&
+                          listing.tokenId === asset.metadata.id
+                      ) &&
+                      !profileAuctions?.find(
+                        (auction: any) =>
+                          auction.assetContractAddress === collection &&
+                          auction.tokenId === asset.metadata.id
+                      )
+                  )
+                  .map((asset: any) => ({ ...asset, quantityOwned: "1" }));
+              } else {
+                ownedAssets = ownedAssets.map((asset: any) => ({
+                  ...asset,
+                  quantityOwned: "1",
+                }));
+              }
             }
-
             const collectionName = await contract.call("name");
 
             //add collection data to ownedAssets
@@ -100,10 +101,14 @@ export function useUserAssets(
 
             //add ownedAssets to assets array and filter out any duplicates (on address change duplicates are created and then filtered out, this is a quick fix)
             ownedAssets.length > 0 &&
-              setAssets((prev: any) => [
-                ...prev.filter((a: any) => a.collection !== collection),
-                ...ownedAssets,
-              ]);
+              setAssets((prev: any) =>
+                prev
+                  ? [
+                      ...prev.filter((a: any) => a.collection !== collection),
+                      ...ownedAssets,
+                    ]
+                  : ownedAssets
+              );
           } catch (err: any) {
             console.log(err.message);
           }

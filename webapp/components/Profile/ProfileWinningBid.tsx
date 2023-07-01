@@ -1,18 +1,8 @@
-import {
-  MediaRenderer,
-  ThirdwebNftMedia,
-  useAddress,
-  useContract,
-  useNFT,
-} from "@thirdweb-dev/react";
-import Link from "next/link";
-import { MARKETPLACE_ADDRESS, MOONEY_DECIMALS } from "../../const/config";
+import { MediaRenderer, useContract } from "@thirdweb-dev/react";
+import { MARKETPLACE_ADDRESS } from "../../const/config";
 import Skeleton from "../Layout/Skeleton";
 import { AuctionListing } from "../../lib/marketplace/marketplace-utils";
 import { useEffect, useState } from "react";
-import ClaimAuctionPayout from "./ClaimAuctionPayout";
-import { useClaimableAuction } from "../../lib/marketplace/hooks";
-import CancelListing from "./CancelListing";
 import ClaimAsset from "./ClaimAsset";
 
 interface ProfileAuctionListingProps {

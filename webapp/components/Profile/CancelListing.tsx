@@ -2,6 +2,7 @@ import { Web3Button } from "@thirdweb-dev/react";
 import { MARKETPLACE_ADDRESS } from "../../const/config";
 import { useRouter } from "next/router";
 import { toast } from "react-hot-toast";
+import toastStyle from "../../lib/utils/toastConfig";
 
 export default function CancelListing({
   listingId,
@@ -25,8 +26,9 @@ export default function CancelListing({
         }
         onSuccess={() => {
           router.reload();
-          setTimeout(()=>{toast.success("Successfully canceled!");}, 1000)
-          
+          setTimeout(() => {
+            toast.success("Successfully canceled!", { style: toastStyle });
+          }, 1000);
         }}
       >
         {`Cancel Listing`}

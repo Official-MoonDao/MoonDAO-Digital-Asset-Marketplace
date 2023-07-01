@@ -7,24 +7,28 @@ export function useListingsByWallet(
   allAuctions: AuctionListing[],
   walletAddress: string
 ) {
-  const [listings, setListings] = useState<any>([]);
-  const [auctions, setAuctions] = useState<any>([]);
+  const [listings, setListings] = useState<any>();
+  const [auctions, setAuctions] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (validListings && allAuctions && walletAddress) {
+    if (walletAddress) {
       const filteredListings =
-        validListings[0] &&
-        validListings?.filter(
-          (l: DirectListing) =>
-            l.creatorAddress && l.creatorAddress === walletAddress
-        );
+        (validListings &&
+          validListings[0] &&
+          validListings?.filter(
+            (l: DirectListing) =>
+              l.creatorAddress && l.creatorAddress === walletAddress
+          )) ||
+        undefined;
       const filteredAuctions =
-        allAuctions[0] &&
-        allAuctions?.filter(
-          (a: AuctionListing) =>
-            a.creatorAddress && a.creatorAddress === walletAddress
-        );
+        (allAuctions &&
+          allAuctions[0] &&
+          allAuctions?.filter(
+            (a: AuctionListing) =>
+              a.creatorAddress && a.creatorAddress === walletAddress
+          )) ||
+        undefined;
       setListings(filteredListings);
       setAuctions(filteredAuctions);
       setLoading(false);

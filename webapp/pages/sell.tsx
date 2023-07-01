@@ -7,7 +7,7 @@ import {
   getAllValidAuctions,
   getAllValidListings,
 } from "../lib/marketplace/marketplace-listings";
-import { MARKETPLACE_ADDRESS, NETWORK } from "../const/config";
+import { MARKETPLACE_ADDRESS } from "../const/config";
 import SubmitCollection from "../components/Sell/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
 import SellCard from "../components/Sell/SellCard";
@@ -26,12 +26,7 @@ export default function Sell() {
   const [validListings, setValidListings] = useState<any>();
   const [validAuctions, setValidAuctions] = useState<any>();
 
-  const userAssets = useUserAssets(
-    marketplace,
-    validListings,
-    validAuctions,
-    address
-  );
+  const userAssets = useUserAssets(marketplace, validListings, validAuctions);
 
   useEffect(() => {
     if (marketplace && !validListings && !validAuctions) {
@@ -47,12 +42,8 @@ export default function Sell() {
     }
   }, [marketplace]);
 
-  useEffect(() => {
-    console.log(userAssets);
-  }, [userAssets]);
-
   //Handling if user has no NFTs or is connected to the wrong network
-  if (!address || !userAssets[0] || loading) {
+  if (!address || !userAssets || loading) {
     return (
       <>
         <NoAssets address={address} userAssets={userAssets} loading={loading} />

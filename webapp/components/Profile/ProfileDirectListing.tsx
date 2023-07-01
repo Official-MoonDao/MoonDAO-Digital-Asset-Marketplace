@@ -49,6 +49,11 @@ export default function ProfileDirectListing({
         <h4 className="font-GoodTimes tracking-wider text-lg">
           {listing.asset.name}
         </h4>
+        {/*Quantity*/}
+        <div>
+          <p className="text-sm opacity-80">Quantity</p>
+          <p className="tracking-wide">{listing.quantity}</p>
+        </div>
         {/*Price */}
         <div>
           <p className="text-sm opacity-80">Price</p>

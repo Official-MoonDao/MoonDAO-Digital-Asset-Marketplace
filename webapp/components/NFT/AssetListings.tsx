@@ -1,8 +1,10 @@
+import { toast } from "react-hot-toast";
 import {
   AuctionListing,
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
 import Listing from "./Listing";
+import toastStyle from "../../lib/utils/toastConfig";
 type AssetListingsProps = {
   tab: string;
   setTab: Function;
@@ -29,15 +31,35 @@ export default function AssetListings({
       <div className={"w-full flex justify-evenly p-2"}>
         <h3
           className={`p-4 text-base font-semibold cursor-pointer transition-colors duration-100 ease-in-out hover:text-[#e9e9f9]
-        ${tab === "listings" ? "border-b-2 border-moon-gold text-moon-gold" : "text-white text-opacity-60"}`}
-          onClick={() => setTab("listings")}
+        ${
+          tab === "listings"
+            ? "border-b-2 border-moon-gold text-moon-gold"
+            : "text-white text-opacity-60"
+        }`}
+          onClick={() => {
+            if (!directListings[0])
+              return toast("No direct listings available", {
+                style: toastStyle,
+              });
+            setTab("listings");
+          }}
         >
           Listings
         </h3>
         <h3
           className={`p-4 text-base font-semibold text-white text-opacity-60 cursor-pointer transition-colors duration-100 ease-in-out hover:text-[#e9e9f9]
-        ${tab === "auctions" ? "border-b-2 border-moon-gold text-moon-gold" : "text-white text-opacity-60"}`}
-          onClick={() => setTab("auctions")}
+        ${
+          tab === "auctions"
+            ? "border-b-2 border-moon-gold text-moon-gold"
+            : "text-white text-opacity-60"
+        }`}
+          onClick={() => {
+            if (!auctionListings[0])
+              return toast("No auction listings available", {
+                style: toastStyle,
+              });
+            setTab("auctions");
+          }}
         >
           Auctions
         </h3>

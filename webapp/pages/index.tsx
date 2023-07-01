@@ -1,4 +1,3 @@
-import type { NextPage } from "next";
 import Hero from "../components/Home/Hero";
 import CollectionShowcase from "../components/Home/Showcases/CollectionShowcase";
 import TrendingShowcase from "../components/Home/Showcases/TrendingShowcase";
@@ -15,14 +14,25 @@ import {
   DirectListing,
 } from "../lib/marketplace/marketplace-utils";
 import Metadata from "../components/Layout/Metadata";
-import PolygonBridge from "../components/Home/PolygonBridge";
+import { useContract } from "@thirdweb-dev/react";
+import { useEffect, useState } from "react";
 
 type HomeProps = {
-  validListings: DirectListing[];
-  validAuctions: AuctionListing[];
+  _validListings: DirectListing[];
+  _validAuctions: AuctionListing[];
 };
 
-export default function Home({ validListings, validAuctions }: HomeProps) {
+export default function Home({ _validListings, _validAuctions }: HomeProps) {
+  const { contract: marketplace } = useContract(
+    MARKETPLACE_ADDRESS,
+    "marketplace-v3"
+  );
+
+  const [validListings, setValidListings] =
+    useState<DirectListing[]>(_validListings);
+  const [validAuctions, setValidAuctions] =
+    useState<AuctionListing[]>(_validAuctions);
+
   const { collections: trendingCollections, assets: trendingAssets } =
     useFilter("trending", validListings, validAuctions);
 
@@ -31,6 +41,18 @@ export default function Home({ validListings, validAuctions }: HomeProps) {
     validListings,
     validAuctions
   );
+
+  //Use SSG data if marketplace contract hasn't loaded yet
+  useEffect(() => {
+    if (marketplace) {
+      getAllValidListings(marketplace).then((listings: DirectListing[]) => {
+        setValidListings(listings);
+      });
+      getAllValidAuctions(marketplace).then((auctions: AuctionListing[]) => {
+        setValidAuctions(auctions);
+      });
+    }
+  }, [_validAuctions, _validListings]);
 
   return (
     <main className="flex flex-col items-center px-6 md:px-10">
@@ -73,9 +95,9 @@ export async function getStaticProps() {
   );
   return {
     props: {
-      validListings,
-      validAuctions,
+      _validListings: validListings,
+      _validAuctions: validAuctions,
     },
-    revalidate: 60,
+    revalidate: 10,
   };
 }

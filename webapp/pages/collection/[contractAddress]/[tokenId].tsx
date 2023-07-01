@@ -90,7 +90,7 @@ export default function TokenPage({
     }
   }, [marketplace]);
 
-  ///set Current Listing (potentially refactor scurrListing to useMemo?)
+  ///set Current Listing (potentially refactor currListing to useMemo?)
   useEffect(() => {
     if (directListings[0] || auctionListings[0]) {
       const listing = directListings[0]
@@ -136,7 +136,7 @@ export default function TokenPage({
                 Description
               </h3>
 
-              <p className="font-medium text-base leading-[25px] opacity-80">
+              <p className="font-medium text-base leading-[25px] opacity-80 font-mono">
                 {nft.metadata.description}
               </p>
 
@@ -145,22 +145,26 @@ export default function TokenPage({
                 Traits
               </h3>
 
-              <div className="py-3 px-2 flex flex-wrap justify-center gap-4 bg-black mt-3 rounded-lg bg-opacity-30 border border-white border-opacity-40">
+              <div className="py-3 flex flex-wrap gap-4 md:gap-5 mt-3">
                 {Object.entries(nft?.metadata?.attributes || {}).map(
                   ([key, value]: any) => (
                     <div
-                      className="flex flex-col gap-[6px] py-2 rounded-lg bg-slate-900 text-center px-3 min-w-[128px] min-h-[32px] grow-0"
+                      className="flex flex-col gap-[6px] rounded-lg bg-slate-900 text-center min-w-[128px] lg:min-w-[142px] min-h-[32px] lg:min-h-[38px] grow-0"
                       key={key}
                     >
-                      <p className="text-white opacity-60 font-semibold uppercase tracking-wider text-sm">
+                      <p className="text-moon-gold opacity-70 px-2 pt-1 pb-[2px] bg-[#030712] font-semibold uppercase tracking-widest text-sm">
                         {value.trait_type}
                       </p>
-                      <p className="text-base text-white tracking-widest text-[17px] font-mono">
+                      <p className="text-base px-2 pb-2 text-white tracking-wider text-[17px] font-mono capitalize">
                         {value.value?.toString() || ""}
                       </p>
                     </div>
                   )
                 )}
+                <p>
+                {/*{nft?.metadata?.attributes}*/}
+
+                  </p>
               </div>
 
               {/*History*/}

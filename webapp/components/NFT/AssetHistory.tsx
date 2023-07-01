@@ -47,7 +47,6 @@ export default function AssetHistory({ contract, tokenId }: AssetHistoryProps) {
                 ) : (
                   <p className="font-semibold m-0 text-white opacity-90">
                     {event.data}
-                    {console.log(event.data)}
                   </p>
                 )}
               </div>

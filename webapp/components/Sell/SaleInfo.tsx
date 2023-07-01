@@ -1,13 +1,9 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { MarketplaceV3, useContract, Web3Button } from "@thirdweb-dev/react";
+import { useContract, Web3Button } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
 import toastStyle from "../../lib/utils/toastConfig";
-import {
-  MARKETPLACE_ADDRESS,
-  L2_MOONEY_ADDRESS,
-  MOONEY_DECIMALS,
-} from "../../const/config";
+import { MARKETPLACE_ADDRESS, L2_MOONEY_ADDRESS } from "../../const/config";
 import {
   AuctionSubmission,
   DirectSubmission,
@@ -225,6 +221,15 @@ export default function SaleInfo({
                       type="number"
                       min={1}
                       {...registerDirect("quantity")}
+                      onChange={(e) => {
+                        if (e.target.value > nft.quantityOwned) {
+                          e.target.value = nft.quantityOwned;
+                          toast.error(
+                            `You can't list more than ${nft.quantityOwned} of this asset`,
+                            { style: toastStyle }
+                          );
+                        }
+                      }}
                     />
                     <h3
                       className={`relative right-[-5%] bottom-2 text-2xl ${
@@ -233,7 +238,7 @@ export default function SaleInfo({
                     >{`/ ${nft.quantityOwned || "/ ..."}`}</h3>
                   </div>
                   <p className="text-[80%] italic opacity-60">
-                    *list multiple assets as a bundle*
+                    *list multiple assets*
                   </p>
                 </>
               )}
@@ -263,7 +268,7 @@ export default function SaleInfo({
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
                 min={new Date(
-                  Date.now() - new Date().getTimezoneOffset() * 60000
+                  Date.now() - new Date().getTimezoneOffset() + 1428 * 60000
                 )
                   .toISOString()
                   .slice(0, -8)}
@@ -275,7 +280,7 @@ export default function SaleInfo({
                   <h4 className="mt-6 mb-3">Price </h4>
                   <legend className="text-white text-opacity-80 m-0 mb-2">
                     {" "}
-                    {"Price for asset or bundle"}
+                    {"Price per asset"}
                   </legend>
                   <input
                     className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
@@ -326,6 +331,15 @@ export default function SaleInfo({
                       type="number"
                       min={1}
                       {...registerAuction("quantity")}
+                      onChange={(e) => {
+                        if (e.target.value > nft.quantityOwned) {
+                          e.target.value = nft.quantityOwned;
+                          toast.error(
+                            `You can't list more than ${nft.quantityOwned} of this asset`,
+                            { style: toastStyle }
+                          );
+                        }
+                      }}
                     />
                     <h3
                       className={`relative right-[-5%] bottom-2 text-2xl ${
@@ -367,7 +381,7 @@ export default function SaleInfo({
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="datetime-local"
                 min={new Date(
-                  Date.now() - new Date().getTimezoneOffset() * 60000
+                  Date.now() - new Date().getTimezoneOffset() + 1428 * 60000
                 )
                   .toISOString()
                   .slice(0, -8)}
@@ -383,7 +397,7 @@ export default function SaleInfo({
               </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
-                step={0.000001}
+                step={1}
                 type="number"
                 {...registerAuction("floorPrice")}
               />
@@ -391,12 +405,12 @@ export default function SaleInfo({
               {/* Input field for buyout price */}
               <legend className="text-white text-opacity-80 m-0 mb-2">
                 {" "}
-                Buyout price{" "}
+                Buyout price for asset or bundle{" "}
               </legend>
               <input
                 className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                 type="number"
-                step={0.000001}
+                step={1}
                 {...registerAuction("buyoutPrice")}
               />
 
