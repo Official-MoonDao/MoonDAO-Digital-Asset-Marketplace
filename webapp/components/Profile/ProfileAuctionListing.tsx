@@ -145,7 +145,7 @@ export default function ProfileAuctionListing({
             listingId={+listing.auctionId}
             expired
           />
-        ) : !loadingBid && walletAddress && winningBidObj?.bidAmount / MOONEY_DECIMALS <= 0 ? (
+        ) : !loadingBid && walletAddress && !winningBidObj ? (
           <CancelListing type="auction" listingId={+listing.auctionId} />
         ) : (
           ""

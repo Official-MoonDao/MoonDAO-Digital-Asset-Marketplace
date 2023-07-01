@@ -285,7 +285,7 @@ export default function SaleInfo({
                   <input
                     className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                     type="number"
-                    step={0.000001}
+                    step={1}
                     {...registerDirect("price")}
                   />
 

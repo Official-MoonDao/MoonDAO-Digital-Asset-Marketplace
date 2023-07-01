@@ -23,7 +23,7 @@ import {
 } from "../../../lib/marketplace/marketplace-utils";
 import { useRouter } from "next/router";
 import { initSDK } from "../../../lib/thirdweb";
-import { getAllDetectedFeatureNames } from "@thirdweb-dev/sdk";
+import { getAllDetectedExtensionNames } from "@thirdweb-dev/sdk";
 import Metadata from "../../../components/Layout/Metadata";
 import AssetHistory from "../../../components/NFT/AssetHistory";
 import AssetListings from "../../../components/NFT/AssetListings";
@@ -161,10 +161,7 @@ export default function TokenPage({
                     </div>
                   )
                 )}
-                <p>
-                {/*{nft?.metadata?.attributes}*/}
-
-                  </p>
+                <p>{/*{nft?.metadata?.attributes}*/}</p>
               </div>
 
               {/*History*/}
@@ -203,10 +200,7 @@ export default function TokenPage({
             </div>
 
             {currListing?.listing && nft.type === "ERC721" && (
-              <Link
-                href={`/profile/${currListing?.listing.creatorAddress}`}
-                className="flex items-center mb-2 mt-6 gap-2 transition-opacity duration-200 ease-in-out mx-4"
-              >
+              <div className="flex items-center mb-2 mt-6 gap-2 transition-opacity duration-200 ease-in-out mx-4">
                 {/* Random linear gradient circle shape */}
                 <div
                   className="mt-4 w-[48px] h-[48px] rounded-[50%] opacity-90 border-2 border-white border-opacity-20"
@@ -224,7 +218,7 @@ export default function TokenPage({
                     </p>
                   </div>
                 </div>
-              </Link>
+              </div>
             )}
 
             <div className="flex flex-col w-full relative grow bg-transparent rounded-2xl overflow-hidden mt-8 mb-6">
@@ -366,7 +360,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   );
   const acceptedCollections = await marketplace.roles.get("asset");
 
-  //if no contract address or token id, return 404
+  // if no contract address or token id, return 404
   if (!acceptedCollections.includes(contractAddress)) {
     return {
       notFound: true,
@@ -376,7 +370,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const collectionContract: any = await sdk.getContract(
     contractAddress as string
   );
-  const extensions = getAllDetectedFeatureNames(collectionContract.abi);
+  const extensions = getAllDetectedExtensionNames(collectionContract.abi);
 
   let nft;
   if (extensions[0] === "ERC1155") {

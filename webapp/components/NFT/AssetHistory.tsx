@@ -41,7 +41,7 @@ export default function AssetHistory({ contract, tokenId }: AssetHistoryProps) {
                   <p className="font-semibold m-0 text-white opacity-90">
                     {
                       // if last event in array, then it's a mint
-                      index === transferEvents.length - 1 ? "Mint" : "Transfer"
+                      "Transfer"
                     }
                   </p>
                 ) : (
