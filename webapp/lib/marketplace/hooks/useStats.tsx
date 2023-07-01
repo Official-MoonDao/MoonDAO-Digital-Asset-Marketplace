@@ -54,8 +54,9 @@ export function useAssetStats(
   useEffect(() => {
     let floorPrice, supply;
     if (assetListings && assetAuctions && contract) {
-      floorPrice =
-        +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
+      floorPrice = Math.round(
+        +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS
+      );
       const extensions = getAllDetectedExtensionNames(contract?.abi);
       (async () => {
         if (extensions[0] !== "ERC1155") {
@@ -150,7 +151,7 @@ export function useCollectionStats(
           supply = await collectionContract.erc721.totalCount();
         }
         setStats({
-          floorPrice: +floorPrice / MOONEY_DECIMALS,
+          floorPrice: Math.round(+floorPrice / MOONEY_DECIMALS),
           listed,
           supply: supply?.toNumber() || 0,
         });

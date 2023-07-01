@@ -114,7 +114,7 @@ export function serialize(data: any) {
           quantity: auction.quantity,
           currencyContractAddress: auction.currencyContractAddress,
           minimumBidAmount: auction.minimumBidAmount,
-          buyoutBidAmount: auction.buyoutBidAmount,
+          buyoutBidAmount: auction?.buyoutBidAmount,
           timeBufferInSeconds: auction.timeBufferInSeconds,
           bidBufferBps: auction.bidBufferBps,
           startTimestamp: auction.startTimeInSeconds,

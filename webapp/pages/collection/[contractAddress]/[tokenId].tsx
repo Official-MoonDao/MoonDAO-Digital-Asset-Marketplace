@@ -247,15 +247,18 @@ export default function TokenPage({
                     <>
                       {currListing.listing && currListing.type === "direct" ? (
                         <>
-                          {+currListing.listing.pricePerToken /
-                            MOONEY_DECIMALS || "..."}
+                          {Math.round(
+                            +currListing.listing.pricePerToken / MOONEY_DECIMALS
+                          ) || "..."}
                           {" " + "MOONEY"}
                         </>
                       ) : currListing.listing &&
                         currListing.type === "auction" ? (
                         <>
-                          {+currListing.listing.buyoutBidAmount /
-                            MOONEY_DECIMALS || "..."}
+                          {Math.round(
+                            +currListing.listing.buyoutBidAmount /
+                              MOONEY_DECIMALS
+                          ) || "..."}
                           {" " + "MOONEY"}
                         </>
                       ) : (
@@ -282,8 +285,10 @@ export default function TokenPage({
                               </p>
 
                               <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
-                                {+currListing.listing.minimumBidAmount /
-                                  MOONEY_DECIMALS}
+                                {Math.round(
+                                  +currListing.listing.minimumBidAmount /
+                                    MOONEY_DECIMALS
+                                )}
                                 {" " + "MOONEY"}
                               </div>
                               <p
