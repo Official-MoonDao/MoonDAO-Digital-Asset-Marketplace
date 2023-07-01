@@ -21,7 +21,7 @@ export default function ProfileAuctionListing({
   const minBid = listing.minimumBidAmount;
   const end = listing.endTimestamp;
 
-  const [winningBid, setWinningBid] = useState<number>(0);
+  const [winningBidObj, setWinningBidObj] = useState<any>();
   const [loadingBid, setLoadingBid] = useState<boolean>(true);
 
   const { contract: marketplace } = useContract(
@@ -29,7 +29,7 @@ export default function ProfileAuctionListing({
     "marketplace-v3"
   );
 
-  const claimable = useClaimableAuction(winningBid, +buyOut, end);
+  const claimable = useClaimableAuction(winningBidObj, +buyOut, end);
 
   useEffect(() => {
     if (marketplace && listing?.auctionId) {
@@ -37,7 +37,7 @@ export default function ProfileAuctionListing({
       marketplace.englishAuctions
         .getWinningBid(listing.auctionId)
         .then((bid: any) => {
-          setWinningBid(bid.bidAmount / MOONEY_DECIMALS);
+          setWinningBidObj(bid);
           setLoadingBid(false);
         })
         .catch((e: any) => {
@@ -109,7 +109,7 @@ export default function ProfileAuctionListing({
         <div>
           <p className="text-sm opacity-80">Winning bid</p>
           <p className="tracking-wide">{`${
-            winningBid || "No bids yet"
+            winningBidObj?.bidAmount / MOONEY_DECIMALS || "No bids yet"
           } MOONEY`}</p>
         </div>
         {/*Expiration Date */}
@@ -131,7 +131,7 @@ export default function ProfileAuctionListing({
               />
             )}
 
-            <p className="w-full text-center text-[75%]">{`(Payout: ${winningBid} MOONEY)`}</p>
+            <p className="w-full text-center text-[75%]">{`(Payout: ${winningBidObj?.bidAmount} MOONEY)`}</p>
           </>
         )}
         {/* Expired Auctions /w No bids */}
@@ -145,7 +145,7 @@ export default function ProfileAuctionListing({
             listingId={+listing.auctionId}
             expired
           />
-        ) : !loadingBid && walletAddress && winningBid <= 0 ? (
+        ) : !loadingBid && walletAddress && winningBidObj?.bidAmount / MOONEY_DECIMALS <= 0 ? (
           <CancelListing type="auction" listingId={+listing.auctionId} />
         ) : (
           ""
