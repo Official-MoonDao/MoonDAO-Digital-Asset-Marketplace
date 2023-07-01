@@ -32,9 +32,7 @@ export function useListingsByWallet(
         [];
       setListings(filteredListings);
       setAuctions(filteredAuctions);
-      setTimeout(() => {
-        setLoading(false);
-      }, 2000);
+      setLoading(false);
     }
   }, [validListings, allAuctions, walletAddress]);
 
