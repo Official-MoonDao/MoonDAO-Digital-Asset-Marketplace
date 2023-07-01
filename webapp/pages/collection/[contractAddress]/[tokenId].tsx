@@ -136,7 +136,7 @@ export default function TokenPage({
                 Description
               </h3>
 
-              <p className="font-medium text-base leading-[25px] opacity-80">
+              <p className="font-medium text-base leading-[25px] opacity-80 font-mono">
                 {nft.metadata.description}
               </p>
 
@@ -145,22 +145,26 @@ export default function TokenPage({
                 Traits
               </h3>
 
-              <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20">
+              <div className="py-3 flex flex-wrap gap-4 md:gap-5 mt-3">
                 {Object.entries(nft?.metadata?.attributes || {}).map(
                   ([key, value]: any) => (
                     <div
-                      className="flex flex-col grow gap-1 py-2 px-3 min-w-[128px] min-h-[32px]"
+                      className="flex flex-col gap-[6px] rounded-lg bg-slate-900 text-center min-w-[128px] lg:min-w-[142px] min-h-[32px] lg:min-h-[38px] grow-0"
                       key={key}
                     >
-                      <p className="m-0 text-white opacity-60">
+                      <p className="text-moon-gold opacity-70 px-2 pt-1 pb-[2px] bg-[#030712] font-semibold uppercase tracking-widest text-sm">
                         {value.trait_type}
                       </p>
-                      <p className="font-semibold m-0 text-white opacity-90">
+                      <p className="text-base px-2 pb-2 text-white tracking-wider text-[17px] font-mono capitalize">
                         {value.value?.toString() || ""}
                       </p>
                     </div>
                   )
                 )}
+                <p>
+                {/*{nft?.metadata?.attributes}*/}
+
+                  </p>
               </div>
 
               {/*History*/}
