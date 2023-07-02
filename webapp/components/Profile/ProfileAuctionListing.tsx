@@ -131,7 +131,9 @@ export default function ProfileAuctionListing({
               />
             )}
 
-            <p className="w-full text-center text-[75%]">{`(Payout: ${winningBidObj?.bidAmount} MOONEY)`}</p>
+            <p className="w-full text-center text-[75%]">{`(Payout: ${
+              winningBidObj?.bidAmount / MOONEY_DECIMALS
+            } MOONEY)`}</p>
           </>
         )}
         {/* Expired Auctions /w No bids */}

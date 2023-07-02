@@ -264,6 +264,21 @@ export default function TokenPage({
                       ) : (
                         "Not for sale"
                       )}
+                      <p
+                        className="text-white opacity-60 mt-1 p-[2px]"
+                        style={{ marginTop: 12 }}
+                      >
+                        {"Expiration"}
+                      </p>
+                      <div className="text-[18px] leading-6 font-semibold text-white text-opacity-90 m-0 rounded-lg">
+                        {new Date(
+                          +currListing.listing.endTimestamp * 1000
+                        ).toLocaleDateString() +
+                          " @ " +
+                          new Date(
+                            +currListing.listing.endTimestamp * 1000
+                          ).toLocaleTimeString()}
+                      </div>
                     </>
                   )}
                 </div>
