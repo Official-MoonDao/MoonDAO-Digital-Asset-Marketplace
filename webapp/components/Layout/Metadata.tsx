@@ -12,7 +12,7 @@ interface MetadataProps {
 export default function Metadata({
   title = "",
   description = defaultDescription,
-  image = "/screenshot.png",
+  image = "https://ipfs.io/ipfs/QmUFwnzo1Ef4VmyTY7Y1hqML622fH9num46T7ZJkM1784X",
 }: MetadataProps) {
   return (
     <Head>
