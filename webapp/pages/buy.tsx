@@ -88,7 +88,10 @@ export default function Buy({ _validListings, _validAuctions }: BuyPageProps) {
 
   return (
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full">
-      <Metadata title="Buy" />
+      <Metadata
+        title="Buy"
+        image="https://ipfs.io/ipfs/QmUFwnzo1Ef4VmyTY7Y1hqML622fH9num46T7ZJkM1784X"
+      />
       <div className="flex flex-col items-center md:items-start">
         {/*Title*/}
         <h2 className="font-GoodTimes tracking-wide flex items-center text-3xl lg:text-4xl bg-clip-text text-transparent bg-gradient-to-br from-moon-gold to-indigo-100">

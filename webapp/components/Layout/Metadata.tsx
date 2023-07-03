@@ -21,7 +21,7 @@ export default function Metadata({
       <link rel="icon" href="/favicon.ico" />
       <meta name="description" content={description} />
       <meta name="theme-color" content="#090013" />
-      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@OfficialMoonDAO" />
       <meta name="twitter:title" content={"MoonDAO Marketplace | " + title} />
       <meta name="twitter:description" content={description} />
