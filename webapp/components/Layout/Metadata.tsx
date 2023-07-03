@@ -29,10 +29,7 @@ export default function Metadata({
       <meta property="og:title" content={"MoonDAO Marketplace | " + title} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
-      <meta
-        property="og:url"
-        content="https://main--moondao-marketplace-test.netlify.app/"
-      />
+      <meta property="og:url" content="https://market.moondao.com/" />
       <meta property="og:site_name" content="MoonDAO Marketplace" />
       <meta property="og:type" content="website" />
     </Head>
