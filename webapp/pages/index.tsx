@@ -56,10 +56,7 @@ export default function Home({ _validListings, _validAuctions }: HomeProps) {
 
   return (
     <main className="flex flex-col items-center px-6 md:px-10">
-      <Metadata
-        title="Home"
-        image="https://ipfs.io/ipfs/QmUFwnzo1Ef4VmyTY7Y1hqML622fH9num46T7ZJkM1784X"
-      />
+      <Metadata title="Home" />
       <Hero
         topAssets={trendingAssets.slice(
           0,
