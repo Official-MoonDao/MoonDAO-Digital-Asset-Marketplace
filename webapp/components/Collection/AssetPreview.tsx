@@ -76,7 +76,7 @@ export default function AssetPreview({
                 `/collection/${listing.assetContractAddress}/${listing.tokenId}`
               )
             }
-            className="mt-10 border-[0.5px] hover:scale-105 px-[10px] py-[4px] transition-all duration-150 hover:bg-slate-900 rounded-tl-[10px] rounded-br-[10px]"
+            className="absolute top-12 mt-10 border-[0.5px] hover:scale-105 px-[10px] py-[4px] transition-all duration-150 hover:bg-slate-900 rounded-tl-[10px] rounded-br-[10px]"
           >
             <a>Buy now</a>
           </button>

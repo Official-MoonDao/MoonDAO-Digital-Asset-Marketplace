@@ -1,4 +1,4 @@
-import { MediaRenderer } from "@thirdweb-dev/react";
+import { MediaRenderer, ThirdwebNftMedia } from "@thirdweb-dev/react";
 import LogoSmall from "../../../assets/LogoSmall";
 import Skeleton from "../../Layout/Skeleton";
 import { useAssetStats } from "../../../lib/marketplace/hooks";
@@ -26,17 +26,18 @@ export default function TrendingThumbnail({
         <div className="bg-[#251d2e] h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div> */}
         {/*Image container to create zoom effect*/}
         <div className={"w-full h-[275px] overflow-hidden"}>
-          <MediaRenderer
-            className={`object-cover object-center group-hover:scale-110 transition-all duration-200  ${
-              first && "rounded-tl-[60px]"
+          <ThirdwebNftMedia
+            className={`object-cover object-center group-hover:scale-110 hover:rounded transition-all duration-200  ${
+              first && "rounded-tl-[75px]"
             }`}
-            src={asset.asset.image}
+            width={"100%"}
+            metadata={asset.asset}
           />
         </div>
         {/*Card with Asset data*/}
         <div
-          className={`bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 relative z-10 bg-opacity-10 w-full max-w-[335px] h-[162px] flex justify-between ${
-            last && "rounded-br-[60px]"
+          className={`bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 relative z-10 bg-opacity-10 w-full max-w-[300px] h-[182px] flex justify-between ${
+            last && "rounded-br-[75px]"
           }`}
         >
           <div className="pl-6 mt-5 flex flex-col items-start">
@@ -46,8 +47,8 @@ export default function TrendingThumbnail({
             <span className="flex items-center gap-2">
               <LogoSmall size={{ width: 10.54, height: 11.07 }} />
               {floorPrice && floorPrice.toString().length < 12
-              ? floorPrice
-              : floorPrice?.toString().slice(0, 10) + "..."}
+                ? floorPrice
+                : floorPrice?.toString().slice(0, 10) + "..."}
             </span>
           </div>
           <div className="mt-5  pr-6 flex flex-col items-end">
