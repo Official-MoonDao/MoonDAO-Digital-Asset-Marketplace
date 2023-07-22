@@ -66,7 +66,7 @@ export default function ManageBatch({
           <div className="flex flex-col gap-4">
             {batch &&
               batch.map((item, i) => (
-                <div className="bg-[grey] p-4">
+                <div key={"batch-listing-" + i} className="bg-[grey] p-4">
                   <button
                     className="p-2 bg-moon-secondary"
                     onClick={() =>
