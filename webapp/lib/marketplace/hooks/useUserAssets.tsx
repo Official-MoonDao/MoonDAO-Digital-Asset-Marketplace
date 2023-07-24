@@ -17,14 +17,14 @@ export function useUserAssets(
   walletAddress: string
 ) {
   const [assets, setAssets] = useState<any>();
-
+  const [loading, setLoading] = useState<boolean>(false);
   const signer: any = useSigner();
   const networkMismatch = useNetworkMismatch();
 
   const {
     listings: profileListings,
     auctions: profileAuctions,
-    isLoading: loadingProfileAuctions,
+    isLoading: loadingProfileListings,
   } = useListingsByWallet(validListings, validAuctions, signer?._address);
 
   useEffect(() => {
@@ -34,8 +34,10 @@ export function useUserAssets(
       !networkMismatch &&
       !assets &&
       profileAuctions &&
-      profileListings
+      profileListings &&
+      !loadingProfileListings
     ) {
+      setLoading(true);
       marketplace.roles.get("asset").then(async (res: any) => {
         setAssets(undefined);
         await res.forEach(async (collection: any) => {
@@ -54,7 +56,6 @@ export function useUserAssets(
                   const ownedQuantity = asset.quantityOwned;
 
                   //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
-                  console.log(profileListings);
                   const listedQuantity = profileListings?.reduce(
                     (arr: number, listing: any) =>
                       listing.assetContractAddress.toLowerCase() ===
@@ -117,6 +118,8 @@ export function useUserAssets(
                     : ownedAssets
                 )
               : setAssets(undefined);
+            setLoading(false);
+            console.log(ownedAssets);
           } catch (err: any) {
             console.log(err.message);
           }
@@ -139,5 +142,5 @@ export function useUserAssets(
       }
     }
   }, [signer, walletAddress]);
-  return assets;
+  return { assets, isLoading: loading };
 }

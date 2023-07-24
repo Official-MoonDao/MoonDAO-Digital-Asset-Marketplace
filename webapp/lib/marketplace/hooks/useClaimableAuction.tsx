@@ -9,7 +9,8 @@ export function useClaimableAuction(
 ) {
   const claimable = useMemo(() => {
     const now = Date.now() / 1000;
-    if (winningBidObj?.bidderAddress === ZERO_ADDRESS) return false;
+    if (winningBidObj?.bidderAddress === ZERO_ADDRESS || !winningBidObj)
+      return false;
     return (
       winningBidObj.bidAmount >= +buyoutBidAmount ||
       (winningBidObj.bidAmount > 0 && +endTimestamp < now)

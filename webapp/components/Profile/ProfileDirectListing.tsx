@@ -58,7 +58,7 @@ export default function ProfileDirectListing({
         <div>
           <p className="text-sm opacity-80">Price</p>
           <p className="tracking-wide">{`${
-            +buyOut / MOONEY_DECIMALS
+           Math.round( +buyOut / MOONEY_DECIMALS)
           } MOONEY`}</p>
         </div>
         {/*Expiration date*/}

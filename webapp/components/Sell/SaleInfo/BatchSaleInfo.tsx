@@ -1,19 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useContract, Web3Button } from "@thirdweb-dev/react";
 import toast, { Toaster } from "react-hot-toast";
-import toastStyle from "../../lib/utils/toastConfig";
-import { MARKETPLACE_ADDRESS, L2_MOONEY_ADDRESS } from "../../const/config";
+import toastStyle from "../../../lib/utils/toastConfig";
+import { MARKETPLACE_ADDRESS, L2_MOONEY_ADDRESS } from "../../../const/config";
 import {
   AuctionSubmission,
   DirectSubmission,
-} from "../../lib/marketplace/marketplace-utils";
+} from "../../../lib/marketplace/marketplace-utils";
 
 type Props = {
   nft: any;
   contractAddress: string;
-  router: any;
   walletAddress: any;
+  setSelectedNft: Function;
+  batchType: "direct" | "auction" | undefined;
+  listingBatch: any;
+  auctionBatch: any;
 };
 
 type AuctionFormData = {
@@ -35,17 +38,15 @@ type DirectFormData = {
   endDate: Date;
 };
 
-export default function SaleInfo({
+export default function BatchSaleInfo({
   nft,
   contractAddress,
-  router,
   walletAddress,
+  setSelectedNft,
+  batchType,
+  listingBatch,
+  auctionBatch,
 }: Props) {
-  const { contract: marketplace }: any = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
-
   const { contract: nftCollection } = useContract(contractAddress);
 
   // Manage form submission state using tabs and conditional rendering
@@ -53,11 +54,18 @@ export default function SaleInfo({
 
   //Check if user has balance for quanity
   function checkBalance(quantity: string | number) {
-    const hasBalance = nft && nft.quantityOwned >= +quantity;
+    const queuedQuantity = listingBatch.listings.reduce(
+      (acc: number, listing: any) => {
+        return listing.tokenId === nft.metadata.id
+          ? acc + +listing.quantity
+          : acc;
+      },
+      0
+    );
+    const hasBalance = nft && nft.quantityOwned - queuedQuantity >= +quantity;
     !hasBalance && toast.error("Insufficient balance");
     return hasBalance;
   }
-
   // User requires to set marketplace approval before listing
   async function checkAndProvideApproval() {
     try {
@@ -136,14 +144,13 @@ export default function SaleInfo({
       startTimestamp: startDate,
       endTimestamp: endDate,
     };
-    const txResult = await marketplace.englishAuctions.createAuction(auction);
-    await router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
-    toast("Listed Successfully!", {
-      icon: "🥳",
+    auctionBatch.addAuction(auction);
+    setSelectedNft(undefined);
+    toast("The auction was successfully added to the batch!", {
+      icon: "🚀",
       style: toastStyle,
       position: "bottom-center",
     });
-    return txResult;
   }
 
   //handle auction listing
@@ -162,15 +169,22 @@ export default function SaleInfo({
       endTimestamp: endDate,
       isReservedListing: false,
     };
-    const txResult = await marketplace.directListings.createListing(listing);
-    await router.push(`/collection/${data.nftContractAddress}/${data.tokenId}`);
-    toast("Listed Successfully!", {
-      icon: "🥳",
+
+    listingBatch.addListing(listing);
+    setSelectedNft(undefined);
+    toast("The listing was successfully added to batch!", {
+      icon: "🚀",
       style: toastStyle,
       position: "bottom-center",
     });
-    return txResult;
   }
+
+  //set tab to batch type
+  useEffect(() => {
+    if (batchType) {
+      setTab(batchType);
+    }
+  }, [batchType]);
 
   return (
     <>
@@ -183,7 +197,13 @@ export default function SaleInfo({
                 ? "text-opacity-100 border-b-2 border-moon-white"
                 : ""
             }`}
-            onClick={() => setTab("direct")}
+            onClick={() =>
+              !batchType || batchType === "direct"
+                ? setTab("direct")
+                : toast.error(
+                    "This is an auction batch. Please select auction tab to view auction details"
+                  )
+            }
           >
             Direct
           </h3>
@@ -193,7 +213,13 @@ export default function SaleInfo({
                 ? "text-opacity-100 border-b-2 border-moon-white"
                 : ""
             }`}
-            onClick={() => setTab("auction")}
+            onClick={() =>
+              !batchType || batchType === "auction"
+                ? setTab("auction")
+                : toast.error(
+                    "This is a direct batch. Please select direct tab to view direct details"
+                  )
+            }
           >
             Auction
           </h3>
@@ -285,7 +311,7 @@ export default function SaleInfo({
                   <input
                     className="block w-[98%] py-3 px-4 mb-4 bg-transparent border-none text-base rounded-lg ml-[2px] ring-1 ring-moon-white ring-opacity-50"
                     type="number"
-                    step={0.000001}
+                    step={1}
                     {...registerDirect("price")}
                   />
 
@@ -303,7 +329,7 @@ export default function SaleInfo({
                       });
                     }}
                   >
-                    Create Direct Listing
+                    Add Listing to Batch
                   </Web3Button>
                 </>
               }
@@ -428,7 +454,7 @@ export default function SaleInfo({
                   });
                 }}
               >
-                Create Auction Listing
+                Add Auction to Batch
               </Web3Button>
               {/* info */}
               <div className="flex flex-col gap-2 text-[80%] opacity-60 p-2 mt-4 bg-[#1d1d1d] rounded-lg bg-opacity-60">

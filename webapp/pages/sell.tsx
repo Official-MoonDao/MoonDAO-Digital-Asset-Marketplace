@@ -1,6 +1,6 @@
 import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
-import SaleInfo from "../components/Sell/SaleInfo";
+import SaleInfo from "../components/Sell/SaleInfo/SingleSaleInfo";
 import { useRouter } from "next/router";
 import { useUserAssets } from "../lib/marketplace/hooks";
 import {
@@ -12,6 +12,12 @@ import SubmitCollection from "../components/Sell/SubmitCollection";
 import VerticalStar from "../assets/VerticalStar";
 import SellCard from "../components/Sell/SellCard";
 import NoAssets from "../components/Sell/NoAssets";
+import ToggleSaleInfo from "../components/Sell/SaleInfo/ToggleSaleInfo";
+import { useListingBatch } from "../lib/marketplace/hooks/useListingBatch";
+import { useAuctionBatch } from "../lib/marketplace/hooks/useAuctionBatch";
+import SingleSaleInfo from "../components/Sell/SaleInfo/SingleSaleInfo";
+import BatchSaleInfo from "../components/Sell/SaleInfo/BatchSaleInfo";
+import ManageBatch from "../components/Sell/SaleInfo/ManageBatch";
 
 export default function Sell() {
   const router = useRouter();
@@ -26,12 +32,19 @@ export default function Sell() {
   const [validListings, setValidListings] = useState<any>();
   const [validAuctions, setValidAuctions] = useState<any>();
 
-  const userAssets = useUserAssets(
+  const { assets: userAssets, isLoading: loadingUserAssets } = useUserAssets(
     marketplace,
     validListings,
     validAuctions,
     address
   );
+
+  const [isBatch, setIsBatch] = useState<boolean>(false);
+  const [batchType, setBatchType] = useState<
+    "direct" | "auction" | undefined
+  >();
+  const listingBatch = useListingBatch(marketplace);
+  const auctionBatch = useAuctionBatch(marketplace);
 
   useEffect(() => {
     if (marketplace && !validListings && !validAuctions) {
@@ -47,11 +60,26 @@ export default function Sell() {
     }
   }, [marketplace]);
 
+  //set batch type
+  useEffect(() => {
+    if (isBatch) {
+      if (listingBatch.listings.length > 0) {
+        setBatchType("direct");
+      } else if (auctionBatch.auctions.length > 0) {
+        setBatchType("auction");
+      }
+    }
+  }, [isBatch, listingBatch, auctionBatch]);
+
   //Handling if user has no NFTs or is connected to the wrong network
-  if (!address || !userAssets?.[0] || loading) {
+  if (!address || loadingUserAssets || !userAssets?.[0] || loading) {
     return (
       <>
-        <NoAssets address={address} userAssets={userAssets} loading={loading} />
+        <NoAssets
+          address={address}
+          userAssets={userAssets}
+          loading={loading || loadingUserAssets}
+        />
         <div className="w-full">
           <SubmitCollection />
         </div>
@@ -70,10 +98,19 @@ export default function Sell() {
                 <VerticalStar />
               </span>
             </h2>
+            <div className="mt-8">
+              <ToggleSaleInfo isBatch={isBatch} setIsBatch={setIsBatch} />
+              {isBatch && (
+                <ManageBatch
+                  batchType={batchType}
+                  listingBatch={listingBatch}
+                  auctionBatch={auctionBatch}
+                />
+              )}
+            </div>
             <p className="text-center mt-10 lg:mt-12 text-lg md:text-left text-white opacity-80">
               Select which NFT you want to sell below
             </p>
-
             {/*Asset grid */}
             <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
               {userAssets[0]?.metadata?.id &&
@@ -117,8 +154,17 @@ export default function Sell() {
             </div>
 
             <div className="relative w-full min-w-0 max-w-full top-0 shrink tablet:sticky tablet:w-full tablet:min-w-[370px] tablet:max-w-[450px] mt-4 tablet:mt-0 mr-4">
+              <h1
+                className={`mt-4 mb-2 mx-4  text-2xl ${
+                  isBatch ? "text-indigo-500" : "text-moon-gold"
+                }`}
+              >
+                {`${isBatch ? "Batch Listing" : "Single Listing"}`}
+              </h1>
               <p className="mx-4 ">
-                {`You're about to list the following item for sale.`}
+                {isBatch
+                  ? `You're about to add this listing to a batch.`
+                  : `You're about to list the following item for sale.`}
               </p>
 
               <h1 className="font-medium text-[32px] font-GoodTimes break-words mt-4 mb-2 mx-4 text-moon-white">
@@ -129,13 +175,25 @@ export default function Sell() {
                 Token ID #{selectedNft.metadata.id}
               </p>
 
-              <div className="flex flex-col w-full grow relative bg-transparent rounded-2xl overflow-hidden mt-8 mb-6">
-                <SaleInfo
-                  nft={selectedNft}
-                  contractAddress={selectedNft.collection}
-                  router={router}
-                  walletAddress={address}
-                />
+              <div className="flex flex-col w-full grow relative bg-transparent rounded-2xl overflow-hidden mt-8 mb-6 gap-4">
+                {isBatch ? (
+                  <BatchSaleInfo
+                    nft={selectedNft}
+                    contractAddress={selectedNft.collection}
+                    walletAddress={address}
+                    setSelectedNft={setSelectedNft}
+                    batchType={batchType}
+                    listingBatch={listingBatch}
+                    auctionBatch={auctionBatch}
+                  />
+                ) : (
+                  <SingleSaleInfo
+                    nft={selectedNft}
+                    contractAddress={selectedNft.collection}
+                    router={router}
+                    walletAddress={address}
+                  />
+                )}
               </div>
             </div>
           </div>

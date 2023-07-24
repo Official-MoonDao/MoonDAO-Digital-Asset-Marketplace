@@ -12,7 +12,7 @@ import { MOONEY_DECIMALS } from "../../../const/config";
 
 function getFloorPrice(listings: DirectListing[], auctions: AuctionListing[]) {
   //get floor price for validListings
- 
+
   const listingFloor =
     listings && listings[0]
       ? Math.min(...listings.map((listing) => +listing.pricePerToken))
@@ -52,10 +52,11 @@ export function useAssetStats(
     );
 
   useEffect(() => {
-    let floorPrice, owners, supply;
+    let floorPrice, supply;
     if (assetListings && assetAuctions && contract) {
-      floorPrice =
-        +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS;
+      floorPrice = Math.round(
+        +getFloorPrice(assetListings, assetAuctions) / MOONEY_DECIMALS
+      );
       const extensions = getAllDetectedExtensionNames(contract?.abi);
       (async () => {
         if (extensions[0] !== "ERC1155") {
@@ -65,14 +66,14 @@ export function useAssetStats(
         }
 
         const listed =
-          assetListings?.reduce(
+          (assetListings?.reduce(
             (arr: number, l: any) => arr + Number(l.quantity),
             0
-          ) +
-            assetAuctions?.reduce(
-              (arr: number, a: any) => arr + Number(a.quantity),
-              0
-            ) || 0;
+          ) || 0) +
+          (assetAuctions?.reduce(
+            (arr: number, a: any) => arr + Number(a.quantity),
+            0
+          ) || 0);
 
         setStats({
           floorPrice: floorPrice || 0,
@@ -130,14 +131,14 @@ export function useCollectionStats(
     if (collectionContract && (collectionListings || collectionAuctions)) {
       const floorPrice = getFloorPrice(collectionListings, collectionAuctions);
       const listed =
-        collectionListings?.reduce(
+        (collectionListings?.reduce(
           (arr: number, l: any) => arr + Number(l.quantity),
           0
-        ) +
-          collectionAuctions?.reduce(
-            (arr: number, a: any) => arr + Number(a.quantity),
-            0
-          ) || 0;
+        ) || 0) +
+        (collectionAuctions?.reduce(
+          (arr: number, a: any) => arr + Number(a.quantity || 0),
+          0
+        ) || 0);
 
       let supply: any;
       (async () => {
@@ -150,7 +151,7 @@ export function useCollectionStats(
           supply = await collectionContract.erc721.totalCount();
         }
         setStats({
-          floorPrice: +floorPrice / MOONEY_DECIMALS,
+          floorPrice: Math.round(+floorPrice / MOONEY_DECIMALS),
           listed,
           supply: supply?.toNumber() || 0,
         });

@@ -93,17 +93,17 @@ export default function ProfileAuctionListing({
         {/*Price*/}
         <div>
           <p className="text-sm opacity-80">Buyout price</p>
-          <p className="tracking-wide">{`${
+          <p className="tracking-wide">{`${Math.round(
             +buyOut / MOONEY_DECIMALS
-          } MOONEY`}</p>
+          )} MOONEY`}</p>
         </div>
 
         {/*Minimum bid*/}
         <div>
           <p className="text-sm opacity-80">Minimum bid</p>
-          <p className="tracking-wide">{`${
+          <p className="tracking-wide">{`${Math.round(
             +minBid / MOONEY_DECIMALS
-          } MOONEY`}</p>
+          )} MOONEY`}</p>
         </div>
         {/*Winning bid*/}
         <div>
@@ -131,7 +131,9 @@ export default function ProfileAuctionListing({
               />
             )}
 
-            <p className="w-full text-center text-[75%]">{`(Payout: ${winningBidObj?.bidAmount} MOONEY)`}</p>
+            <p className="w-full text-center text-[75%]">{`(Payout: ${
+              winningBidObj?.bidAmount / MOONEY_DECIMALS
+            } MOONEY)`}</p>
           </>
         )}
         {/* Expired Auctions /w No bids */}
@@ -145,7 +147,7 @@ export default function ProfileAuctionListing({
             listingId={+listing.auctionId}
             expired
           />
-        ) : !loadingBid && walletAddress && winningBidObj?.bidAmount / MOONEY_DECIMALS <= 0 ? (
+        ) : !loadingBid && walletAddress && !winningBidObj ? (
           <CancelListing type="auction" listingId={+listing.auctionId} />
         ) : (
           ""

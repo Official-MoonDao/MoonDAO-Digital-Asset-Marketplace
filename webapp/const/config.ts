@@ -33,3 +33,7 @@ export const MOONEY_DECIMALS: number = 10 ** 18;
 
 export const ZERO_ADDRESS: string =
   "0x0000000000000000000000000000000000000000";
+
+// MoonDAO Featured Collection (Matic) : 0x4211D79026720711b1483BF238f040B45E9Ba934
+
+// MoonDAO Platform Fee Split Burn/Treasury: 0x714Fd33848e40b0aC21Eb838CC092Dd5a8608688
