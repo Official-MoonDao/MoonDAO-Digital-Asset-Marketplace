@@ -1,27 +1,27 @@
 export default function ToggleSaleInfo({ isBatch, setIsBatch }: any) {
   return (
-    <div className="flex flex-col justify-center items-center w-[400px] gap-4">
-      <h1 className="text-2xl flex">
-        <span className={`${!isBatch && "text-moon-gold"}`}>Single</span>|
-        <span className={`${isBatch && "text-indigo-500"}`}>Batch</span>
+    <div className="flex flex-col items-center md:items-start w-[330px] md:w-[400px]">
+      <h1 className="text-xl flex gap-3 font-semibold">
+        <span className={`${isBatch && "text-opacity-60"} text-moon-gold`}>Single</span>|
+        <span className={`${!isBatch && "text-opacity-60"} text-indigo-400`}>Batch</span>
       </h1>
-      <p className="text-white opacity-80 w-full text-center">
-        {isBatch
-          ? "Select multiple NFTs to sell at once"
-          : "Select a single NFT to sell"}
-      </p>
       <div
-        className={`w-[250px] h-[30px] bg-moon-gold rounded-full bg-moon-gold duration-[1s] ease-out ${
+        className={`mt-6 md:mt-7 w-[130px] md:w-[170px] h-[25px] rounded-full bg-moon-gold bg-opacity-90 duration-[1s] ease-out ${
           isBatch && "bg-indigo-500"
         }`}
         onClick={() => setIsBatch(!isBatch)}
       >
         <button
-          className={`w-[50px] h-[30px] bg-white rounded-full duration-[1s] ease-out ${
-            isBatch && "translate-x-[200px]"
+          className={`-mt-2 w-[40px] h-[40px] md:w-[43px] md:h-[43px] bg-white rounded-full duration-500 ease-out ${
+            isBatch && "translate-x-[100px] md:translate-x-[130px]"
           }`}
         ></button>
       </div>
+      <p className="mt-5 text-white opacity-80 text-center md:text-left">
+        {isBatch
+          ? "Select multiple NFTs to sell at once"
+          : "Select a single NFT to sell"}
+      </p>
     </div>
   );
 }

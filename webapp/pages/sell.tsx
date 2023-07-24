@@ -98,7 +98,7 @@ export default function Sell() {
                 <VerticalStar />
               </span>
             </h2>
-            <div className="w-full flex justify-center">
+            <div className="mt-8">
               <ToggleSaleInfo isBatch={isBatch} setIsBatch={setIsBatch} />
               {isBatch && (
                 <ManageBatch
