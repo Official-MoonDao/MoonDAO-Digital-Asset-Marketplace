@@ -6,15 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 
 const NoAssets = ({ address, userAssets, loading }: any) => {
   const networkMistmatch = useNetworkMismatch();
-
-  const [assetCheck, setAssetCheck] = useState(false);
-
-  useEffect(() => {
-    if (userAssets && userAssets[0]) {
-      setAssetCheck(true);
-    }
-  }, [userAssets]);
-
   return (
     <div className="pt-10 md:pt-12 lg:pt-16 xl:pt-20 m flex flex-col items-center w-full md:pl-36 xl:pl-44 2xl:pl-52 pb-24 xl:pb-24 2xl:pb-48">
       <Metadata title="Sell" />
@@ -27,6 +18,11 @@ const NoAssets = ({ address, userAssets, loading }: any) => {
         </h2>
         {!address && (
           <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400 w-3/4">
+            {"Please connect your wallet"}
+          </p>
+        )}
+        {address && loading && (
+          <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400 w-3/4">
             {!loading ? "Please connect your wallet" : "Loading..."}
           </p>
         )}
@@ -35,12 +31,11 @@ const NoAssets = ({ address, userAssets, loading }: any) => {
             {`The marketplace only supports NFTs on ${NETWORK.name}`}
           </p>
         )}
-        {address && !networkMistmatch && (
+        {address && !networkMistmatch && !loading && !userAssets?.[0] && (
           <p className="text-center mt-10 lg:mt-12 opacity-80 text-lg md:text-left text-red-400 w-3/4">
-            {!assetCheck && loading
-              ? "Loading..."
-              : !assetCheck &&
-                "You don't have any approved NFTs to sell. Please buy an NFT from the marketplace or submit a collection."}
+            {
+              "You don't have any approved NFTs to sell. Please buy an NFT from the marketplace or submit a collection."
+            }
           </p>
         )}
       </div>

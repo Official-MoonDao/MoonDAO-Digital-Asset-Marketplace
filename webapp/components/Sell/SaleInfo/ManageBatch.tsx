@@ -1,48 +1,83 @@
+import {
+  MediaRenderer,
+  ThirdwebNftMedia,
+  Web3Button,
+} from "@thirdweb-dev/react";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import toastStyle from "../../../lib/utils/toastConfig";
+import { MARKETPLACE_ADDRESS } from "../../../const/config";
+import { useLocalStorage } from "../../../lib/utils/hooks/useLocalStorage";
+import { useRouter } from "next/router";
 
 type ManageBatchProps = {
   batchType: "direct" | "auction" | undefined;
+  setBatchType: Function;
+  batch: any;
+  setBatch: Function;
   listingBatch: any;
   auctionBatch: any;
 };
 
-export default function ManageBatch({ batchType, listingBatch, auctionBatch }: ManageBatchProps) {
+export default function ManageBatch({
+  batchType,
+  setBatchType,
+  batch,
+  setBatch,
+  listingBatch,
+  auctionBatch,
+}: ManageBatchProps) {
+  const router = useRouter();
   const [enabled, setEnabled] = useState<boolean>(false);
-  const [batch, setBatch] = useState<any[]>();
 
   useEffect(() => {
     if (batchType === "direct") {
-      setBatch(listingBatch.listings);
+      setBatch(listingBatch.data.listings);
     } else if (batchType === "auction") {
-      setBatch(auctionBatch.auctions);
+      setBatch(auctionBatch.data.auctions);
     }
-  }, [batchType, listingBatch.listings, auctionBatch.auctions]);
+  }, [batchType, listingBatch.data?.listings, auctionBatch.data?.auctions]);
 
   function CreateBatch() {
     return (
-      <button
-        onClick={() => {
+      <Web3Button
+        className="!bg-moon-secondary !text-white !px-3 py-1 rounded-lg !shadow !shadow-white hover:scale-[1.03] transition-all duration-150 font-medium"
+        contractAddress={MARKETPLACE_ADDRESS}
+        action={async () => {
+          if (!batchType)
+            return toast("Add 2 or more listings to create a batch", {
+              icon: "✨",
+              style: toastStyle,
+              duration: 5000,
+            });
           if (batchType === "direct") {
-            listingBatch.listAll();
+            await listingBatch.listAll();
           } else if (batchType === "auction") {
-            auctionBatch.listAll();
+            await auctionBatch.listAll();
           }
+          router.reload();
         }}
-        className="bg-moon-secondary px-3 py-1 rounded-lg shadow shadow-white hover:scale-[1.03] transition-all duration-150 font-medium"
       >
         Submit Batch
-      </button>
+      </Web3Button>
     );
   }
-  console.log(batch);
+
   return (
     <>
       {/* Manage and submit*/}
       <div className="flex gap-5 mt-5 items-center justify-center md:justify-start">
         <button
-          onClick={() => (!batchType || !batch ? toast.error("You haven't added any listings yet") : setEnabled(!enabled))}
-          className="bg-indigo-600 px-3 py-1 rounded-lg shadow shadow-white hover:scale-[1.03] transition-all duration-150 font-medium"
+          onClick={() =>
+            !batchType || !batch || batch?.length <= 1
+              ? toast("Add 2 or more listings to create a batch", {
+                  icon: "✨",
+                  style: toastStyle,
+                  duration: 5000,
+                })
+              : setEnabled(!enabled)
+          }
+          className="bg-indigo-600 px-3 py-[2.45%] rounded-lg shadow shadow-white hover:scale-[1.03] transition-all duration-150 font-medium"
         >
           {!enabled ? "Manage Batch" : "Finish Managing"}
         </button>
@@ -52,17 +87,32 @@ export default function ManageBatch({ batchType, listingBatch, auctionBatch }: M
       {enabled && batchType && (
         <div className="mt-6 flex flex-col justify-center items-center md:items-start">
           <h6 className="text-lg">
-            Type of Batch: <span className="text-xl uppercase tracking-widest text-moon-gold">{batchType}</span>
+            Type of Batch:{" "}
+            <span className="text-xl uppercase tracking-widest text-moon-gold">
+              {batchType}
+            </span>
           </h6>
           <div className="mt-10 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
             {batch &&
-              batch.map((item, i) => (
+              batch.map((item: any, i: number) => (
                 <div
                   key={"batch-listing-" + i}
                   className="hover:ring-1 shadow shadow-moon-orange ring-moon-gold bg-gradient-to-br from-indigo-900 via-black to-indigo-900 rounded-lg w-[320px] h-[170px] px-3 pl-4 flex items-center relative"
                 >
                   {/*Replace for IMAGE here, add 120px Width and Height, 'rounded-2xl' and 'object-cover' to the image*/}
-                  <div className="h-[120px] w-[120px] bg-gradient-to-br from-slate-900 to-indigo-900 rounded-2xl"></div>
+                  {item && batchType ? (
+                    <MediaRenderer
+                      className="object-cover rounded-2xl"
+                      src={
+                        batchType === "direct"
+                          ? listingBatch.data.nfts?.[i]?.metadata?.image
+                          : auctionBatch.data.nfts?.[i]?.metadata?.image
+                      }
+                      width={"120px"}
+                    />
+                  ) : (
+                    <div className="h-[120px] w-[120px] bg-gradient-to-br from-slate-900 to-indigo-900 rounded-2xl"></div>
+                  )}
 
                   <div className="ml-5 text-sm font-mono flex flex-col items-center gap-3 text-center px-1">
                     <p className="absolute -left-2 z-50 -top-4 text-lg tracking-widest font-extrabold bg-moon-gold rounded-lg px-1 py-1">
@@ -70,39 +120,44 @@ export default function ManageBatch({ batchType, listingBatch, auctionBatch }: M
                     </p>
                     <button
                       className="absolute -top-[8px] -right-[5px] text-gray-100 h-8 w-8 font-bold bg-red-600 rounded-full hover:scale-110 transition-all duration-150"
-                      onClick={() => (batchType === "direct" ? listingBatch.removeListing(i) : auctionBatch.removeAuction(i))}
+                      onClick={() =>
+                        batchType === "direct"
+                          ? listingBatch.removeListing(i)
+                          : auctionBatch.removeAuction(i)
+                      }
                     >
                       X
                     </button>
                     <p className="uppercase">
                       {"Token ID"}
-                      <span className="block truncate max-w-[110px] text-moon-gold font-bold">{item.tokenId}</span>
+                      <span className="block truncate max-w-[110px] text-moon-gold font-bold">
+                        {item.tokenId}
+                      </span>
                     </p>
 
                     {/* quantity */}
                     <p className="uppercase">
                       {"Quantity"}
-                      <span className="block truncate max-w-[110px] text-moon-gold font-bold">{item.quantity}</span>
+                      <span className="block truncate max-w-[110px] text-moon-gold font-bold">
+                        {item.quantity}
+                      </span>
                     </p>
 
                     {batchType === "direct" ? (
                       <p className="uppercase">
                         {"Price Per NFT"}
-                        <span className="block truncate max-w-[110px] text-moon-gold font-bold">{item.pricePerToken}</span>
+                        <span className="block truncate max-w-[110px] text-moon-gold font-bold">
+                          {item.pricePerToken}
+                        </span>
                       </p>
                     ) : (
                       <p className="uppercase">
                         {"Reserve Price"}
-                        <span className="block truncate max-w-[110px] text-moon-gold font-bold">{item.buyoutBidAmount}</span>
+                        <span className="block truncate max-w-[110px] text-moon-gold font-bold">
+                          {item.buyoutBidAmount}
+                        </span>
                       </p>
                     )}
-
-                    {/* 
-                    <p>
-                      {"Contract Address:"}
-                      {item.assetContractAddress.slice(0, 6) + "..." + item.assetContractAddress.slice(-4)}
-                    </p>                    
-                    */}
                   </div>
                 </div>
               ))}
@@ -112,6 +167,9 @@ export default function ManageBatch({ batchType, listingBatch, auctionBatch }: M
               className="px-3 py-1 bg-red-600 rounded-lg transition-all hover:scale-[1.03] duration-150"
               onClick={() => {
                 setBatch(undefined);
+                setBatchType(undefined);
+                listingBatch.clearAll();
+                auctionBatch.clearAll();
                 setEnabled(false);
               }}
             >

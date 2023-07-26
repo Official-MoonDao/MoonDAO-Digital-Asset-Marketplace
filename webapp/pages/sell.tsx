@@ -27,6 +27,14 @@ export default function Sell() {
   const { contract: marketplace, isLoading: loadingContract }: any =
     useContract(MARKETPLACE_ADDRESS, "marketplace-v3");
 
+  const [batch, setBatch] = useState<any>([]);
+  const [isBatch, setIsBatch] = useState<boolean>(false);
+  const [batchType, setBatchType] = useState<
+    "direct" | "auction" | undefined
+  >();
+  const listingBatch = useListingBatch(marketplace);
+  const auctionBatch = useAuctionBatch(marketplace);
+
   const [loading, setLoading] = useState<boolean>(false);
 
   const [validListings, setValidListings] = useState<any>();
@@ -36,15 +44,9 @@ export default function Sell() {
     marketplace,
     validListings,
     validAuctions,
+    batch,
     address
   );
-
-  const [isBatch, setIsBatch] = useState<boolean>(false);
-  const [batchType, setBatchType] = useState<
-    "direct" | "auction" | undefined
-  >();
-  const listingBatch = useListingBatch(marketplace);
-  const auctionBatch = useAuctionBatch(marketplace);
 
   useEffect(() => {
     if (marketplace && !validListings && !validAuctions) {
@@ -63,9 +65,9 @@ export default function Sell() {
   //set batch type
   useEffect(() => {
     if (isBatch) {
-      if (listingBatch.listings.length > 0) {
+      if (listingBatch.data?.listings.length > 0) {
         setBatchType("direct");
-      } else if (auctionBatch.auctions.length > 0) {
+      } else if (auctionBatch.data?.auctions.length > 0) {
         setBatchType("auction");
       }
     }
@@ -103,6 +105,9 @@ export default function Sell() {
               {isBatch && (
                 <ManageBatch
                   batchType={batchType}
+                  setBatchType={setBatchType}
+                  batch={batch}
+                  setBatch={setBatch}
                   listingBatch={listingBatch}
                   auctionBatch={auctionBatch}
                 />

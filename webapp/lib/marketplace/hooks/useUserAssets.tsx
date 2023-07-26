@@ -14,10 +14,11 @@ export function useUserAssets(
   marketplace: MarketplaceV3 | undefined,
   validListings: DirectListing[],
   validAuctions: AuctionListing[],
+  batch: any,
   walletAddress: string
 ) {
   const [assets, setAssets] = useState<any>();
-  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const signer: any = useSigner();
   const networkMismatch = useNetworkMismatch();
 
@@ -32,14 +33,12 @@ export function useUserAssets(
       marketplace &&
       signer &&
       !networkMismatch &&
-      !assets &&
       profileAuctions &&
       profileListings &&
       !loadingProfileListings
     ) {
-      setLoading(true);
+      setIsLoading(true);
       marketplace.roles.get("asset").then(async (res: any) => {
-        setAssets(undefined);
         await res.forEach(async (collection: any) => {
           if (networkMismatch) return;
 
@@ -54,21 +53,32 @@ export function useUserAssets(
               if (profileListings?.[0] || profileAuctions?.[0]) {
                 ownedAssets = await ownedAssets.map((asset: any) => {
                   const ownedQuantity = asset.quantityOwned;
-
                   //only count direct listings, auction listings are automatically subtracted from asset.quantityOwned
-                  const listedQuantity = profileListings?.reduce(
-                    (arr: number, listing: any) =>
-                      listing.assetContractAddress.toLowerCase() ===
-                        collection.toLowerCase() &&
-                      listing.tokenId === asset.metadata.id
-                        ? arr + Number(listing?.quantity)
-                        : arr,
-                    0
-                  );
+                  const listedQuantity =
+                    profileListings?.reduce(
+                      (arr: number, listing: any) =>
+                        listing.assetContractAddress.toLowerCase() ===
+                          collection.toLowerCase() &&
+                        listing.tokenId === asset.metadata.id
+                          ? arr + Number(listing?.quantity)
+                          : arr,
+                      0
+                    ) || 0;
+
+                  const batchListedQuantity =
+                    batch?.reduce(
+                      (arr: number, listing: any) =>
+                        listing.assetContractAddress.toLowerCase() ===
+                          collection.toLowerCase() &&
+                        listing.tokenId === asset.metadata.id
+                          ? arr + Number(listing?.quantity)
+                          : arr,
+                      0
+                    ) || 0 + listedQuantity;
 
                   return {
                     ...asset,
-                    quantityOwned: ownedQuantity - listedQuantity,
+                    quantityOwned: ownedQuantity - batchListedQuantity,
                   };
                 });
               }
@@ -91,6 +101,18 @@ export function useUserAssets(
                       )
                   )
                   .map((asset: any) => ({ ...asset, quantityOwned: "1" }));
+
+                //check for batch listing
+                if (batch?.[0]) {
+                  ownedAssets = ownedAssets.filter(
+                    (asset: any) =>
+                      !batch?.find(
+                        (listing: any) =>
+                          listing.assetContractAddress === collection &&
+                          listing.tokenId === asset.metadata.id
+                      )
+                  );
+                }
               } else {
                 ownedAssets = ownedAssets.map((asset: any) => ({
                   ...asset,
@@ -108,32 +130,23 @@ export function useUserAssets(
             }));
 
             //add ownedAssets to assets array and filter out any duplicates (on address change duplicates are created and then filtered out, this is a quick fix)
-            ownedAssets.length > 0
-              ? setAssets((prev: any) =>
-                  prev
-                    ? [
-                        ...prev.filter((a: any) => a.collection !== collection),
-                        ...ownedAssets,
-                      ]
-                    : ownedAssets
-                )
-              : setAssets(undefined);
-            setLoading(false);
-            console.log(ownedAssets);
+            ownedAssets.length > 0 &&
+              setAssets((prev: any) =>
+                prev
+                  ? [
+                      ...prev.filter((a: any) => a.collection !== collection),
+                      ...ownedAssets,
+                    ]
+                  : ownedAssets
+              );
           } catch (err: any) {
             console.log(err.message);
           }
+          setIsLoading(false);
         });
       });
     }
-  }, [
-    marketplace,
-    signer,
-    profileListings,
-    profileAuctions,
-    walletAddress,
-    assets,
-  ]);
+  }, [batch, signer, profileListings, profileAuctions, walletAddress]);
 
   useEffect(() => {
     if (signer && walletAddress) {
@@ -142,5 +155,5 @@ export function useUserAssets(
       }
     }
   }, [signer, walletAddress]);
-  return { assets, isLoading: loading };
+  return { assets, isLoading };
 }

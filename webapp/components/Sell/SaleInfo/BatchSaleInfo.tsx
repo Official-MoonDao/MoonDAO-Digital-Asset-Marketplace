@@ -54,15 +54,11 @@ export default function BatchSaleInfo({
 
   //Check if user has balance for quanity
   function checkBalance(quantity: string | number) {
-    const queuedQuantity = listingBatch.listings.reduce(
-      (acc: number, listing: any) => {
-        return listing.tokenId === nft.metadata.id
-          ? acc + +listing.quantity
-          : acc;
-      },
-      0
-    );
-    const hasBalance = nft && nft.quantityOwned - queuedQuantity >= +quantity;
+    const batch =
+      batchType === "direct"
+        ? listingBatch.data.listings
+        : auctionBatch.data.auctions;
+    const hasBalance = nft && nft.quantityOwned >= +quantity;
     !hasBalance && toast.error("Insufficient balance");
     return hasBalance;
   }
@@ -144,7 +140,9 @@ export default function BatchSaleInfo({
       startTimestamp: startDate,
       endTimestamp: endDate,
     };
-    auctionBatch.addAuction(auction);
+    const batchData = { auction, nft }; //pass auction w/ nft so it can render in manage batch
+
+    auctionBatch.addAuction(batchData);
     setSelectedNft(undefined);
     toast("The auction was successfully added to the batch!", {
       icon: "🚀",
@@ -170,7 +168,8 @@ export default function BatchSaleInfo({
       isReservedListing: false,
     };
 
-    listingBatch.addListing(listing);
+    const batchData = { listing, nft }; //pass listing w/ nft so it can render in manage batch
+    listingBatch.addListing(batchData);
     setSelectedNft(undefined);
     toast("The listing was successfully added to batch!", {
       icon: "🚀",
@@ -318,9 +317,9 @@ export default function BatchSaleInfo({
                   <Web3Button
                     className="connect-button"
                     contractAddress={MARKETPLACE_ADDRESS}
-                    action={async () => {
-                      await handleSubmitDirect(handleSubmissionDirect)();
-                    }}
+                    action={async () =>
+                      await handleSubmitDirect(handleSubmissionDirect)()
+                    }
                     onError={(error) => {
                       toast(`Listed Failed! Reason: ${error.cause}`, {
                         icon: "❌",

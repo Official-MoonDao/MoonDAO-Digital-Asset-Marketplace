@@ -4,28 +4,43 @@ import { toast } from "react-hot-toast";
 
 export function useListingBatch(marketplace: MarketplaceV3) {
   const [listings, setListings] = useState<any[]>([]);
-
-  function addListing(listing: any) {
+  const [nfts, setNfts] = useState<any[]>([]);
+  function addListing({ listing, nft }: any) {
+    setNfts((prev) => [...prev, nft]);
     setListings((prev) => [...prev, listing]);
   }
 
   function removeListing(listingIndex: number) {
+    setNfts(nfts.filter((_, i) => i !== listingIndex));
     setListings(listings.filter((_, i) => i !== listingIndex));
   }
 
   function clearAll() {
+    setNfts([]);
     setListings([]);
   }
 
-  function listAll() {
+  async function listAll() {
     if (listings.length <= 1)
       toast.error("You must add at least 2 listings to create a batch listing");
-    else
-      marketplace.directListings
-        .createListingsBatch(listings)
-        .then(() => toast.success("Listings created successfully"))
-        .catch(() => toast.error("Error creating listings"));
+    else {
+      try {
+        const tx = await marketplace.directListings.createListingsBatch(
+          listings
+        );
+        toast.success("Listings created successfully");
+        return tx;
+      } catch (err) {
+        toast.error("Error creating listings");
+      }
+    }
   }
 
-  return { listings, addListing, removeListing, listAll, clearAll };
+  return {
+    data: { listings, nfts },
+    addListing,
+    removeListing,
+    listAll,
+    clearAll,
+  };
 }
