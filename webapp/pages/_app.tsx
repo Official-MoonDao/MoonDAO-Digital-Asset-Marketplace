@@ -9,7 +9,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThirdwebProvider activeChain={NETWORK}>
       {/* Progress bar when navigating between pages */}
-
       <NextNProgress
         color="var(--color-tertiary)"
         startPosition={0.3}

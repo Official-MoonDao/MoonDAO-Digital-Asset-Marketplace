@@ -1,6 +1,5 @@
 import { ThirdwebNftMedia, useAddress, useContract } from "@thirdweb-dev/react";
 import React, { useEffect, useState } from "react";
-import SaleInfo from "../components/Sell/SaleInfo/SingleSaleInfo";
 import { useRouter } from "next/router";
 import { useUserAssets } from "../lib/marketplace/hooks";
 import {
@@ -113,9 +112,6 @@ export default function Sell() {
                 />
               )}
             </div>
-            <p className="text-center mt-10 lg:mt-12 text-lg md:text-left text-white opacity-80">
-              Select which NFT you want to sell below
-            </p>
             {/*Asset grid */}
             <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
               {userAssets[0]?.metadata?.id &&

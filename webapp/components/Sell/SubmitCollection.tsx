@@ -38,7 +38,6 @@ export default function SubmitCollection() {
           </button>
           <iframe
             className="w-full min-h-[600px] rounded-lg"
-            allowTransparency={true}
             src={
               "https://circles.spect.network/r/ad645285-65ef-4aec-b314-d8d0659cccd8/embed?mode=light"
             }
