@@ -7,7 +7,10 @@ import { NETWORK } from "../const/config";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <ThirdwebProvider activeChain={NETWORK}>
+    <ThirdwebProvider
+      clientId={process.env.NEXT_PUBLIC_THIRDWEB_CLIENT_ID}
+      activeChain={NETWORK}
+    >
       {/* Progress bar when navigating between pages */}
       <NextNProgress
         color="var(--color-tertiary)"
