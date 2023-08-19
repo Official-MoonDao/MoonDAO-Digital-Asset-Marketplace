@@ -409,6 +409,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     props: {
       contractAddress,
       tokenId,
+      nft,
     },
   };
 };
