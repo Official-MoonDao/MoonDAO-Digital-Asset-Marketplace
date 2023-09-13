@@ -54,7 +54,7 @@ export default function Footer() {
       </svg>
       <div className="mt-8 flex flex-col md:flex-row items-center gap-8 md:gap-[34px]">
         <Link
-          href="https://docs.moondao.com/privacy-policy/"
+          href="https://publish.obsidian.md/moondao/MoonDAO/docs/Legal/Website+Privacy+Policy"
           className="font-bold text-moon-white tracking-wide hover:scale-105"
         >
           Privacy
