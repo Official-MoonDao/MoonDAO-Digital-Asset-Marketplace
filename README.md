@@ -47,9 +47,9 @@ The webapp is built on a NextJS framework, using mainly React and Tailwind for t
 
 Read the documentation to get started [WebApp Documentation](/webapp/README.md)
 
-## [Subgraphs](/subgraphs/)
+## [Subgraph](/subgraph/)
 
-Subgraphs for the Thirdweb MarketplaceV3 contract.
-These subgraphs allow historical data to be filtered and queried for all events emitted by the MarketplaceV3 contract on different networks.
+Subgraph for the Thirdweb MarketplaceV3 contract.
+This subgraph allows historical data to be filtered and queried for all events emitted by the MarketplaceV3 contract.
 
 Learn how to deploy a subgraph => [Deploy a subgraph](https://thegraph.com/docs/en/deploying/deploying-a-subgraph-to-studio/)
