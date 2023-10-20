@@ -1,5 +1,5 @@
 {
-  "name": "moondao-marketplace-test",
+  "name": "moondao-marketplace-subgraph",
   "license": "Apache License Version 2.0",
   "scripts": {
     "codegen": "graph codegen",
