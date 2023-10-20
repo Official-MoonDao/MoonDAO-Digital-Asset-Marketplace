@@ -98,6 +98,6 @@ export async function getStaticProps() {
       _validListings: validListings,
       _validAuctions: validAuctions,
     },
-    revalidate: 10,
+    revalidate: 60,
   };
 }
