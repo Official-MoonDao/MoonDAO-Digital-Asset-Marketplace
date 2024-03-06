@@ -4,7 +4,7 @@ import SectionHeader from "../../Layout/SectionHeader";
 
 export default function CollectionShowcase({ collections, validListings, validAuctions }) {
   return (
-    <div className="z-50 mt-10 md:mt-12 lg:mt-32 2xl:mt-48 m flex flex-col items-center w-full">
+    <div id="collection-showcase" className="z-50 mt-10 md:mt-12 lg:mt-32 2xl:mt-48 m flex flex-col items-center w-full">
       <div className="relative">
       <span className="-top-2 opacity-40 blur-2xl lg:blur-3xl lg:opacity-50 absolute h-[35px] w-full bg-gradient-to-br from-moon-gold via-yellow-500 to-moon-gold rounded-full "></span>
       <SectionHeader title="Popular collections" />
