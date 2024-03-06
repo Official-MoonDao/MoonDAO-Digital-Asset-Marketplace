@@ -35,3 +35,14 @@
 //     }
 //   }
 // }
+
+//Mute XHR & Fetch requests
+Cypress.on("log:changed", (log, interactive) => {
+  if (log.displayName !== "fetch") return;
+  const windo: any = window;
+  const logs = windo?.top.document.querySelectorAll("li.command-name-request");
+  if (logs.length) {
+    const last = [...logs][logs.length - 1];
+    last.remove();
+  }
+});
