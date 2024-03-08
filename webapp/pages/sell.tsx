@@ -75,7 +75,7 @@ export default function Sell() {
   //Handling if user has no NFTs or is connected to the wrong network
   if (!address || loadingUserAssets || !userAssets?.[0] || loading) {
     return (
-      <>
+      <div id="sell-page-no-assets">
         <NoAssets
           address={address}
           userAssets={userAssets}
@@ -84,7 +84,7 @@ export default function Sell() {
         <div className="w-full">
           <SubmitCollection />
         </div>
-      </>
+      </div>
     );
   }
 
@@ -99,7 +99,7 @@ export default function Sell() {
                 <VerticalStar />
               </span>
             </h2>
-            <div className="mt-8">
+            <div id="sell-controls" className="mt-8">
               <ToggleSaleInfo isBatch={isBatch} setIsBatch={setIsBatch} />
               {isBatch && (
                 <ManageBatch
@@ -113,7 +113,10 @@ export default function Sell() {
               )}
             </div>
             {/*Asset grid */}
-            <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
+            <section
+              id="user-assets"
+              className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14"
+            >
               {userAssets[0]?.metadata?.id &&
                 userAssets.map(
                   (nft: any, i: number) =>
@@ -129,7 +132,7 @@ export default function Sell() {
             </section>
           </div>
           {!selectedNft?.metadata?.id && (
-            <div className="mt-32 w-full">
+            <div id="submit-collection" className="mt-32 w-full">
               <SubmitCollection />
             </div>
           )}

@@ -134,6 +134,7 @@ export default function Buy({ _validListings, _validAuctions }: BuyPageProps) {
             </div>
           </div>
           <select
+            id="buy-filter"
             className="font-bold rounded-sm px-3 mt-3 py-2 w-[230px] focus:ring ring-indigo-200"
             onChange={(e) => filterTypeChange(e)}
             ref={filterSelectionRef}
@@ -154,7 +155,10 @@ export default function Buy({ _validListings, _validAuctions }: BuyPageProps) {
             : "an asset"}
         </p>
 
-        <section className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14">
+        <section
+          id="filtered-assets"
+          className="mt-10 md:mt-16 flex flex-col gap-10 md:grid md:grid-cols-2 md:grid-flow-row md:gap-12 xl:grid-cols-3 xl:gap-14"
+        >
           {/*Collections*/}
           {filter.assetOrCollection === "collection" && (
             <>

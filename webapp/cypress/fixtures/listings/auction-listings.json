@@ -1,0 +1,134 @@
+[
+  {
+    "asset": {
+      "name": "Test Bot #5",
+      "description": "L2 Test bot for testing",
+      "image": "https://01d934bd1c9d4888e328724d5bd08d16.ipfscdn.io/ipfs/bafybeihqbawsmiqpdt4cqqhslkfuftde3zbe46alfgiygxosyr4nbaut4q/2.png",
+      "attributes": [
+        {
+          "trait_type": "type1",
+          "value": "test1"
+        },
+        {
+          "trait_type": "test2",
+          "value": "test2"
+        },
+        {
+          "trait_type": "test3",
+          "value": "test3"
+        },
+        {
+          "trait_type": "test4",
+          "value": "test4"
+        },
+        {
+          "trait_type": "test5",
+          "value": "test5"
+        }
+      ],
+      "id": "2",
+      "uri": "ipfs://QmRU2tun94n5SmtKNMkG2MmhSgwVETUfYarisHWUGynnze/2"
+    },
+    "auctionId": "16",
+    "creatorAddress": "0x0724d0eb7b6d32AEDE6F9e492a5B1436b537262b",
+    "assetContractAddress": "0xe760d08FC97b159A89f0f23b7db8023F45a4428B",
+    "tokenId": "2",
+    "quantity": "1",
+    "currencyContractAddress": "0xDE870ca93467A914160e6a6ddC75535cA7647534",
+    "minimumBidAmount": "1000000000000000000",
+    "buyoutBidAmount": "0",
+    "timeBufferInSeconds": 900,
+    "bidBufferBps": 500,
+    "startTimestamp": 1709852386,
+    "endTimestamp": 1741474740,
+    "status": 4
+  },
+  {
+    "asset": {
+      "name": "Test Bot #5",
+      "description": "L2 Test bot for testing",
+      "image": "https://01d934bd1c9d4888e328724d5bd08d16.ipfscdn.io/ipfs/bafybeihqbawsmiqpdt4cqqhslkfuftde3zbe46alfgiygxosyr4nbaut4q/2.png",
+      "attributes": [
+        {
+          "trait_type": "type1",
+          "value": "test1"
+        },
+        {
+          "trait_type": "test2",
+          "value": "test2"
+        },
+        {
+          "trait_type": "test3",
+          "value": "test3"
+        },
+        {
+          "trait_type": "test4",
+          "value": "test4"
+        },
+        {
+          "trait_type": "test5",
+          "value": "test5"
+        }
+      ],
+      "id": "2",
+      "uri": "ipfs://QmRU2tun94n5SmtKNMkG2MmhSgwVETUfYarisHWUGynnze/2"
+    },
+    "auctionId": "16",
+    "creatorAddress": "0x0724d0eb7b6d32AEDE6F9e492a5B1436b537262b",
+    "assetContractAddress": "0xe760d08FC97b159A89f0f23b7db8023F45a4428B",
+    "tokenId": "2",
+    "quantity": "1",
+    "currencyContractAddress": "0xDE870ca93467A914160e6a6ddC75535cA7647534",
+    "minimumBidAmount": "1000000000000000000",
+    "buyoutBidAmount": "0",
+    "timeBufferInSeconds": 900,
+    "bidBufferBps": 500,
+    "startTimestamp": 1709852386,
+    "endTimestamp": 1741474740,
+    "status": 4
+  },
+  {
+    "asset": {
+      "name": "Test Bot #5",
+      "description": "L2 Test bot for testing",
+      "image": "https://01d934bd1c9d4888e328724d5bd08d16.ipfscdn.io/ipfs/bafybeihqbawsmiqpdt4cqqhslkfuftde3zbe46alfgiygxosyr4nbaut4q/2.png",
+      "attributes": [
+        {
+          "trait_type": "type1",
+          "value": "test1"
+        },
+        {
+          "trait_type": "test2",
+          "value": "test2"
+        },
+        {
+          "trait_type": "test3",
+          "value": "test3"
+        },
+        {
+          "trait_type": "test4",
+          "value": "test4"
+        },
+        {
+          "trait_type": "test5",
+          "value": "test5"
+        }
+      ],
+      "id": "2",
+      "uri": "ipfs://QmRU2tun94n5SmtKNMkG2MmhSgwVETUfYarisHWUGynnze/2"
+    },
+    "auctionId": "16",
+    "creatorAddress": "0x0724d0eb7b6d32AEDE6F9e492a5B1436b537262b",
+    "assetContractAddress": "0xe760d08FC97b159A89f0f23b7db8023F45a4428B",
+    "tokenId": "2",
+    "quantity": "1",
+    "currencyContractAddress": "0xDE870ca93467A914160e6a6ddC75535cA7647534",
+    "minimumBidAmount": "1000000000000000000",
+    "buyoutBidAmount": "0",
+    "timeBufferInSeconds": 900,
+    "bidBufferBps": 500,
+    "startTimestamp": 1709852386,
+    "endTimestamp": 1741474740,
+    "status": 4
+  }
+]
