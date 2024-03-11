@@ -5,7 +5,6 @@ import { SmartContract } from "@thirdweb-dev/sdk";
 import { useCurrBlockNum } from "../../lib/utils/hooks";
 
 interface AssetHistoryProps {
-  marketplace: SmartContract | undefined;
   contract: SmartContract | undefined;
   tokenId: string;
 }
@@ -27,7 +26,10 @@ export default function AssetHistory({ contract, tokenId }: AssetHistoryProps) {
       <h3 className="mt-8 mb-[15px] text-[23px] font-medium font-GoodTimes text-moon-gold">
         History
       </h3>
-      <div className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20 max-h-[410px] overflow-y-scroll">
+      <div
+        id="asset-transfer-events"
+        className="flex flex-wrap gap-4 mt-3 bg-white bg-opacity-[0.13] border border-white border-opacity-20 max-h-[410px] overflow-y-scroll"
+      >
         {transferEvents &&
           transferEvents[0] &&
           transferEvents.map((event: any, index: number) => (

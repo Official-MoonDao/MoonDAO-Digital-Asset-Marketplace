@@ -1,18 +1,11 @@
-import {
-  MediaRenderer,
-  ThirdwebNftMedia,
-  useContract,
-  useNFT,
-} from "@thirdweb-dev/react";
+import { MediaRenderer } from "@thirdweb-dev/react";
 import LogoSmall from "../../assets/LogoSmall";
-import { useRouter } from "next/router";
 import { useAssetStats } from "../../lib/marketplace/hooks";
-import Skeleton from "../Layout/Skeleton";
-import Image from "next/image";
 import {
   AuctionListing,
   DirectListing,
 } from "../../lib/marketplace/marketplace-utils";
+import Link from "next/link";
 
 type AssetPreviewProps = {
   listing: DirectListing | AuctionListing;
@@ -25,7 +18,6 @@ export default function AssetPreview({
   validListings,
   validAuctions,
 }: AssetPreviewProps) {
-  const router = useRouter();
   const { floorPrice, listed, supply } = useAssetStats(
     validListings,
     validAuctions,
@@ -35,19 +27,16 @@ export default function AssetPreview({
   if (!listing?.asset) return <div>NFT not found!</div>;
 
   return (
-    <article className="relative group overflow-hidden">
+    <Link
+      href={`/collection/${listing.assetContractAddress}/${listing.tokenId}`}
+      className="relative group overflow-hidden"
+    >
       {/*Stamps to cut corners*/}
       <div className="bg-main-background h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -left-8 -top-3"></div>
       <div className="bg-main-background h-[40px] w-[100px] z-50 rotate-[-32.17deg] absolute -right-8 -bottom-3"></div>
       {/*Image container to create zoom effect*/}
       <div className="w-[335px] h-[275px] overflow-hidden">
-        <button
-          onClick={() =>
-            router.push(
-              `/collection/${listing.assetContractAddress}/${listing.tokenId}`
-            )
-          }
-        >
+        <button>
           <MediaRenderer
             className="object-cover object-center group-hover:scale-110 transition-all duration-200"
             src={listing.asset.image}
@@ -70,18 +59,8 @@ export default function AssetPreview({
         </div>
         <div className="mt-5 pr-9 flex flex-col items-end">
           <p className="font-bold text-xl">#{listing.tokenId}</p>
-          <button
-            onClick={() =>
-              router.push(
-                `/collection/${listing.assetContractAddress}/${listing.tokenId}`
-              )
-            }
-            className="absolute top-12 mt-10 border-[0.5px] hover:scale-105 px-[10px] py-[4px] transition-all duration-150 hover:bg-slate-900 rounded-tl-[10px] rounded-br-[10px]"
-          >
-            <a>Buy now</a>
-          </button>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

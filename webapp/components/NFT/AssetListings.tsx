@@ -69,7 +69,10 @@ export default function AssetListings({
           <p className="opacity-60 mt-1 p-2 bg-moon-orange text-black rounded-sm">
             Direct Listings :
           </p>
-          <div className="max-h-[250px] overflow-y-scroll divide-y-2 divide-moon-gold divide-opacity-30">
+          <div
+            id="asset-direct-listings"
+            className="max-h-[250px] overflow-y-scroll divide-y-2 divide-moon-gold divide-opacity-30"
+          >
             {directListings[0] &&
               directListings.map((l: any, i: number) => (
                 <div
@@ -97,6 +100,7 @@ export default function AssetListings({
             Auction Listings :
           </p>
           <div
+            id="asset-auction-listings"
             className={
               "max-h-[250px] overflow-y-scroll divide-y-2 divide-moon-gold divide-opacity-25"
             }

@@ -47,4 +47,4 @@ Cypress.on("log:changed", (log, interactive) => {
   }
 });
 
-export {}
+export {};

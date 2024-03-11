@@ -15,6 +15,7 @@
 // Import commands.js using ES2015 syntax:
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+import * as NextRouter from "next/router";
 import { mount } from "cypress/react18";
 import "./commands";
 
@@ -31,6 +32,7 @@ declare global {
     interface Chainable {
       mount: typeof mount;
       getById: GetById;
+      mountNextRouter: (pathname: string) => void;
     }
   }
 }
@@ -42,6 +44,18 @@ Cypress.Commands.add("mount", mount);
 Cypress.Commands.add("getById", (input: any) => {
   cy.get(`[data-cy=${input}]`);
 });
+
+Cypress.Commands.add("mountNextRouter", (pathname: string) => {
+  const push = cy.stub();
+  cy.stub(NextRouter, "useRouter").returns({ pathname, push });
+});
 // Example use:
 // React: <div data-cy="my-id" />
 // Cypress: cy.getById('my-id')
+
+/*
+//Mock Next.js Router
+    const pathname = `/collection/${assetContractAddress}/${tokenId}`;
+    const push = cy.stub();
+    cy.stub(NextRouter, "useRouter").returns({ pathname, push });
+*/

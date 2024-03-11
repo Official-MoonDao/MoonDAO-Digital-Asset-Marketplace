@@ -1,12 +1,12 @@
 import React from "react";
-import AssetPreview from "../../../components/Collection/AssetPreview";
-import * as NextRouter from "next/router";
 import {
   AuctionListing,
   DirectListing,
 } from "../../../lib/marketplace/marketplace-utils";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
-describe("<AssetPreview />", () => {
+import TrendingThumbnail from "../../../components/Home/Showcases/TrendingThumbnail";
+
+describe("<TrendingThumbnail />", () => {
   let dummyDirectListings: DirectListing[];
   let dummyAuctionListings: AuctionListing[];
   before(() => {
@@ -17,26 +17,29 @@ describe("<AssetPreview />", () => {
       (auctions) => (dummyAuctionListings = auctions)
     );
   });
-  it("Renders Asset Preview", () => {
+  it("Renders Trending Thumbnail", () => {
     const { assetContractAddress, tokenId } = dummyDirectListings[0];
 
     cy.mount(
       <ThirdwebProvider>
-        <AssetPreview
-          listing={dummyDirectListings[0]}
+        <TrendingThumbnail
+          asset={dummyDirectListings[0]}
           validAuctions={dummyAuctionListings}
           validListings={dummyDirectListings}
         />
       </ThirdwebProvider>
     );
 
-    cy.get("img")
-      .should("have.attr", "src")
-      .then((src) => {
-        expect(src).to.equal(dummyDirectListings[0].asset.image);
-      });
+    cy.get("a").should(
+      "have.attr",
+      "href",
+      `/collection/${assetContractAddress}/${tokenId}`
+    );
 
-    //get anchor tag
-    cy.get("a").should("have.attr", "href", `/collection/${assetContractAddress}/${tokenId}`);
+    cy.get("img").should(
+      "have.attr",
+      "src",
+      dummyDirectListings[0].asset.image
+    );
   });
 });
