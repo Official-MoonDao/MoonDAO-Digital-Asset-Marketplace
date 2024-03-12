@@ -78,7 +78,7 @@ export default function AssetListings({
                 <div
                   key={`erc-1155-direct-listing-container-${i}`}
                   className={`flex flex-col mt-1 md:px-2 rounded-sm ${
-                    currListing.listing.listingId === l.listingId &&
+                    currListing.listing?.listingId === l?.listingId &&
                     "bg-[#ffffff30]"
                   }`}
                 >
@@ -110,7 +110,7 @@ export default function AssetListings({
                 <div
                   key={`erc-1155-auction-listing-container-${i}`}
                   className={`flex flex-col mt-1 md:px-2 rounded-sm ${
-                    currListing.listing.auctionId === a.auctionId &&
+                    currListing.listing?.auctionId === a?.auctionId &&
                     "bg-[#ffffff30]"
                   }`}
                 >

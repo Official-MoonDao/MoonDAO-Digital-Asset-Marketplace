@@ -16,7 +16,7 @@ describe("<AssetListings />", () => {
       (auctions) => (dummyAuctionListings = auctions)
     );
   });
-  it("Renders Asset Listings", () => {
+  it("Renders Asset Listings w/ Direct Listings", () => {
     cy.mount(
       <AssetListings
         tab={"listings"}
@@ -29,6 +29,18 @@ describe("<AssetListings />", () => {
     );
 
     cy.get("#asset-direct-listings").children().should("have.length", 3);
+  });
+  it("Renders Asset Listings w/ Auction Listings", () => {
+    cy.mount(
+      <AssetListings
+        tab={"auctions"}
+        setTab={() => {}}
+        auctionListings={dummyAuctionListings}
+        directListings={dummyDirectListings}
+        currListing={dummyAuctionListings[0]}
+        setCurrListing={() => {}}
+      />
+    );
 
     cy.get("#asset-auction-listings").children().should("have.length", 3);
   });
