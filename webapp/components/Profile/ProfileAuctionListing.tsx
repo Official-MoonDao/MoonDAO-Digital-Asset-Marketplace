@@ -9,11 +9,13 @@ import { useClaimableAuction } from "../../lib/marketplace/hooks";
 import CancelListing from "./CancelListing";
 
 interface ProfileAuctionListingProps {
+  marketplace: any;
   listing: AuctionListing;
   walletAddress: string;
 }
 
 export default function ProfileAuctionListing({
+  marketplace,
   listing,
   walletAddress,
 }: ProfileAuctionListingProps) {
@@ -23,11 +25,6 @@ export default function ProfileAuctionListing({
 
   const [winningBidObj, setWinningBidObj] = useState<any>();
   const [loadingBid, setLoadingBid] = useState<boolean>(true);
-
-  const { contract: marketplace } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
 
   const claimable = useClaimableAuction(winningBidObj, +buyOut, end);
 
@@ -82,28 +79,35 @@ export default function ProfileAuctionListing({
 
       <div className="w-[300px] rounded-b-xl -mt-2 py-2 px-3 flex flex-col gap-3 bg-gradient-to-br from-moon-secondary via-indigo-900 to-moon-secondary">
         {/*Title*/}
-        <h4 className="font-GoodTimes tracking-wider text-lg">
+        <h4
+          id="profile-auction-asset-name"
+          className="font-GoodTimes tracking-wider text-lg"
+        >
           {listing.asset.name}
         </h4>
         {/*Quantity*/}
         <div>
           <p className="text-sm opacity-80">Quantity</p>
-          <p className="tracking-wide">{listing.quantity}</p>
+          <p id="profile-auction-asset-quantity" className="tracking-wide">
+            {listing.quantity}
+          </p>
         </div>
         {/*Price*/}
         <div>
           <p className="text-sm opacity-80">Buyout price</p>
-          <p className="tracking-wide">{`${Math.round(
-            +buyOut / MOONEY_DECIMALS
-          )} MOONEY`}</p>
+          <p
+            id="profile-auction-asset-buyout"
+            className="tracking-wide"
+          >{`${Math.round(+buyOut / MOONEY_DECIMALS)} MOONEY`}</p>
         </div>
 
         {/*Minimum bid*/}
         <div>
           <p className="text-sm opacity-80">Minimum bid</p>
-          <p className="tracking-wide">{`${Math.round(
-            +minBid / MOONEY_DECIMALS
-          )} MOONEY`}</p>
+          <p
+            id="profile-auction-asset-min-bid"
+            className="tracking-wide"
+          >{`${Math.round(+minBid / MOONEY_DECIMALS)} MOONEY`}</p>
         </div>
         {/*Winning bid*/}
         <div>
@@ -115,7 +119,9 @@ export default function ProfileAuctionListing({
         {/*Expiration Date */}
         <div>
           <p className="text-sm opacity-80">Listing Expiration</p>
-          <p>{`${new Date(+end * 1000).toLocaleDateString()} @ ${new Date(
+          <p id="profile-auction-asset-exp">{`${new Date(
+            +end * 1000
+          ).toLocaleDateString()} @ ${new Date(
             +end * 1000
           ).toLocaleTimeString()}`}</p>
         </div>

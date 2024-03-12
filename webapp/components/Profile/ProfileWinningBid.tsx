@@ -6,21 +6,18 @@ import { useEffect, useState } from "react";
 import ClaimAsset from "./ClaimAsset";
 
 interface ProfileAuctionListingProps {
+  marketplace: any;
   listing: AuctionListing;
   walletAddress: string;
 }
 
 export default function ProfileWinningBid({
+  marketplace,
   listing,
   walletAddress,
 }: ProfileAuctionListingProps) {
   const [winningBidObj, setWinningBidObj] = useState<any>();
   const [loadingBid, setLoadingBid] = useState<boolean>(true);
-
-  const { contract: marketplace } = useContract(
-    MARKETPLACE_ADDRESS,
-    "marketplace-v3"
-  );
 
   useEffect(() => {
     if (marketplace && listing?.auctionId) {

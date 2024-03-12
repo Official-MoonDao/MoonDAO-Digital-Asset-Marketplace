@@ -139,7 +139,11 @@ export default function ProfilePage({
         }`}
       >
         {marketplace && !loadingListings ? (
-          <ProfileListingGrid listings={listings} type="direct" />
+          <ProfileListingGrid
+            listings={listings}
+            type="direct"
+            marketplace={marketplace}
+          />
         ) : (
           <Skeleton />
         )}
@@ -156,6 +160,7 @@ export default function ProfilePage({
           <ProfileListingGrid
             listings={auctions?.filter((a: AuctionListing) => a.status !== 2)}
             type="auction"
+            marketplace={marketplace}
           />
         ) : (
           <Skeleton />
@@ -169,7 +174,11 @@ export default function ProfilePage({
         }`}
       >
         {marketplace && !loadingListings ? (
-          <ProfileListingGrid listings={assetsWon} type="winningBids" />
+          <ProfileListingGrid
+            listings={assetsWon}
+            type="winningBids"
+            marketplace={marketplace}
+          />
         ) : (
           <Skeleton />
         )}

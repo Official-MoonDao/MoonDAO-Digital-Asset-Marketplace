@@ -46,25 +46,33 @@ export default function ProfileDirectListing({
       </div>
       <div className="w-[300px] rounded-b-xl -mt-2 py-2 px-3 flex flex-col gap-3 bg-gradient-to-br from-moon-secondary via-indigo-900 to-moon-secondary">
         {/*Title*/}
-        <h4 className="font-GoodTimes tracking-wider text-lg">
+        <h4
+          id="profile-direct-asset-name"
+          className="font-GoodTimes tracking-wider text-lg"
+        >
           {listing.asset.name}
         </h4>
         {/*Quantity*/}
         <div>
           <p className="text-sm opacity-80">Quantity</p>
-          <p className="tracking-wide">{listing.quantity}</p>
+          <p id="profile-direct-asset-quantity" className="tracking-wide">
+            {listing.quantity}
+          </p>
         </div>
         {/*Price */}
         <div>
           <p className="text-sm opacity-80">Price</p>
-          <p className="tracking-wide">{`${
-           Math.round( +buyOut / MOONEY_DECIMALS)
-          } MOONEY`}</p>
+          <p
+            id="profile-direct-asset-buyout"
+            className="tracking-wide"
+          >{`${Math.round(+buyOut / MOONEY_DECIMALS)} MOONEY`}</p>
         </div>
         {/*Expiration date*/}
         <div>
           <p className="text-sm opacity-80">Listing Expiration</p>
-          <p>{`${new Date(+end * 1000).toLocaleDateString()} @ ${new Date(
+          <p id="profile-direct-asset-exp">{`${new Date(
+            +end * 1000
+          ).toLocaleDateString()} @ ${new Date(
             +end * 1000
           ).toLocaleTimeString()}`}</p>
         </div>

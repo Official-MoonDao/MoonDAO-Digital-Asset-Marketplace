@@ -7,7 +7,11 @@ import {
 import { useAddress } from "@thirdweb-dev/react";
 import ProfileWinningBid from "./ProfileWinningBid";
 
-export default function ProfileListingGrid({ listings, type = "direct" }: any) {
+export default function ProfileListingGrid({
+  marketplace,
+  listings,
+  type = "direct",
+}: any) {
   const address = useAddress();
   return (
     <div className="flex flex-wrap gap-[1%] w-full">
@@ -27,6 +31,7 @@ export default function ProfileListingGrid({ listings, type = "direct" }: any) {
                 key={`profile-auction-listing-${i}`}
                 listing={a}
                 walletAddress={address || ""}
+                marketplace={marketplace}
               />
             ))}
           {type === "winningBids" &&
@@ -35,6 +40,7 @@ export default function ProfileListingGrid({ listings, type = "direct" }: any) {
                 key={`profile-winning-bid-${i}`}
                 listing={a}
                 walletAddress={address || ""}
+                marketplace={marketplace}
               />
             ))}
         </>
