@@ -111,7 +111,10 @@ export default function BuyOrBid({
             </div>
           ) : (
             <>
-              <div className="flex justify-evenly items-center">
+              <div
+                id="buy-asset-container"
+                className="flex justify-evenly items-center"
+              >
                 <Web3Button
                   contractAddress={MARKETPLACE_ADDRESS}
                   action={async () => await buyListing()}
@@ -159,7 +162,7 @@ export default function BuyOrBid({
               {currListing &&
                 walletAddress &&
                 currListing.type === "auction" && (
-                  <>
+                  <div id="bid-asset-container">
                     <div className="flex items-center justify-center m-0 my-4">
                       <p className="text-sm leading-6 text-white text-opacity-60 m-0">
                         or
@@ -205,7 +208,7 @@ export default function BuyOrBid({
                         "tab to claim your asset, if the auction creator has already claimed the payout this will be done automatically*"
                       }
                     </p>
-                  </>
+                  </div>
                 )}
             </>
           )}

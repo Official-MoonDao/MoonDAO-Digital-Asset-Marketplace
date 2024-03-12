@@ -3,7 +3,6 @@ import {
   AuctionListing,
   DirectListing,
 } from "../../../lib/marketplace/marketplace-utils";
-import { ThirdwebProvider } from "@thirdweb-dev/react";
 import AssetListings from "../../../components/NFT/AssetListings";
 
 describe("<AssetListings />", () => {
@@ -17,7 +16,7 @@ describe("<AssetListings />", () => {
       (auctions) => (dummyAuctionListings = auctions)
     );
   });
-  it("Renders Asset Listings", async () => {
+  it("Renders Asset Listings", () => {
     cy.mount(
       <AssetListings
         tab={"listings"}
