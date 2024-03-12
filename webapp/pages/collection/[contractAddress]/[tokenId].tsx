@@ -167,7 +167,6 @@ export default function TokenPage({
               {/*History*/}
               {currListing?.listing && nft.type === "ERC721" && (
                 <AssetHistory
-                  marketplace={marketplace}
                   contract={nftCollection}
                   tokenId={currListing.listing.tokenId}
                 />
