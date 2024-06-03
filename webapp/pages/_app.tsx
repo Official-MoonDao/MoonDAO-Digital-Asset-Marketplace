@@ -22,7 +22,19 @@ function MyApp({ Component, pageProps }: any) {
       ]}
     >
       <Layout>
-        <Component {...pageProps} />
+        {/* <Component {...pageProps} /> */}
+        <div className="flex flex-col items-center justify-center w-full h-[35vh]">
+          <p className="text-xl w-3/4">
+            {`Thank you for visiting the MoonDAO Marketplace.`}
+            <br></br>
+            <br></br>
+            {`
+We're currently undergoing some maintenance to improve your experience. We apologize for any inconvenience this may cause and appreciate your patience.`}
+            <br></br>
+            Our team is working hard to bring the marketplace back online as
+            soon as possible.
+          </p>
+        </div>
       </Layout>
     </ThirdwebProvider>
   );
