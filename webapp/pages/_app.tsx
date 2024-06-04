@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }: any) {
     >
       <Layout>
         {/* <Component {...pageProps} /> */}
-        <div className="flex flex-col items-center justify-center w-full h-[35vh]">
+        <div className="flex flex-col items-center justify-center w-full h-[70vh]">
           <p className="text-xl w-3/4">
             {`Thank you for visiting the MoonDAO Marketplace.`}
             <br></br>
